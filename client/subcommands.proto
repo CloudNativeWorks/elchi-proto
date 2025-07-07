@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+enum SubCommandType {
+  // SERVICES
+  SUB_UNKNOWN = 0;
+  SUB_START = 1;
+  SUB_STOP = 2;
+  SUB_RESTART = 3;
+  SUB_RELOAD = 4;
+  SUB_STATUS = 5;
+  SUB_LOGS = 6;
+
+  // NETWORK
+  SUB_SET_IF_CONFIG = 20;
+  SUB_ADD_ROUTE = 21;
+  SUB_ADD_ROUTING_POLICY = 22;
+  SUB_GET_IF_CONFIG = 23;
+
+  SUB_REMOVE_ROUTE = 24;
+  SUB_REMOVE_ROUTING_POLICY = 25;
+}

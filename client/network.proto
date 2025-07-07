@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+message Interfaces {
+  string ifname = 1;
+  uint32 table = 2;
+  Interface interface = 3;
+  repeated Route routes = 4;
+  repeated RoutingPolicy routing_policies = 5;
+}
+
+message Interface {
+  bool dhcp4 = 1;
+  repeated string addresses = 2;
+  uint32 mtu = 3;
+  string state = 4;
+}
+
+message Route {
+  string to = 1;
+  string via = 2;
+  string scope = 3;
+  optional uint32 table = 4;
+  optional uint32 metric = 5;
+  string source = 6;
+  bool is_default = 7;
+}
+
+message RoutingPolicy {
+  string from = 1;
+  string to = 2;
+  uint32 table = 3;
+  uint32 priority = 4;
+}
