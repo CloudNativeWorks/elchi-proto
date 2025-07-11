@@ -19,6 +19,9 @@ service ControllerService {
 
   // ForwardCommand forwards a command to the appropriate controller
   rpc ForwardCommand(ForwardCommandRequest) returns (ForwardCommandResponse);
+
+  rpc RequestClientRefresh(ClientRefreshRequest)
+      returns (ClientRefreshResponse);
 }
 
 // ControllerInfo contains controller registration information
@@ -61,4 +64,11 @@ message ForwardCommandResponse {
   bool success = 1;
   string error = 2;
   CommandResponse response = 3;
+}
+
+message ClientRefreshRequest { string controller_id = 1; }
+
+message ClientRefreshResponse {
+  string success = 1;
+  int32 client_count = 2;
 }

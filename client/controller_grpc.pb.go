@@ -19,10 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ControllerService_RegisterController_FullMethodName = "/client.ControllerService/RegisterController"
-	ControllerService_GetClientLocation_FullMethodName  = "/client.ControllerService/GetClientLocation"
-	ControllerService_SetClientLocation_FullMethodName  = "/client.ControllerService/SetClientLocation"
-	ControllerService_ForwardCommand_FullMethodName     = "/client.ControllerService/ForwardCommand"
+	ControllerService_RegisterController_FullMethodName   = "/client.ControllerService/RegisterController"
+	ControllerService_GetClientLocation_FullMethodName    = "/client.ControllerService/GetClientLocation"
+	ControllerService_SetClientLocation_FullMethodName    = "/client.ControllerService/SetClientLocation"
+	ControllerService_ForwardCommand_FullMethodName       = "/client.ControllerService/ForwardCommand"
+	ControllerService_RequestClientRefresh_FullMethodName = "/client.ControllerService/RequestClientRefresh"
 )
 
 // ControllerServiceClient is the client API for ControllerService service.
@@ -37,6 +38,7 @@ type ControllerServiceClient interface {
 	SetClientLocation(ctx context.Context, in *SetClientLocationRequest, opts ...grpc.CallOption) (*SetClientLocationResponse, error)
 	// ForwardCommand forwards a command to the appropriate controller
 	ForwardCommand(ctx context.Context, in *ForwardCommandRequest, opts ...grpc.CallOption) (*ForwardCommandResponse, error)
+	RequestClientRefresh(ctx context.Context, in *ClientRefreshRequest, opts ...grpc.CallOption) (*ClientRefreshResponse, error)
 }
 
 type controllerServiceClient struct {
@@ -87,6 +89,16 @@ func (c *controllerServiceClient) ForwardCommand(ctx context.Context, in *Forwar
 	return out, nil
 }
 
+func (c *controllerServiceClient) RequestClientRefresh(ctx context.Context, in *ClientRefreshRequest, opts ...grpc.CallOption) (*ClientRefreshResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClientRefreshResponse)
+	err := c.cc.Invoke(ctx, ControllerService_RequestClientRefresh_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ControllerServiceServer is the server API for ControllerService service.
 // All implementations must embed UnimplementedControllerServiceServer
 // for forward compatibility.
@@ -99,6 +111,7 @@ type ControllerServiceServer interface {
 	SetClientLocation(context.Context, *SetClientLocationRequest) (*SetClientLocationResponse, error)
 	// ForwardCommand forwards a command to the appropriate controller
 	ForwardCommand(context.Context, *ForwardCommandRequest) (*ForwardCommandResponse, error)
+	RequestClientRefresh(context.Context, *ClientRefreshRequest) (*ClientRefreshResponse, error)
 	mustEmbedUnimplementedControllerServiceServer()
 }
 
@@ -120,6 +133,9 @@ func (UnimplementedControllerServiceServer) SetClientLocation(context.Context, *
 }
 func (UnimplementedControllerServiceServer) ForwardCommand(context.Context, *ForwardCommandRequest) (*ForwardCommandResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ForwardCommand not implemented")
+}
+func (UnimplementedControllerServiceServer) RequestClientRefresh(context.Context, *ClientRefreshRequest) (*ClientRefreshResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RequestClientRefresh not implemented")
 }
 func (UnimplementedControllerServiceServer) mustEmbedUnimplementedControllerServiceServer() {}
 func (UnimplementedControllerServiceServer) testEmbeddedByValue()                           {}
@@ -214,6 +230,24 @@ func _ControllerService_ForwardCommand_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ControllerService_RequestClientRefresh_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClientRefreshRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControllerServiceServer).RequestClientRefresh(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControllerService_RequestClientRefresh_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControllerServiceServer).RequestClientRefresh(ctx, req.(*ClientRefreshRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ControllerService_ServiceDesc is the grpc.ServiceDesc for ControllerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -236,6 +270,10 @@ var ControllerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ForwardCommand",
 			Handler:    _ControllerService_ForwardCommand_Handler,
+		},
+		{
+			MethodName: "RequestClientRefresh",
+			Handler:    _ControllerService_RequestClientRefresh_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
