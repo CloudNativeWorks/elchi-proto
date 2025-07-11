@@ -56,7 +56,6 @@ message SetClientLocationResponse { string success = 1; }
 // ForwardCommandRequest contains a command to be forwarded
 message ForwardCommandRequest {
   Command command = 1;
-  string target_client_id = 2;
 }
 
 // ForwardCommandResponse contains the response from forwarded command
