@@ -228,7 +228,7 @@ func (x *ClientLocationResponse) GetControllerFqdn() string {
 	return ""
 }
 
-// SetClientLocationRequest sets the location of a client
+// SetClientLocationRequest sets the location of a client.
 type SetClientLocationRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

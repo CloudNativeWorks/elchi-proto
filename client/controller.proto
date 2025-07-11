@@ -43,7 +43,7 @@ message ClientLocationResponse {
   string controller_fqdn = 3;
 }
 
-// SetClientLocationRequest sets the location of a client
+// SetClientLocationRequest sets the location of a client.
 message SetClientLocationRequest {
   string client_id = 1;
   string controller_id = 2;
