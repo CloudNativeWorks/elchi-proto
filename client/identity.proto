@@ -8,13 +8,4 @@ message Identity {
     string client_id = 1;
     string session_token = 2;
     string client_name = 3;
-    RoutingInfo routing = 4;
-}
-
-message RoutingInfo {
-    string source_controller = 1;
-    string dest_controller = 2; 
-    string origin_controller = 3;
-    int32 hop_count = 4;
-    bool is_forwarded = 5;
 }
