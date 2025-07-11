@@ -19,18 +19,24 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ControllerService_ForwardCommand_FullMethodName     = "/client.ControllerService/ForwardCommand"
 	ControllerService_RegisterController_FullMethodName = "/client.ControllerService/RegisterController"
 	ControllerService_GetClientLocation_FullMethodName  = "/client.ControllerService/GetClientLocation"
+	ControllerService_SetClientLocation_FullMethodName  = "/client.ControllerService/SetClientLocation"
+	ControllerService_ForwardCommand_FullMethodName     = "/client.ControllerService/ForwardCommand"
 )
 
 // ControllerServiceClient is the client API for ControllerService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ControllerServiceClient interface {
-	ForwardCommand(ctx context.Context, in *ForwardCommandRequest, opts ...grpc.CallOption) (*CommandResponse, error)
+	// RegisterController registers a controller with the registry
 	RegisterController(ctx context.Context, in *ControllerInfo, opts ...grpc.CallOption) (*ControllerResponse, error)
+	// GetClientLocation finds which controller a client is connected to
 	GetClientLocation(ctx context.Context, in *ClientLocationRequest, opts ...grpc.CallOption) (*ClientLocationResponse, error)
+	// SetClientLocation sets where a client is connected
+	SetClientLocation(ctx context.Context, in *SetClientLocationRequest, opts ...grpc.CallOption) (*SetClientLocationResponse, error)
+	// ForwardCommand forwards a command to the appropriate controller
+	ForwardCommand(ctx context.Context, in *ForwardCommandRequest, opts ...grpc.CallOption) (*ForwardCommandResponse, error)
 }
 
 type controllerServiceClient struct {
@@ -39,16 +45,6 @@ type controllerServiceClient struct {
 
 func NewControllerServiceClient(cc grpc.ClientConnInterface) ControllerServiceClient {
 	return &controllerServiceClient{cc}
-}
-
-func (c *controllerServiceClient) ForwardCommand(ctx context.Context, in *ForwardCommandRequest, opts ...grpc.CallOption) (*CommandResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CommandResponse)
-	err := c.cc.Invoke(ctx, ControllerService_ForwardCommand_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *controllerServiceClient) RegisterController(ctx context.Context, in *ControllerInfo, opts ...grpc.CallOption) (*ControllerResponse, error) {
@@ -71,13 +67,38 @@ func (c *controllerServiceClient) GetClientLocation(ctx context.Context, in *Cli
 	return out, nil
 }
 
+func (c *controllerServiceClient) SetClientLocation(ctx context.Context, in *SetClientLocationRequest, opts ...grpc.CallOption) (*SetClientLocationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetClientLocationResponse)
+	err := c.cc.Invoke(ctx, ControllerService_SetClientLocation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *controllerServiceClient) ForwardCommand(ctx context.Context, in *ForwardCommandRequest, opts ...grpc.CallOption) (*ForwardCommandResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ForwardCommandResponse)
+	err := c.cc.Invoke(ctx, ControllerService_ForwardCommand_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ControllerServiceServer is the server API for ControllerService service.
 // All implementations must embed UnimplementedControllerServiceServer
 // for forward compatibility.
 type ControllerServiceServer interface {
-	ForwardCommand(context.Context, *ForwardCommandRequest) (*CommandResponse, error)
+	// RegisterController registers a controller with the registry
 	RegisterController(context.Context, *ControllerInfo) (*ControllerResponse, error)
+	// GetClientLocation finds which controller a client is connected to
 	GetClientLocation(context.Context, *ClientLocationRequest) (*ClientLocationResponse, error)
+	// SetClientLocation sets where a client is connected
+	SetClientLocation(context.Context, *SetClientLocationRequest) (*SetClientLocationResponse, error)
+	// ForwardCommand forwards a command to the appropriate controller
+	ForwardCommand(context.Context, *ForwardCommandRequest) (*ForwardCommandResponse, error)
 	mustEmbedUnimplementedControllerServiceServer()
 }
 
@@ -88,14 +109,17 @@ type ControllerServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedControllerServiceServer struct{}
 
-func (UnimplementedControllerServiceServer) ForwardCommand(context.Context, *ForwardCommandRequest) (*CommandResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ForwardCommand not implemented")
-}
 func (UnimplementedControllerServiceServer) RegisterController(context.Context, *ControllerInfo) (*ControllerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterController not implemented")
 }
 func (UnimplementedControllerServiceServer) GetClientLocation(context.Context, *ClientLocationRequest) (*ClientLocationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetClientLocation not implemented")
+}
+func (UnimplementedControllerServiceServer) SetClientLocation(context.Context, *SetClientLocationRequest) (*SetClientLocationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetClientLocation not implemented")
+}
+func (UnimplementedControllerServiceServer) ForwardCommand(context.Context, *ForwardCommandRequest) (*ForwardCommandResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ForwardCommand not implemented")
 }
 func (UnimplementedControllerServiceServer) mustEmbedUnimplementedControllerServiceServer() {}
 func (UnimplementedControllerServiceServer) testEmbeddedByValue()                           {}
@@ -116,24 +140,6 @@ func RegisterControllerServiceServer(s grpc.ServiceRegistrar, srv ControllerServ
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ControllerService_ServiceDesc, srv)
-}
-
-func _ControllerService_ForwardCommand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ForwardCommandRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ControllerServiceServer).ForwardCommand(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ControllerService_ForwardCommand_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ControllerServiceServer).ForwardCommand(ctx, req.(*ForwardCommandRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _ControllerService_RegisterController_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -172,6 +178,42 @@ func _ControllerService_GetClientLocation_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ControllerService_SetClientLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetClientLocationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControllerServiceServer).SetClientLocation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControllerService_SetClientLocation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControllerServiceServer).SetClientLocation(ctx, req.(*SetClientLocationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ControllerService_ForwardCommand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ForwardCommandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControllerServiceServer).ForwardCommand(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControllerService_ForwardCommand_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControllerServiceServer).ForwardCommand(ctx, req.(*ForwardCommandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ControllerService_ServiceDesc is the grpc.ServiceDesc for ControllerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -180,16 +222,20 @@ var ControllerService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ControllerServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ForwardCommand",
-			Handler:    _ControllerService_ForwardCommand_Handler,
-		},
-		{
 			MethodName: "RegisterController",
 			Handler:    _ControllerService_RegisterController_Handler,
 		},
 		{
 			MethodName: "GetClientLocation",
 			Handler:    _ControllerService_GetClientLocation_Handler,
+		},
+		{
+			MethodName: "SetClientLocation",
+			Handler:    _ControllerService_SetClientLocation_Handler,
+		},
+		{
+			MethodName: "ForwardCommand",
+			Handler:    _ControllerService_ForwardCommand_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
