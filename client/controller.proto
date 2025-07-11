@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+import "client/client.proto";
+
+service ControllerService {
+  rpc ForwardCommand(ForwardCommandRequest) returns (CommandResponse);
+  rpc RegisterController(ControllerInfo) returns (ControllerResponse);
+  rpc GetClientLocation(ClientLocationRequest) returns (ClientLocationResponse);
+}
+
+message ForwardCommandRequest {
+  Command command = 1;
+  string target_client_id = 2;
+}
+
+message ControllerInfo {
+  string controller_id = 1;
+  string fqdn = 2;
+  string grpc_address = 3;
+  int64 timestamp = 4;
+}
+
+message ControllerResponse { string success = 1; }
+
+message ClientLocationRequest { string client_id = 1; }
+
+message ClientLocationResponse {
+  string controller_id = 1;
+  string controller_fqdn = 2;
+  bool found = 3;
+}
