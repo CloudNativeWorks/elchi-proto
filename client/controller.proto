@@ -22,6 +22,12 @@ service ControllerService {
 
   rpc RequestClientRefresh(ClientRefreshRequest)
       returns (ClientRefreshResponse);
+
+  rpc IsControllerRegistered(IsControllerRegisteredRequest)
+      returns (IsControllerRegisteredResponse);
+
+  rpc BulkSetClientLocations(BulkSetClientLocationsRequest)
+      returns (BulkSetClientLocationsResponse);
 }
 
 // ControllerInfo contains controller registration information
@@ -54,9 +60,7 @@ message SetClientLocationRequest {
 message SetClientLocationResponse { string success = 1; }
 
 // ForwardCommandRequest contains a command to be forwarded
-message ForwardCommandRequest {
-  Command command = 1;
-}
+message ForwardCommandRequest { Command command = 1; }
 
 // ForwardCommandResponse contains the response from forwarded command
 message ForwardCommandResponse {
@@ -70,4 +74,19 @@ message ClientRefreshRequest { string controller_id = 1; }
 message ClientRefreshResponse {
   string success = 1;
   int32 client_count = 2;
+}
+
+message IsControllerRegisteredRequest { string controller_id = 1; }
+
+message IsControllerRegisteredResponse { bool registered = 1; }
+
+message BulkSetClientLocationsRequest {
+  string controller_id = 1;
+  repeated string client_ids = 2;
+}
+
+message BulkSetClientLocationsResponse {
+  bool success = 1;
+  string error = 2;
+  int32 updated_count = 3;
 }
