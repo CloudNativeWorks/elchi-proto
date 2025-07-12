@@ -19,11 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	EnvoyRoutingService_RegisterControlPlane_FullMethodName    = "/client.EnvoyRoutingService/RegisterControlPlane"
-	EnvoyRoutingService_GetControlPlaneCluster_FullMethodName  = "/client.EnvoyRoutingService/GetControlPlaneCluster"
-	EnvoyRoutingService_NotifySnapshotDelivered_FullMethodName = "/client.EnvoyRoutingService/NotifySnapshotDelivered"
-	EnvoyRoutingService_UpdateNodeList_FullMethodName          = "/client.EnvoyRoutingService/UpdateNodeList"
-	EnvoyRoutingService_HealthCheck_FullMethodName             = "/client.EnvoyRoutingService/HealthCheck"
+	EnvoyRoutingService_RegisterControlPlane_FullMethodName    = "/routing.EnvoyRoutingService/RegisterControlPlane"
+	EnvoyRoutingService_GetControlPlaneCluster_FullMethodName  = "/routing.EnvoyRoutingService/GetControlPlaneCluster"
+	EnvoyRoutingService_NotifySnapshotDelivered_FullMethodName = "/routing.EnvoyRoutingService/NotifySnapshotDelivered"
+	EnvoyRoutingService_UpdateNodeList_FullMethodName          = "/routing.EnvoyRoutingService/UpdateNodeList"
+	EnvoyRoutingService_HealthCheck_FullMethodName             = "/routing.EnvoyRoutingService/HealthCheck"
 )
 
 // EnvoyRoutingServiceClient is the client API for EnvoyRoutingService service.
@@ -32,9 +32,7 @@ const (
 //
 // Envoy Routing Service
 type EnvoyRoutingServiceClient interface {
-	// Control-plane kaydı
 	RegisterControlPlane(ctx context.Context, in *RegisterControlPlaneRequest, opts ...grpc.CallOption) (*RegisterControlPlaneResponse, error)
-	// Envoy'dan gelen routing request'i
 	GetControlPlaneCluster(ctx context.Context, in *GetControlPlaneClusterRequest, opts ...grpc.CallOption) (*GetControlPlaneClusterResponse, error)
 	// Control-plane snapshot verdi notification
 	NotifySnapshotDelivered(ctx context.Context, in *NotifySnapshotDeliveredRequest, opts ...grpc.CallOption) (*NotifySnapshotDeliveredResponse, error)
@@ -108,9 +106,7 @@ func (c *envoyRoutingServiceClient) HealthCheck(ctx context.Context, in *HealthC
 //
 // Envoy Routing Service
 type EnvoyRoutingServiceServer interface {
-	// Control-plane kaydı
 	RegisterControlPlane(context.Context, *RegisterControlPlaneRequest) (*RegisterControlPlaneResponse, error)
-	// Envoy'dan gelen routing request'i
 	GetControlPlaneCluster(context.Context, *GetControlPlaneClusterRequest) (*GetControlPlaneClusterResponse, error)
 	// Control-plane snapshot verdi notification
 	NotifySnapshotDelivered(context.Context, *NotifySnapshotDeliveredRequest) (*NotifySnapshotDeliveredResponse, error)
@@ -258,7 +254,7 @@ func _EnvoyRoutingService_HealthCheck_Handler(srv interface{}, ctx context.Conte
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var EnvoyRoutingService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "client.EnvoyRoutingService",
+	ServiceName: "routing.EnvoyRoutingService",
 	HandlerType: (*EnvoyRoutingServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

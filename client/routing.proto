@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package client;
+package routing;
 
 option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
 
@@ -8,11 +8,9 @@ import "google/protobuf/timestamp.proto";
 
 // Envoy Routing Service
 service EnvoyRoutingService {
-  // Control-plane kaydı
   rpc RegisterControlPlane(RegisterControlPlaneRequest)
       returns (RegisterControlPlaneResponse);
 
-  // Envoy'dan gelen routing request'i
   rpc GetControlPlaneCluster(GetControlPlaneClusterRequest)
       returns (GetControlPlaneClusterResponse);
 
