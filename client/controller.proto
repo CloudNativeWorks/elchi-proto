@@ -17,17 +17,17 @@ service ControllerService {
   rpc SetClientLocation(SetClientLocationRequest)
       returns (SetClientLocationResponse);
 
-  // ForwardCommand forwards a command to the appropriate controller
-  rpc ForwardCommand(ForwardCommandRequest) returns (ForwardCommandResponse);
-
-  rpc RequestClientRefresh(ClientRefreshRequest)
-      returns (ClientRefreshResponse);
-
   rpc IsControllerRegistered(IsControllerRegisteredRequest)
       returns (IsControllerRegisteredResponse);
 
   rpc BulkSetClientLocations(BulkSetClientLocationsRequest)
       returns (BulkSetClientLocationsResponse);
+
+  // ForwardCommand forwards a command to the appropriate controller
+  rpc ForwardCommand(ForwardCommandRequest) returns (ForwardCommandResponse);
+
+  rpc RequestClientRefresh(ClientRefreshRequest)
+      returns (ClientRefreshResponse);
 }
 
 // ControllerInfo contains controller registration information

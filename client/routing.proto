@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+import "google/protobuf/timestamp.proto";
+
+// Envoy Routing Service
+service EnvoyRoutingService {
+  // Control-plane kaydı
+  rpc RegisterControlPlane(RegisterControlPlaneRequest)
+      returns (RegisterControlPlaneResponse);
+
+  // Envoy'dan gelen routing request'i
+  rpc GetControlPlaneCluster(GetControlPlaneClusterRequest)
+      returns (GetControlPlaneClusterResponse);
+
+  // Control-plane snapshot verdi notification
+  rpc NotifySnapshotDelivered(NotifySnapshotDeliveredRequest)
+      returns (NotifySnapshotDeliveredResponse);
+
+  // Bulk node update (30sn'de bir)
+  rpc UpdateNodeList(UpdateNodeListRequest) returns (UpdateNodeListResponse);
+
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// Control-plane kaydı
+message RegisterControlPlaneRequest {
+  string control_plane_id = 1;
+  string cluster_name = 2; // control-plane-v1-2-1
+  string version = 3;      // v1.2.1
+  string grpc_address = 4; // control-plane-v1-2-1:50051
+  google.protobuf.Timestamp timestamp = 5;
+}
+
+message RegisterControlPlaneResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Envoy'dan routing request'i
+message GetControlPlaneClusterRequest {
+  string node_id = 1; // envoy-node-123
+  string version = 2; // v1.2.1
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+message GetControlPlaneClusterResponse {
+  bool found = 1;
+  string cluster_name = 2;     // control-plane-v1-2-1
+  string grpc_address = 3;     // control-plane-v1-2-1:50051
+  string control_plane_id = 4; // cp-v1-2-1-abc123
+}
+
+// Snapshot delivered notification
+message NotifySnapshotDeliveredRequest {
+  string control_plane_id = 1;
+  string node_id = 2;
+  string version = 3;
+  google.protobuf.Timestamp timestamp = 4;
+}
+
+message NotifySnapshotDeliveredResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Bulk node list update (30sn'de bir)
+message UpdateNodeListRequest {
+  string control_plane_id = 1;
+  repeated NodeInfo nodes = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+message NodeInfo {
+  string node_id = 1;
+  string version = 2;
+  google.protobuf.Timestamp last_seen = 3;
+}
+
+message UpdateNodeListResponse {
+  bool success = 1;
+  string message = 2;
+  int32 updated_count = 3;
+}
+
+// Health check
+message HealthCheckRequest { string service = 1; }
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
