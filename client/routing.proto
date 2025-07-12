@@ -28,10 +28,8 @@ service EnvoyRoutingService {
 // Control-plane kaydı
 message RegisterControlPlaneRequest {
   string control_plane_id = 1;
-  string cluster_name = 2; // control-plane-v1-2-1
-  string version = 3;      // v1.2.1
-  string grpc_address = 4; // control-plane-v1-2-1:50051
-  google.protobuf.Timestamp timestamp = 5;
+  string version = 2;
+  google.protobuf.Timestamp timestamp = 3;
 }
 
 message RegisterControlPlaneResponse {
@@ -48,9 +46,7 @@ message GetControlPlaneClusterRequest {
 
 message GetControlPlaneClusterResponse {
   bool found = 1;
-  string cluster_name = 2;     // control-plane-v1-2-1
-  string grpc_address = 3;     // control-plane-v1-2-1:50051
-  string control_plane_id = 4; // cp-v1-2-1-abc123
+  string control_plane_id = 2;
 }
 
 // Snapshot delivered notification
