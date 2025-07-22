@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package routing;
+package control_plane_routing;
 
 option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
 

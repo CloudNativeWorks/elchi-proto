@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.28.2
-// source: client/routing.proto
+// source: client/control_plane_routing.proto
 
 package client
 
@@ -19,11 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	EnvoyRoutingService_RegisterControlPlane_FullMethodName    = "/routing.EnvoyRoutingService/RegisterControlPlane"
-	EnvoyRoutingService_GetControlPlaneCluster_FullMethodName  = "/routing.EnvoyRoutingService/GetControlPlaneCluster"
-	EnvoyRoutingService_NotifySnapshotDelivered_FullMethodName = "/routing.EnvoyRoutingService/NotifySnapshotDelivered"
-	EnvoyRoutingService_UpdateNodeList_FullMethodName          = "/routing.EnvoyRoutingService/UpdateNodeList"
-	EnvoyRoutingService_HealthCheck_FullMethodName             = "/routing.EnvoyRoutingService/HealthCheck"
+	EnvoyRoutingService_RegisterControlPlane_FullMethodName    = "/control_plane_routing.EnvoyRoutingService/RegisterControlPlane"
+	EnvoyRoutingService_GetControlPlaneCluster_FullMethodName  = "/control_plane_routing.EnvoyRoutingService/GetControlPlaneCluster"
+	EnvoyRoutingService_NotifySnapshotDelivered_FullMethodName = "/control_plane_routing.EnvoyRoutingService/NotifySnapshotDelivered"
+	EnvoyRoutingService_UpdateNodeList_FullMethodName          = "/control_plane_routing.EnvoyRoutingService/UpdateNodeList"
+	EnvoyRoutingService_HealthCheck_FullMethodName             = "/control_plane_routing.EnvoyRoutingService/HealthCheck"
 )
 
 // EnvoyRoutingServiceClient is the client API for EnvoyRoutingService service.
@@ -254,7 +254,7 @@ func _EnvoyRoutingService_HealthCheck_Handler(srv interface{}, ctx context.Conte
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var EnvoyRoutingService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "routing.EnvoyRoutingService",
+	ServiceName: "control_plane_routing.EnvoyRoutingService",
 	HandlerType: (*EnvoyRoutingServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -279,5 +279,5 @@ var EnvoyRoutingService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "client/routing.proto",
+	Metadata: "client/control_plane_routing.proto",
 }
