@@ -32,6 +32,8 @@ service ControllerRoutingService {
 
   // Health check
   rpc HealthCheck(ControllerHealthCheckRequest) returns (ControllerHealthCheckResponse);
+
+  rpc NotifyClientDisconnected(NotifyClientDisconnectedRequest) returns (NotifyClientDisconnectedResponse);
 }
 
 // Controller kaydı
@@ -143,3 +145,15 @@ message ClientsData {
 message GetAllControllerRegistryDataResponse {
   ControllerRegistryData data = 1;
 } 
+
+message NotifyClientDisconnectedRequest {
+    string controller_id = 1;
+    string client_id = 2;
+    string version = 3;
+    google.protobuf.Timestamp timestamp = 4;
+}
+
+message NotifyClientDisconnectedResponse {
+    bool success = 1;
+    string message = 2;
+}

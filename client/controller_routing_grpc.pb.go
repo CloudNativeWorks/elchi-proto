@@ -19,14 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ControllerRoutingService_RegisterController_FullMethodName      = "/controller_routing.ControllerRoutingService/RegisterController"
-	ControllerRoutingService_GetControllerCluster_FullMethodName    = "/controller_routing.ControllerRoutingService/GetControllerCluster"
-	ControllerRoutingService_NotifyClientConnected_FullMethodName   = "/controller_routing.ControllerRoutingService/NotifyClientConnected"
-	ControllerRoutingService_UpdateClientList_FullMethodName        = "/controller_routing.ControllerRoutingService/UpdateClientList"
-	ControllerRoutingService_ListControllers_FullMethodName         = "/controller_routing.ControllerRoutingService/ListControllers"
-	ControllerRoutingService_ListClientsByController_FullMethodName = "/controller_routing.ControllerRoutingService/ListClientsByController"
-	ControllerRoutingService_GetAllRegistryData_FullMethodName      = "/controller_routing.ControllerRoutingService/GetAllRegistryData"
-	ControllerRoutingService_HealthCheck_FullMethodName             = "/controller_routing.ControllerRoutingService/HealthCheck"
+	ControllerRoutingService_RegisterController_FullMethodName       = "/controller_routing.ControllerRoutingService/RegisterController"
+	ControllerRoutingService_GetControllerCluster_FullMethodName     = "/controller_routing.ControllerRoutingService/GetControllerCluster"
+	ControllerRoutingService_NotifyClientConnected_FullMethodName    = "/controller_routing.ControllerRoutingService/NotifyClientConnected"
+	ControllerRoutingService_UpdateClientList_FullMethodName         = "/controller_routing.ControllerRoutingService/UpdateClientList"
+	ControllerRoutingService_ListControllers_FullMethodName          = "/controller_routing.ControllerRoutingService/ListControllers"
+	ControllerRoutingService_ListClientsByController_FullMethodName  = "/controller_routing.ControllerRoutingService/ListClientsByController"
+	ControllerRoutingService_GetAllRegistryData_FullMethodName       = "/controller_routing.ControllerRoutingService/GetAllRegistryData"
+	ControllerRoutingService_HealthCheck_FullMethodName              = "/controller_routing.ControllerRoutingService/HealthCheck"
+	ControllerRoutingService_NotifyClientDisconnected_FullMethodName = "/controller_routing.ControllerRoutingService/NotifyClientDisconnected"
 )
 
 // ControllerRoutingServiceClient is the client API for ControllerRoutingService service.
@@ -49,6 +50,7 @@ type ControllerRoutingServiceClient interface {
 	GetAllRegistryData(ctx context.Context, in *GetAllControllerRegistryDataRequest, opts ...grpc.CallOption) (*GetAllControllerRegistryDataResponse, error)
 	// Health check
 	HealthCheck(ctx context.Context, in *ControllerHealthCheckRequest, opts ...grpc.CallOption) (*ControllerHealthCheckResponse, error)
+	NotifyClientDisconnected(ctx context.Context, in *NotifyClientDisconnectedRequest, opts ...grpc.CallOption) (*NotifyClientDisconnectedResponse, error)
 }
 
 type controllerRoutingServiceClient struct {
@@ -139,6 +141,16 @@ func (c *controllerRoutingServiceClient) HealthCheck(ctx context.Context, in *Co
 	return out, nil
 }
 
+func (c *controllerRoutingServiceClient) NotifyClientDisconnected(ctx context.Context, in *NotifyClientDisconnectedRequest, opts ...grpc.CallOption) (*NotifyClientDisconnectedResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(NotifyClientDisconnectedResponse)
+	err := c.cc.Invoke(ctx, ControllerRoutingService_NotifyClientDisconnected_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ControllerRoutingServiceServer is the server API for ControllerRoutingService service.
 // All implementations must embed UnimplementedControllerRoutingServiceServer
 // for forward compatibility.
@@ -159,6 +171,7 @@ type ControllerRoutingServiceServer interface {
 	GetAllRegistryData(context.Context, *GetAllControllerRegistryDataRequest) (*GetAllControllerRegistryDataResponse, error)
 	// Health check
 	HealthCheck(context.Context, *ControllerHealthCheckRequest) (*ControllerHealthCheckResponse, error)
+	NotifyClientDisconnected(context.Context, *NotifyClientDisconnectedRequest) (*NotifyClientDisconnectedResponse, error)
 	mustEmbedUnimplementedControllerRoutingServiceServer()
 }
 
@@ -192,6 +205,9 @@ func (UnimplementedControllerRoutingServiceServer) GetAllRegistryData(context.Co
 }
 func (UnimplementedControllerRoutingServiceServer) HealthCheck(context.Context, *ControllerHealthCheckRequest) (*ControllerHealthCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
+}
+func (UnimplementedControllerRoutingServiceServer) NotifyClientDisconnected(context.Context, *NotifyClientDisconnectedRequest) (*NotifyClientDisconnectedResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method NotifyClientDisconnected not implemented")
 }
 func (UnimplementedControllerRoutingServiceServer) mustEmbedUnimplementedControllerRoutingServiceServer() {
 }
@@ -359,6 +375,24 @@ func _ControllerRoutingService_HealthCheck_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ControllerRoutingService_NotifyClientDisconnected_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NotifyClientDisconnectedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControllerRoutingServiceServer).NotifyClientDisconnected(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControllerRoutingService_NotifyClientDisconnected_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControllerRoutingServiceServer).NotifyClientDisconnected(ctx, req.(*NotifyClientDisconnectedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ControllerRoutingService_ServiceDesc is the grpc.ServiceDesc for ControllerRoutingService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -397,6 +431,10 @@ var ControllerRoutingService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "HealthCheck",
 			Handler:    _ControllerRoutingService_HealthCheck_Handler,
+		},
+		{
+			MethodName: "NotifyClientDisconnected",
+			Handler:    _ControllerRoutingService_NotifyClientDisconnected_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
