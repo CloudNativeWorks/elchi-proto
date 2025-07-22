@@ -111,7 +111,7 @@ message ListControllersRequest {
 message ControllerInfo {
   string controller_id = 1;
   string version = 2;
-  string grpc_address = 3;
+  string http_address = 3;
   google.protobuf.Timestamp last_seen = 4;
 }
 
