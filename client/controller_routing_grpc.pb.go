@@ -19,11 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ControllerRoutingService_RegisterController_FullMethodName    = "/controller_routing.ControllerRoutingService/RegisterController"
-	ControllerRoutingService_GetControllerCluster_FullMethodName  = "/controller_routing.ControllerRoutingService/GetControllerCluster"
-	ControllerRoutingService_NotifyClientConnected_FullMethodName = "/controller_routing.ControllerRoutingService/NotifyClientConnected"
-	ControllerRoutingService_UpdateClientList_FullMethodName      = "/controller_routing.ControllerRoutingService/UpdateClientList"
-	ControllerRoutingService_HealthCheck_FullMethodName           = "/controller_routing.ControllerRoutingService/HealthCheck"
+	ControllerRoutingService_RegisterController_FullMethodName      = "/controller_routing.ControllerRoutingService/RegisterController"
+	ControllerRoutingService_GetControllerCluster_FullMethodName    = "/controller_routing.ControllerRoutingService/GetControllerCluster"
+	ControllerRoutingService_NotifyClientConnected_FullMethodName   = "/controller_routing.ControllerRoutingService/NotifyClientConnected"
+	ControllerRoutingService_UpdateClientList_FullMethodName        = "/controller_routing.ControllerRoutingService/UpdateClientList"
+	ControllerRoutingService_ListControllers_FullMethodName         = "/controller_routing.ControllerRoutingService/ListControllers"
+	ControllerRoutingService_ListClientsByController_FullMethodName = "/controller_routing.ControllerRoutingService/ListClientsByController"
+	ControllerRoutingService_GetAllRegistryData_FullMethodName      = "/controller_routing.ControllerRoutingService/GetAllRegistryData"
+	ControllerRoutingService_HealthCheck_FullMethodName             = "/controller_routing.ControllerRoutingService/HealthCheck"
 )
 
 // ControllerRoutingServiceClient is the client API for ControllerRoutingService service.
@@ -38,6 +41,12 @@ type ControllerRoutingServiceClient interface {
 	NotifyClientConnected(ctx context.Context, in *NotifyClientConnectedRequest, opts ...grpc.CallOption) (*NotifyClientConnectedResponse, error)
 	// Bulk client update (30sn'de bir)
 	UpdateClientList(ctx context.Context, in *UpdateClientListRequest, opts ...grpc.CallOption) (*UpdateClientListResponse, error)
+	// List all controllers
+	ListControllers(ctx context.Context, in *ListControllersRequest, opts ...grpc.CallOption) (*ListControllersResponse, error)
+	// List clients by controller
+	ListClientsByController(ctx context.Context, in *ListClientsByControllerRequest, opts ...grpc.CallOption) (*ListClientsByControllerResponse, error)
+	// Get all registry data for reporting
+	GetAllRegistryData(ctx context.Context, in *GetAllControllerRegistryDataRequest, opts ...grpc.CallOption) (*GetAllControllerRegistryDataResponse, error)
 	// Health check
 	HealthCheck(ctx context.Context, in *ControllerHealthCheckRequest, opts ...grpc.CallOption) (*ControllerHealthCheckResponse, error)
 }
@@ -90,6 +99,36 @@ func (c *controllerRoutingServiceClient) UpdateClientList(ctx context.Context, i
 	return out, nil
 }
 
+func (c *controllerRoutingServiceClient) ListControllers(ctx context.Context, in *ListControllersRequest, opts ...grpc.CallOption) (*ListControllersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListControllersResponse)
+	err := c.cc.Invoke(ctx, ControllerRoutingService_ListControllers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *controllerRoutingServiceClient) ListClientsByController(ctx context.Context, in *ListClientsByControllerRequest, opts ...grpc.CallOption) (*ListClientsByControllerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListClientsByControllerResponse)
+	err := c.cc.Invoke(ctx, ControllerRoutingService_ListClientsByController_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *controllerRoutingServiceClient) GetAllRegistryData(ctx context.Context, in *GetAllControllerRegistryDataRequest, opts ...grpc.CallOption) (*GetAllControllerRegistryDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllControllerRegistryDataResponse)
+	err := c.cc.Invoke(ctx, ControllerRoutingService_GetAllRegistryData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *controllerRoutingServiceClient) HealthCheck(ctx context.Context, in *ControllerHealthCheckRequest, opts ...grpc.CallOption) (*ControllerHealthCheckResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ControllerHealthCheckResponse)
@@ -112,6 +151,12 @@ type ControllerRoutingServiceServer interface {
 	NotifyClientConnected(context.Context, *NotifyClientConnectedRequest) (*NotifyClientConnectedResponse, error)
 	// Bulk client update (30sn'de bir)
 	UpdateClientList(context.Context, *UpdateClientListRequest) (*UpdateClientListResponse, error)
+	// List all controllers
+	ListControllers(context.Context, *ListControllersRequest) (*ListControllersResponse, error)
+	// List clients by controller
+	ListClientsByController(context.Context, *ListClientsByControllerRequest) (*ListClientsByControllerResponse, error)
+	// Get all registry data for reporting
+	GetAllRegistryData(context.Context, *GetAllControllerRegistryDataRequest) (*GetAllControllerRegistryDataResponse, error)
 	// Health check
 	HealthCheck(context.Context, *ControllerHealthCheckRequest) (*ControllerHealthCheckResponse, error)
 	mustEmbedUnimplementedControllerRoutingServiceServer()
@@ -135,6 +180,15 @@ func (UnimplementedControllerRoutingServiceServer) NotifyClientConnected(context
 }
 func (UnimplementedControllerRoutingServiceServer) UpdateClientList(context.Context, *UpdateClientListRequest) (*UpdateClientListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateClientList not implemented")
+}
+func (UnimplementedControllerRoutingServiceServer) ListControllers(context.Context, *ListControllersRequest) (*ListControllersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListControllers not implemented")
+}
+func (UnimplementedControllerRoutingServiceServer) ListClientsByController(context.Context, *ListClientsByControllerRequest) (*ListClientsByControllerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListClientsByController not implemented")
+}
+func (UnimplementedControllerRoutingServiceServer) GetAllRegistryData(context.Context, *GetAllControllerRegistryDataRequest) (*GetAllControllerRegistryDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllRegistryData not implemented")
 }
 func (UnimplementedControllerRoutingServiceServer) HealthCheck(context.Context, *ControllerHealthCheckRequest) (*ControllerHealthCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
@@ -233,6 +287,60 @@ func _ControllerRoutingService_UpdateClientList_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ControllerRoutingService_ListControllers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListControllersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControllerRoutingServiceServer).ListControllers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControllerRoutingService_ListControllers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControllerRoutingServiceServer).ListControllers(ctx, req.(*ListControllersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ControllerRoutingService_ListClientsByController_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListClientsByControllerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControllerRoutingServiceServer).ListClientsByController(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControllerRoutingService_ListClientsByController_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControllerRoutingServiceServer).ListClientsByController(ctx, req.(*ListClientsByControllerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ControllerRoutingService_GetAllRegistryData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllControllerRegistryDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControllerRoutingServiceServer).GetAllRegistryData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControllerRoutingService_GetAllRegistryData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControllerRoutingServiceServer).GetAllRegistryData(ctx, req.(*GetAllControllerRegistryDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ControllerRoutingService_HealthCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ControllerHealthCheckRequest)
 	if err := dec(in); err != nil {
@@ -273,6 +381,18 @@ var ControllerRoutingService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateClientList",
 			Handler:    _ControllerRoutingService_UpdateClientList_Handler,
+		},
+		{
+			MethodName: "ListControllers",
+			Handler:    _ControllerRoutingService_ListControllers_Handler,
+		},
+		{
+			MethodName: "ListClientsByController",
+			Handler:    _ControllerRoutingService_ListClientsByController_Handler,
+		},
+		{
+			MethodName: "GetAllRegistryData",
+			Handler:    _ControllerRoutingService_GetAllRegistryData_Handler,
 		},
 		{
 			MethodName: "HealthCheck",

@@ -21,6 +21,15 @@ service EnvoyRoutingService {
   // Bulk node update (30sn'de bir)
   rpc UpdateNodeList(UpdateNodeListRequest) returns (UpdateNodeListResponse);
 
+  // List all control planes
+  rpc ListControlPlanes(ListControlPlanesRequest) returns (ListControlPlanesResponse);
+
+  // List nodes by control plane
+  rpc ListNodesByControlPlane(ListNodesByControlPlaneRequest) returns (ListNodesByControlPlaneResponse);
+
+  // Get all registry data for reporting
+  rpc GetAllRegistryData(GetAllRegistryDataRequest) returns (GetAllRegistryDataResponse);
+
   // Health check
   rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
 }
@@ -88,4 +97,46 @@ message HealthCheckResponse {
   bool healthy = 1;
   string message = 2;
   google.protobuf.Timestamp timestamp = 3;
+}
+
+// List control planes
+message ListControlPlanesRequest {
+  // Empty request
+}
+
+message ControlPlaneInfo {
+  string control_plane_id = 1;
+  string version = 2;
+  google.protobuf.Timestamp last_seen = 3;
+}
+
+message ListControlPlanesResponse {
+  repeated ControlPlaneInfo control_planes = 1;
+}
+
+// List nodes by control plane
+message ListNodesByControlPlaneRequest {
+  string control_plane_id = 1;
+}
+
+message ListNodesByControlPlaneResponse {
+  repeated NodeInfo nodes = 1;
+}
+
+// Get all registry data
+message GetAllRegistryDataRequest {
+  // Empty request
+}
+
+message RegistryData {
+  repeated ControlPlaneInfo control_planes = 1;
+  map<string, NodesData> nodes_by_control_plane = 2;
+}
+
+message NodesData {
+  repeated NodeInfo nodes = 1;
+}
+
+message GetAllRegistryDataResponse {
+  RegistryData data = 1;
 }

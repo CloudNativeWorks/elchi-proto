@@ -21,6 +21,15 @@ service ControllerRoutingService {
   // Bulk client update (30sn'de bir)
   rpc UpdateClientList(UpdateClientListRequest) returns (UpdateClientListResponse);
 
+  // List all controllers
+  rpc ListControllers(ListControllersRequest) returns (ListControllersResponse);
+
+  // List clients by controller
+  rpc ListClientsByController(ListClientsByControllerRequest) returns (ListClientsByControllerResponse);
+
+  // Get all registry data for reporting
+  rpc GetAllRegistryData(GetAllControllerRegistryDataRequest) returns (GetAllControllerRegistryDataResponse);
+
   // Health check
   rpc HealthCheck(ControllerHealthCheckRequest) returns (ControllerHealthCheckResponse);
 }
@@ -90,4 +99,47 @@ message ControllerHealthCheckResponse {
   bool healthy = 1;
   string message = 2;
   google.protobuf.Timestamp timestamp = 3;
+}
+
+// List controllers
+message ListControllersRequest {
+  // Empty request
+}
+
+message ControllerInfo {
+  string controller_id = 1;
+  string version = 2;
+  string grpc_address = 3;
+  google.protobuf.Timestamp last_seen = 4;
+}
+
+message ListControllersResponse {
+  repeated ControllerInfo controllers = 1;
+}
+
+// List clients by controller
+message ListClientsByControllerRequest {
+  string controller_id = 1;
+}
+
+message ListClientsByControllerResponse {
+  repeated ClientInfo clients = 1;
+}
+
+// Get all controller registry data
+message GetAllControllerRegistryDataRequest {
+  // Empty request
+}
+
+message ControllerRegistryData {
+  repeated ControllerInfo controllers = 1;
+  map<string, ClientsData> clients_by_controller = 2;
+}
+
+message ClientsData {
+  repeated ClientInfo clients = 1;
+}
+
+message GetAllControllerRegistryDataResponse {
+  ControllerRegistryData data = 1;
 } 

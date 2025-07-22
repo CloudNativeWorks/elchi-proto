@@ -23,6 +23,9 @@ const (
 	EnvoyRoutingService_GetControlPlaneCluster_FullMethodName  = "/control_plane_routing.EnvoyRoutingService/GetControlPlaneCluster"
 	EnvoyRoutingService_NotifySnapshotDelivered_FullMethodName = "/control_plane_routing.EnvoyRoutingService/NotifySnapshotDelivered"
 	EnvoyRoutingService_UpdateNodeList_FullMethodName          = "/control_plane_routing.EnvoyRoutingService/UpdateNodeList"
+	EnvoyRoutingService_ListControlPlanes_FullMethodName       = "/control_plane_routing.EnvoyRoutingService/ListControlPlanes"
+	EnvoyRoutingService_ListNodesByControlPlane_FullMethodName = "/control_plane_routing.EnvoyRoutingService/ListNodesByControlPlane"
+	EnvoyRoutingService_GetAllRegistryData_FullMethodName      = "/control_plane_routing.EnvoyRoutingService/GetAllRegistryData"
 	EnvoyRoutingService_HealthCheck_FullMethodName             = "/control_plane_routing.EnvoyRoutingService/HealthCheck"
 )
 
@@ -38,6 +41,12 @@ type EnvoyRoutingServiceClient interface {
 	NotifySnapshotDelivered(ctx context.Context, in *NotifySnapshotDeliveredRequest, opts ...grpc.CallOption) (*NotifySnapshotDeliveredResponse, error)
 	// Bulk node update (30sn'de bir)
 	UpdateNodeList(ctx context.Context, in *UpdateNodeListRequest, opts ...grpc.CallOption) (*UpdateNodeListResponse, error)
+	// List all control planes
+	ListControlPlanes(ctx context.Context, in *ListControlPlanesRequest, opts ...grpc.CallOption) (*ListControlPlanesResponse, error)
+	// List nodes by control plane
+	ListNodesByControlPlane(ctx context.Context, in *ListNodesByControlPlaneRequest, opts ...grpc.CallOption) (*ListNodesByControlPlaneResponse, error)
+	// Get all registry data for reporting
+	GetAllRegistryData(ctx context.Context, in *GetAllRegistryDataRequest, opts ...grpc.CallOption) (*GetAllRegistryDataResponse, error)
 	// Health check
 	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
 }
@@ -90,6 +99,36 @@ func (c *envoyRoutingServiceClient) UpdateNodeList(ctx context.Context, in *Upda
 	return out, nil
 }
 
+func (c *envoyRoutingServiceClient) ListControlPlanes(ctx context.Context, in *ListControlPlanesRequest, opts ...grpc.CallOption) (*ListControlPlanesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListControlPlanesResponse)
+	err := c.cc.Invoke(ctx, EnvoyRoutingService_ListControlPlanes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *envoyRoutingServiceClient) ListNodesByControlPlane(ctx context.Context, in *ListNodesByControlPlaneRequest, opts ...grpc.CallOption) (*ListNodesByControlPlaneResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListNodesByControlPlaneResponse)
+	err := c.cc.Invoke(ctx, EnvoyRoutingService_ListNodesByControlPlane_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *envoyRoutingServiceClient) GetAllRegistryData(ctx context.Context, in *GetAllRegistryDataRequest, opts ...grpc.CallOption) (*GetAllRegistryDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllRegistryDataResponse)
+	err := c.cc.Invoke(ctx, EnvoyRoutingService_GetAllRegistryData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *envoyRoutingServiceClient) HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(HealthCheckResponse)
@@ -112,6 +151,12 @@ type EnvoyRoutingServiceServer interface {
 	NotifySnapshotDelivered(context.Context, *NotifySnapshotDeliveredRequest) (*NotifySnapshotDeliveredResponse, error)
 	// Bulk node update (30sn'de bir)
 	UpdateNodeList(context.Context, *UpdateNodeListRequest) (*UpdateNodeListResponse, error)
+	// List all control planes
+	ListControlPlanes(context.Context, *ListControlPlanesRequest) (*ListControlPlanesResponse, error)
+	// List nodes by control plane
+	ListNodesByControlPlane(context.Context, *ListNodesByControlPlaneRequest) (*ListNodesByControlPlaneResponse, error)
+	// Get all registry data for reporting
+	GetAllRegistryData(context.Context, *GetAllRegistryDataRequest) (*GetAllRegistryDataResponse, error)
 	// Health check
 	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
 	mustEmbedUnimplementedEnvoyRoutingServiceServer()
@@ -135,6 +180,15 @@ func (UnimplementedEnvoyRoutingServiceServer) NotifySnapshotDelivered(context.Co
 }
 func (UnimplementedEnvoyRoutingServiceServer) UpdateNodeList(context.Context, *UpdateNodeListRequest) (*UpdateNodeListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateNodeList not implemented")
+}
+func (UnimplementedEnvoyRoutingServiceServer) ListControlPlanes(context.Context, *ListControlPlanesRequest) (*ListControlPlanesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListControlPlanes not implemented")
+}
+func (UnimplementedEnvoyRoutingServiceServer) ListNodesByControlPlane(context.Context, *ListNodesByControlPlaneRequest) (*ListNodesByControlPlaneResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListNodesByControlPlane not implemented")
+}
+func (UnimplementedEnvoyRoutingServiceServer) GetAllRegistryData(context.Context, *GetAllRegistryDataRequest) (*GetAllRegistryDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllRegistryData not implemented")
 }
 func (UnimplementedEnvoyRoutingServiceServer) HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
@@ -232,6 +286,60 @@ func _EnvoyRoutingService_UpdateNodeList_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _EnvoyRoutingService_ListControlPlanes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListControlPlanesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EnvoyRoutingServiceServer).ListControlPlanes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EnvoyRoutingService_ListControlPlanes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EnvoyRoutingServiceServer).ListControlPlanes(ctx, req.(*ListControlPlanesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EnvoyRoutingService_ListNodesByControlPlane_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListNodesByControlPlaneRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EnvoyRoutingServiceServer).ListNodesByControlPlane(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EnvoyRoutingService_ListNodesByControlPlane_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EnvoyRoutingServiceServer).ListNodesByControlPlane(ctx, req.(*ListNodesByControlPlaneRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EnvoyRoutingService_GetAllRegistryData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllRegistryDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EnvoyRoutingServiceServer).GetAllRegistryData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EnvoyRoutingService_GetAllRegistryData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EnvoyRoutingServiceServer).GetAllRegistryData(ctx, req.(*GetAllRegistryDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _EnvoyRoutingService_HealthCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(HealthCheckRequest)
 	if err := dec(in); err != nil {
@@ -272,6 +380,18 @@ var EnvoyRoutingService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateNodeList",
 			Handler:    _EnvoyRoutingService_UpdateNodeList_Handler,
+		},
+		{
+			MethodName: "ListControlPlanes",
+			Handler:    _EnvoyRoutingService_ListControlPlanes_Handler,
+		},
+		{
+			MethodName: "ListNodesByControlPlane",
+			Handler:    _EnvoyRoutingService_ListNodesByControlPlane_Handler,
+		},
+		{
+			MethodName: "GetAllRegistryData",
+			Handler:    _EnvoyRoutingService_GetAllRegistryData_Handler,
 		},
 		{
 			MethodName: "HealthCheck",
