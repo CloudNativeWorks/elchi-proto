@@ -75,7 +75,12 @@ message ResponseClientStats {
   SystemInfo system = 5;
 }
 
-message ResponseNetwork { repeated Interfaces interfaces = 1; }
+message ResponseNetwork { 
+  bool success = 1;
+  string message = 2;
+  NetworkState network_state = 3;
+  string current_yaml = 4;
+}
 
 message ResponseFrr {
   FrrProtocolType protocol = 1;

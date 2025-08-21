@@ -56,7 +56,20 @@ message RequestGeneralLog { uint32 count = 1; }
 
 message RequestClientStats {}
 
-message RequestNetwork { repeated Interfaces interfaces = 1; }
+// Network management requests
+message RequestNetwork { 
+  // Netplan-based interface configuration
+  NetplanConfig netplan_config = 1;
+  
+  // Route management (add/delete/list)
+  repeated RouteOperation route_operations = 2;
+  
+  // Routing policy management (add/delete/list)  
+  repeated RoutingPolicyOperation policy_operations = 3;
+  
+  // Routing table definitions
+  repeated RoutingTableDefinition routing_tables = 4;
+}
 
 message RequestFrr {
   FrrProtocolType protocol = 1;

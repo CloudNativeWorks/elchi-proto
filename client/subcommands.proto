@@ -14,12 +14,19 @@ enum SubCommandType {
   SUB_STATUS = 5;
   SUB_LOGS = 6;
 
-  // NETWORK
-  SUB_SET_IF_CONFIG = 20;
-  SUB_ADD_ROUTE = 21;
-  SUB_ADD_ROUTING_POLICY = 22;
-  SUB_GET_IF_CONFIG = 23;
-
-  SUB_REMOVE_ROUTE = 24;
-  SUB_REMOVE_ROUTING_POLICY = 25;
+  // NETWORK - New netplan-based approach
+  SUB_NETPLAN_APPLY = 20;           // Apply netplan configuration
+  SUB_NETPLAN_GET = 21;             // Get current netplan configuration
+  SUB_NETPLAN_ROLLBACK = 22;        // Rollback to previous configuration
+  
+  // NETWORK - Route management
+  SUB_ROUTE_MANAGE = 23;            // Manage routes (add/delete/replace)
+  SUB_ROUTE_LIST = 24;              // List current routes
+  
+  // NETWORK - Policy management  
+  SUB_POLICY_MANAGE = 25;           // Manage routing policies (add/delete/replace)
+  SUB_POLICY_LIST = 26;             // List current policies
+  
+  // NETWORK - General state
+  SUB_GET_NETWORK_STATE = 27;       // Get complete network state
 }
