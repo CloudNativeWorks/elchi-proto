@@ -30,9 +30,8 @@ message RoutingPolicy {
   string to = 2;                    // Destination address/network (optional)
   uint32 table = 3;                 // Routing table ID
   uint32 priority = 4;              // Rule priority (lower = higher priority)
-  string iif = 5;                   // Input interface (optional)
-  string oif = 6;                   // Output interface (optional)
-  uint32 fwmark = 7;                // Firewall mark (optional)
+  string interface = 5;             // Interface name for netplan (optional)
+  uint32 fwmark = 6;                // Firewall mark (optional)
 }
 
 // Routing table definition for system routing tables
