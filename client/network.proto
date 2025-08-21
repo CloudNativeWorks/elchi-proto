@@ -17,8 +17,8 @@ message Route {
   string to = 1;                    // Destination (e.g., "0.0.0.0/0", "10.0.0.0/24")
   string via = 2;                   // Gateway IP
   string interface = 3;             // Interface name (e.g., "eth0")
-  optional uint32 table = 4;        // Routing table ID (optional, default: main)
-  optional uint32 metric = 5;       // Route metric
+  uint32 table = 4;        // Routing table ID (optional, default: main)
+  uint32 metric = 5;       // Route metric
   string source = 6;                // Source IP for this route
   string scope = 7;                 // Route scope (e.g., "global", "link", "host")
   bool is_default = 8;              // Is this a default route
