@@ -67,8 +67,11 @@ message RequestNetwork {
   // Routing policy management (add/delete/list)  
   repeated RoutingPolicyOperation policy_operations = 3;
   
-  // Routing table definitions
+  // Routing table definitions (for initial setup/bulk update)
   repeated RoutingTableDefinition routing_tables = 4;
+  
+  // Routing table operations (add/delete/replace individual tables)
+  repeated TableOperation table_operations = 5;
 }
 
 message RequestFrr {

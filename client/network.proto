@@ -63,6 +63,17 @@ message RoutingPolicyOperation {
   RoutingPolicy policy = 2;
 }
 
+// Routing table operations (add/delete/replace)
+message TableOperation {
+  enum Action {
+    ADD = 0;
+    DELETE = 1;
+    REPLACE = 2;
+  }
+  Action action = 1;
+  RoutingTableDefinition table = 2;
+}
+
 // Network state response
 message NetworkState {
   repeated InterfaceState interfaces = 1;

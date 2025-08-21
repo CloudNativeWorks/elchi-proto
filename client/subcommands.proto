@@ -29,4 +29,8 @@ enum SubCommandType {
   
   // NETWORK - General state
   SUB_GET_NETWORK_STATE = 27;       // Get complete network state
+  
+  // NETWORK - Table management
+  SUB_TABLE_MANAGE = 28;            // Manage routing tables (add/delete/replace)
+  SUB_TABLE_LIST = 29;              // List current routing tables
 }
