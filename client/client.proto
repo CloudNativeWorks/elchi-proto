@@ -23,6 +23,24 @@ service CommandService {
   // Client initiates the connection and keeps it alive
   // Server uses this stream to send commands and receive responses
   rpc CommandStream(stream CommandResponse) returns (stream Command) {}
+  
+  // Ping provides a simple health check endpoint for connectivity testing
+  // Used to verify network configuration changes don't break controller connection
+  rpc Ping(PingRequest) returns (PingResponse) {}
+}
+
+// PingRequest is sent by client to test connectivity
+message PingRequest {
+  int64 timestamp = 1;        // Unix timestamp when ping was sent
+  string client_id = 2;        // Client identifier for tracking
+}
+
+// PingResponse is returned by server to confirm connectivity
+message PingResponse {
+  int64 client_timestamp = 1;  // Echo of client's timestamp
+  int64 server_timestamp = 2;  // Server's current timestamp
+  string message = 3;          // Optional server message
+  bool success = 4;            // Indicates if ping was successful
 }
 
 // Command represents a command to be executed by the client
