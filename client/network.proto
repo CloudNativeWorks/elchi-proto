@@ -22,6 +22,7 @@ message Route {
   string source = 6;                // Source IP for this route
   string scope = 7;                 // Route scope (e.g., "global", "link", "host")
   bool is_default = 8;              // Is this a default route
+  string protocol = 9;              // Route protocol (e.g., "kernel", "static", "bgp", "ospf")
 }
 
 // Policy-based routing rule - independent management
