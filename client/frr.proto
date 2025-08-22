@@ -68,6 +68,15 @@ message BgpConfig {
   bool deterministic_med = 16;
   bool always_compare_med = 17;
   bool log_neighbor_changes = 18;
+  
+  // Graceful Restart Configuration
+  bool graceful_restart_enabled = 19;
+  uint32 graceful_restart_time = 20;      // Restart timer in seconds (default: 120)
+  uint32 graceful_stale_path_time = 21;   // Stale path timer in seconds (default: 360)  
+  bool preserve_forwarding_state = 22;    // Preserve FIB during restart
+  bool graceful_restart_disable = 23;     // Explicitly disable GR
+  uint32 select_defer_time = 24;          // Route selection defer timer (0-3600)
+  uint32 rib_stale_time = 25;             // RIB stale timer
 }
 
 message ResponseBgp {
@@ -149,6 +158,11 @@ message BgpNeighbor {
   bool ebgp_multihop = 16;
   uint32 ebgp_multihop_ttl = 17;
   bool disable_connected_check = 18;
+  
+  // Per-neighbor Graceful Restart Configuration  
+  bool graceful_restart = 19;              // Enable GR for this neighbor
+  bool graceful_restart_helper = 20;       // Act as GR helper only
+  bool graceful_restart_disable = 21;      // Disable GR for this neighbor
 }
 
 // BGP Neighbor Timers
