@@ -22,6 +22,7 @@ const (
 	CommandService_Register_FullMethodName      = "/client.CommandService/Register"
 	CommandService_Unregister_FullMethodName    = "/client.CommandService/Unregister"
 	CommandService_CommandStream_FullMethodName = "/client.CommandService/CommandStream"
+	CommandService_Ping_FullMethodName          = "/client.CommandService/Ping"
 )
 
 // CommandServiceClient is the client API for CommandService service.
@@ -38,6 +39,9 @@ type CommandServiceClient interface {
 	// Client initiates the connection and keeps it alive
 	// Server uses this stream to send commands and receive responses
 	CommandStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[CommandResponse, Command], error)
+	// Ping provides a simple health check endpoint for connectivity testing
+	// Used to verify network configuration changes don't break controller connection
+	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 }
 
 type commandServiceClient struct {
@@ -81,6 +85,16 @@ func (c *commandServiceClient) CommandStream(ctx context.Context, opts ...grpc.C
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type CommandService_CommandStreamClient = grpc.BidiStreamingClient[CommandResponse, Command]
 
+func (c *commandServiceClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PingResponse)
+	err := c.cc.Invoke(ctx, CommandService_Ping_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CommandServiceServer is the server API for CommandService service.
 // All implementations must embed UnimplementedCommandServiceServer
 // for forward compatibility.
@@ -95,6 +109,9 @@ type CommandServiceServer interface {
 	// Client initiates the connection and keeps it alive
 	// Server uses this stream to send commands and receive responses
 	CommandStream(grpc.BidiStreamingServer[CommandResponse, Command]) error
+	// Ping provides a simple health check endpoint for connectivity testing
+	// Used to verify network configuration changes don't break controller connection
+	Ping(context.Context, *PingRequest) (*PingResponse, error)
 	mustEmbedUnimplementedCommandServiceServer()
 }
 
@@ -113,6 +130,9 @@ func (UnimplementedCommandServiceServer) Unregister(context.Context, *Unregister
 }
 func (UnimplementedCommandServiceServer) CommandStream(grpc.BidiStreamingServer[CommandResponse, Command]) error {
 	return status.Errorf(codes.Unimplemented, "method CommandStream not implemented")
+}
+func (UnimplementedCommandServiceServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
 }
 func (UnimplementedCommandServiceServer) mustEmbedUnimplementedCommandServiceServer() {}
 func (UnimplementedCommandServiceServer) testEmbeddedByValue()                        {}
@@ -178,6 +198,24 @@ func _CommandService_CommandStream_Handler(srv interface{}, stream grpc.ServerSt
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type CommandService_CommandStreamServer = grpc.BidiStreamingServer[CommandResponse, Command]
 
+func _CommandService_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommandServiceServer).Ping(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommandService_Ping_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommandServiceServer).Ping(ctx, req.(*PingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CommandService_ServiceDesc is the grpc.ServiceDesc for CommandService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -192,6 +230,10 @@ var CommandService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Unregister",
 			Handler:    _CommandService_Unregister_Handler,
+		},
+		{
+			MethodName: "Ping",
+			Handler:    _CommandService_Ping_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
