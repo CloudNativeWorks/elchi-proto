@@ -79,4 +79,15 @@ message RequestFrr {
   RequestBgp bgp = 2;
 }
 
+enum EnvoyVersionOperation {
+  GET_VERSIONS = 0;     // Yerel olarak indirilmiş versionları listele
+  SET_VERSION = 1;      // Archive'den belirli version'ı indir ve kur
+}
+
+message RequestEnvoyVersion {
+  EnvoyVersionOperation operation = 1;
+  string version = 2;                    // SET_VERSION operation için
+  bool force_download = 3;               // Binary zaten varsa yeniden indir
+}
+
 

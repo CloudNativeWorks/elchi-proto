@@ -31,4 +31,7 @@ enum CommandType {
   // FRR
   FRR = 61;
   FRR_LOGS = 62;
+
+  // ENVOY
+  ENVOY_VERSION = 71;
 }

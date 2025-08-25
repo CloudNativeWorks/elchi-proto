@@ -59,6 +59,7 @@ message Command {
     RequestClientStats client_stats = 16;
     RequestNetwork network = 17;
     RequestFrr frr = 18;
+    RequestEnvoyVersion envoy_version = 19;
   }
 }
 
@@ -78,5 +79,6 @@ message CommandResponse {
     ResponseClientStats client_stats = 16;
     ResponseNetwork network = 17;
     ResponseFrr frr = 18;
+    ResponseEnvoyVersion envoy_version = 19;
   }
 }

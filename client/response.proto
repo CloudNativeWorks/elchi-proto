@@ -88,3 +88,21 @@ message ResponseFrr {
   string message = 3;
   ResponseBgp bgp = 4;
 }
+
+enum EnvoyVersionStatus {
+  SUCCESS = 0;
+  DOWNLOAD_FAILED = 1;
+  EXTRACTION_FAILED = 2;
+  PERMISSION_FAILED = 3;
+  VERSION_NOT_FOUND = 4;
+  NETWORK_ERROR = 5;
+  DIRECTORY_ERROR = 6;
+}
+
+message ResponseEnvoyVersion {
+  repeated string downloaded_versions = 1;  // GET_VERSIONS için: v1.34.2, v1.35.0 gibi
+  string installed_version = 2;            // SET_VERSION için: kurulu version
+  string download_path = 3;                // SET_VERSION için: kurulum path'i
+  EnvoyVersionStatus status = 4;
+  string error_message = 5;
+}
