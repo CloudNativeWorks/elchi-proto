@@ -69,6 +69,52 @@ func (HttpMethod) EnumDescriptor() ([]byte, []int) {
 	return file_client_request_proto_rawDescGZIP(), []int{0}
 }
 
+type EnvoyVersionOperation int32
+
+const (
+	EnvoyVersionOperation_GET_VERSIONS EnvoyVersionOperation = 0 // Yerel olarak indirilmiş versionları listele
+	EnvoyVersionOperation_SET_VERSION  EnvoyVersionOperation = 1 // Archive'den belirli version'ı indir ve kur
+)
+
+// Enum value maps for EnvoyVersionOperation.
+var (
+	EnvoyVersionOperation_name = map[int32]string{
+		0: "GET_VERSIONS",
+		1: "SET_VERSION",
+	}
+	EnvoyVersionOperation_value = map[string]int32{
+		"GET_VERSIONS": 0,
+		"SET_VERSION":  1,
+	}
+)
+
+func (x EnvoyVersionOperation) Enum() *EnvoyVersionOperation {
+	p := new(EnvoyVersionOperation)
+	*p = x
+	return p
+}
+
+func (x EnvoyVersionOperation) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (EnvoyVersionOperation) Descriptor() protoreflect.EnumDescriptor {
+	return file_client_request_proto_enumTypes[1].Descriptor()
+}
+
+func (EnvoyVersionOperation) Type() protoreflect.EnumType {
+	return &file_client_request_proto_enumTypes[1]
+}
+
+func (x EnvoyVersionOperation) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use EnvoyVersionOperation.Descriptor instead.
+func (EnvoyVersionOperation) EnumDescriptor() ([]byte, []int) {
+	return file_client_request_proto_rawDescGZIP(), []int{1}
+}
+
 // Deploy related messages
 type RequestDeploy struct {
 	state         protoimpl.MessageState
@@ -656,6 +702,67 @@ func (x *RequestFrr) GetBgp() *RequestBgp {
 	return nil
 }
 
+type RequestEnvoyVersion struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Operation     EnvoyVersionOperation `protobuf:"varint,1,opt,name=operation,proto3,enum=client.EnvoyVersionOperation" json:"operation,omitempty"`
+	Version       string                `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`                                   // SET_VERSION operation için
+	ForceDownload bool                  `protobuf:"varint,3,opt,name=force_download,json=forceDownload,proto3" json:"force_download,omitempty"` // Binary zaten varsa yeniden indir
+}
+
+func (x *RequestEnvoyVersion) Reset() {
+	*x = RequestEnvoyVersion{}
+	mi := &file_client_request_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RequestEnvoyVersion) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RequestEnvoyVersion) ProtoMessage() {}
+
+func (x *RequestEnvoyVersion) ProtoReflect() protoreflect.Message {
+	mi := &file_client_request_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RequestEnvoyVersion.ProtoReflect.Descriptor instead.
+func (*RequestEnvoyVersion) Descriptor() ([]byte, []int) {
+	return file_client_request_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *RequestEnvoyVersion) GetOperation() EnvoyVersionOperation {
+	if x != nil {
+		return x.Operation
+	}
+	return EnvoyVersionOperation_GET_VERSIONS
+}
+
+func (x *RequestEnvoyVersion) GetVersion() string {
+	if x != nil {
+		return x.Version
+	}
+	return ""
+}
+
+func (x *RequestEnvoyVersion) GetForceDownload() bool {
+	if x != nil {
+		return x.ForceDownload
+	}
+	return false
+}
+
 var File_client_request_proto protoreflect.FileDescriptor
 
 var file_client_request_proto_rawDesc = []byte{
@@ -746,14 +853,27 @@ var file_client_request_proto_rawDesc = []byte{
 	0x63, 0x6f, 0x6c, 0x54, 0x79, 0x70, 0x65, 0x52, 0x08, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f,
 	0x6c, 0x12, 0x24, 0x0a, 0x03, 0x62, 0x67, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x12,
 	0x2e, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x42,
-	0x67, 0x70, 0x52, 0x03, 0x62, 0x67, 0x70, 0x2a, 0x30, 0x0a, 0x0a, 0x48, 0x74, 0x74, 0x70, 0x4d,
-	0x65, 0x74, 0x68, 0x6f, 0x64, 0x12, 0x0f, 0x0a, 0x0b, 0x55, 0x4e, 0x53, 0x50, 0x45, 0x43, 0x49,
-	0x46, 0x49, 0x45, 0x44, 0x10, 0x00, 0x12, 0x07, 0x0a, 0x03, 0x47, 0x45, 0x54, 0x10, 0x01, 0x12,
-	0x08, 0x0a, 0x04, 0x50, 0x4f, 0x53, 0x54, 0x10, 0x02, 0x42, 0x30, 0x5a, 0x2e, 0x67, 0x69, 0x74,
-	0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x43, 0x6c, 0x6f, 0x75, 0x64, 0x4e, 0x61, 0x74,
-	0x69, 0x76, 0x65, 0x57, 0x6f, 0x72, 0x6b, 0x73, 0x2f, 0x65, 0x6c, 0x63, 0x68, 0x69, 0x2d, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x33,
+	0x67, 0x70, 0x52, 0x03, 0x62, 0x67, 0x70, 0x22, 0x93, 0x01, 0x0a, 0x13, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x45, 0x6e, 0x76, 0x6f, 0x79, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x12,
+	0x3b, 0x0a, 0x09, 0x6f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x0e, 0x32, 0x1d, 0x2e, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x2e, 0x45, 0x6e, 0x76, 0x6f,
+	0x79, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x4f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x52, 0x09, 0x6f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x18, 0x0a, 0x07,
+	0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x76,
+	0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x25, 0x0a, 0x0e, 0x66, 0x6f, 0x72, 0x63, 0x65, 0x5f,
+	0x64, 0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0d,
+	0x66, 0x6f, 0x72, 0x63, 0x65, 0x44, 0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61, 0x64, 0x2a, 0x30, 0x0a,
+	0x0a, 0x48, 0x74, 0x74, 0x70, 0x4d, 0x65, 0x74, 0x68, 0x6f, 0x64, 0x12, 0x0f, 0x0a, 0x0b, 0x55,
+	0x4e, 0x53, 0x50, 0x45, 0x43, 0x49, 0x46, 0x49, 0x45, 0x44, 0x10, 0x00, 0x12, 0x07, 0x0a, 0x03,
+	0x47, 0x45, 0x54, 0x10, 0x01, 0x12, 0x08, 0x0a, 0x04, 0x50, 0x4f, 0x53, 0x54, 0x10, 0x02, 0x2a,
+	0x3a, 0x0a, 0x15, 0x45, 0x6e, 0x76, 0x6f, 0x79, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x4f,
+	0x70, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x10, 0x0a, 0x0c, 0x47, 0x45, 0x54, 0x5f,
+	0x56, 0x45, 0x52, 0x53, 0x49, 0x4f, 0x4e, 0x53, 0x10, 0x00, 0x12, 0x0f, 0x0a, 0x0b, 0x53, 0x45,
+	0x54, 0x5f, 0x56, 0x45, 0x52, 0x53, 0x49, 0x4f, 0x4e, 0x10, 0x01, 0x42, 0x30, 0x5a, 0x2e, 0x67,
+	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x43, 0x6c, 0x6f, 0x75, 0x64, 0x4e,
+	0x61, 0x74, 0x69, 0x76, 0x65, 0x57, 0x6f, 0x72, 0x6b, 0x73, 0x2f, 0x65, 0x6c, 0x63, 0x68, 0x69,
+	0x2d, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x62, 0x06, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -768,43 +888,46 @@ func file_client_request_proto_rawDescGZIP() []byte {
 	return file_client_request_proto_rawDescData
 }
 
-var file_client_request_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_client_request_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_client_request_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_client_request_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_client_request_proto_goTypes = []any{
 	(HttpMethod)(0),                // 0: client.HttpMethod
-	(*RequestDeploy)(nil),          // 1: client.RequestDeploy
-	(*RequestUnDeploy)(nil),        // 2: client.RequestUnDeploy
-	(*RequestService)(nil),         // 3: client.RequestService
-	(*RequestUpdateBootstrap)(nil), // 4: client.RequestUpdateBootstrap
-	(*RequestEnvoyAdmin)(nil),      // 5: client.RequestEnvoyAdmin
-	(*RequestGeneralLog)(nil),      // 6: client.RequestGeneralLog
-	(*RequestClientStats)(nil),     // 7: client.RequestClientStats
-	(*RequestNetwork)(nil),         // 8: client.RequestNetwork
-	(*RequestFrr)(nil),             // 9: client.RequestFrr
-	nil,                            // 10: client.RequestEnvoyAdmin.QueriesEntry
-	(*NetplanConfig)(nil),          // 11: client.NetplanConfig
-	(*RouteOperation)(nil),         // 12: client.RouteOperation
-	(*RoutingPolicyOperation)(nil), // 13: client.RoutingPolicyOperation
-	(*RoutingTableDefinition)(nil), // 14: client.RoutingTableDefinition
-	(*TableOperation)(nil),         // 15: client.TableOperation
-	(FrrProtocolType)(0),           // 16: client.FrrProtocolType
-	(*RequestBgp)(nil),             // 17: client.RequestBgp
+	(EnvoyVersionOperation)(0),     // 1: client.EnvoyVersionOperation
+	(*RequestDeploy)(nil),          // 2: client.RequestDeploy
+	(*RequestUnDeploy)(nil),        // 3: client.RequestUnDeploy
+	(*RequestService)(nil),         // 4: client.RequestService
+	(*RequestUpdateBootstrap)(nil), // 5: client.RequestUpdateBootstrap
+	(*RequestEnvoyAdmin)(nil),      // 6: client.RequestEnvoyAdmin
+	(*RequestGeneralLog)(nil),      // 7: client.RequestGeneralLog
+	(*RequestClientStats)(nil),     // 8: client.RequestClientStats
+	(*RequestNetwork)(nil),         // 9: client.RequestNetwork
+	(*RequestFrr)(nil),             // 10: client.RequestFrr
+	(*RequestEnvoyVersion)(nil),    // 11: client.RequestEnvoyVersion
+	nil,                            // 12: client.RequestEnvoyAdmin.QueriesEntry
+	(*NetplanConfig)(nil),          // 13: client.NetplanConfig
+	(*RouteOperation)(nil),         // 14: client.RouteOperation
+	(*RoutingPolicyOperation)(nil), // 15: client.RoutingPolicyOperation
+	(*RoutingTableDefinition)(nil), // 16: client.RoutingTableDefinition
+	(*TableOperation)(nil),         // 17: client.TableOperation
+	(FrrProtocolType)(0),           // 18: client.FrrProtocolType
+	(*RequestBgp)(nil),             // 19: client.RequestBgp
 }
 var file_client_request_proto_depIdxs = []int32{
 	0,  // 0: client.RequestEnvoyAdmin.method:type_name -> client.HttpMethod
-	10, // 1: client.RequestEnvoyAdmin.queries:type_name -> client.RequestEnvoyAdmin.QueriesEntry
-	11, // 2: client.RequestNetwork.netplan_config:type_name -> client.NetplanConfig
-	12, // 3: client.RequestNetwork.route_operations:type_name -> client.RouteOperation
-	13, // 4: client.RequestNetwork.policy_operations:type_name -> client.RoutingPolicyOperation
-	14, // 5: client.RequestNetwork.routing_tables:type_name -> client.RoutingTableDefinition
-	15, // 6: client.RequestNetwork.table_operations:type_name -> client.TableOperation
-	16, // 7: client.RequestFrr.protocol:type_name -> client.FrrProtocolType
-	17, // 8: client.RequestFrr.bgp:type_name -> client.RequestBgp
-	9,  // [9:9] is the sub-list for method output_type
-	9,  // [9:9] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	12, // 1: client.RequestEnvoyAdmin.queries:type_name -> client.RequestEnvoyAdmin.QueriesEntry
+	13, // 2: client.RequestNetwork.netplan_config:type_name -> client.NetplanConfig
+	14, // 3: client.RequestNetwork.route_operations:type_name -> client.RouteOperation
+	15, // 4: client.RequestNetwork.policy_operations:type_name -> client.RoutingPolicyOperation
+	16, // 5: client.RequestNetwork.routing_tables:type_name -> client.RoutingTableDefinition
+	17, // 6: client.RequestNetwork.table_operations:type_name -> client.TableOperation
+	18, // 7: client.RequestFrr.protocol:type_name -> client.FrrProtocolType
+	19, // 8: client.RequestFrr.bgp:type_name -> client.RequestBgp
+	1,  // 9: client.RequestEnvoyVersion.operation:type_name -> client.EnvoyVersionOperation
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_client_request_proto_init() }
@@ -819,8 +942,8 @@ func file_client_request_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_client_request_proto_rawDesc,
-			NumEnums:      1,
-			NumMessages:   10,
+			NumEnums:      2,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
