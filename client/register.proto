@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+import "client/identity.proto";
+
+// RegisterRequest contains client registration information
+message RegisterRequest {
+    string client_id = 1;
+    string token = 2;
+    string name = 3;
+    string version = 4;
+    string hostname = 5;
+    string os = 6;
+    string arch = 7;
+    string kernel = 8;
+    map<string, string> metadata = 9;
+    string project_id = 10; // Optional: Project ID for the client. If empty, default project will be used
+}
+
+// RegisterResponse contains the server's response to registration
+message RegisterResponse {
+    bool success = 1;
+    string error = 2;
+    string session_token = 3;
+}
+
+// UnregisterRequest contains information for client unregistration
+message UnregisterRequest {
+    Identity identity = 1;
+}
+
+// UnregisterResponse contains the server's response to unregistration
+message UnregisterResponse {
+    bool success = 1;
+    string error = 2;
+}

@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+enum SubCommandType {
+  // SERVICES
+  SUB_UNKNOWN = 0;
+  SUB_START = 1;
+  SUB_STOP = 2;
+  SUB_RESTART = 3;
+  SUB_RELOAD = 4;
+  SUB_STATUS = 5;
+  SUB_LOGS = 6;
+
+  // NETWORK - New netplan-based approach
+  SUB_NETPLAN_APPLY = 20;           // Apply netplan configuration
+  SUB_NETPLAN_GET = 21;             // Get current netplan configuration
+  SUB_NETPLAN_ROLLBACK = 22;        // Rollback to previous configuration
+  
+  // NETWORK - Route management
+  SUB_ROUTE_MANAGE = 23;            // Manage routes (add/delete/replace)
+  SUB_ROUTE_LIST = 24;              // List current routes
+  
+  // NETWORK - Policy management  
+  SUB_POLICY_MANAGE = 25;           // Manage routing policies (add/delete/replace)
+  SUB_POLICY_LIST = 26;             // List current policies
+  
+  // NETWORK - General state
+  SUB_GET_NETWORK_STATE = 27;       // Get complete network state
+  
+  // NETWORK - Table management
+  SUB_TABLE_MANAGE = 28;            // Manage routing tables (add/delete/replace)
+  SUB_TABLE_LIST = 29;              // List current routing tables
+}

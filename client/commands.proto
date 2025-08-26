@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+// CommandType defines all possible command types
+enum CommandType {
+  UNKNOWN = 0;
+
+  // DEPLOY
+  DEPLOY = 1;
+  UNDEPLOY = 2;
+
+  // BOOTSTRAP
+  UPDATE_BOOTSTRAP = 11;
+
+  // SERVICES
+  SERVICE = 21;
+
+  // CLIENT
+  CLIENT_LOGS = 31;
+  CLIENT_STATS = 32;
+
+  // PROXY
+  PROXY = 41;
+
+  // NETWORK
+  NETWORK = 51;
+
+  // FRR
+  FRR = 61;
+  FRR_LOGS = 62;
+
+  // ENVOY
+  ENVOY_VERSION = 71;
+}

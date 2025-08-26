@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+import "client/client.proto";
+
+service ControllerService {
+  // RegisterController registers a controller with the registry
+  rpc RegisterController(ControllerInfo) returns (ControllerResponse);
+
+  // GetClientLocation finds which controller a client is connected to
+  rpc GetClientLocation(ClientLocationRequest) returns (ClientLocationResponse);
+
+  // SetClientLocation sets where a client is connected
+  rpc SetClientLocation(SetClientLocationRequest)
+      returns (SetClientLocationResponse);
+
+  rpc IsControllerRegistered(IsControllerRegisteredRequest)
+      returns (IsControllerRegisteredResponse);
+
+  rpc BulkSetClientLocations(BulkSetClientLocationsRequest)
+      returns (BulkSetClientLocationsResponse);
+
+  // ForwardCommand forwards a command to the appropriate controller
+  rpc ForwardCommand(ForwardCommandRequest) returns (ForwardCommandResponse);
+
+  rpc RequestClientRefresh(ClientRefreshRequest)
+      returns (ClientRefreshResponse);
+}
+
+// ControllerInfo contains controller registration information
+message ControllerInfo {
+  string controller_id = 1;
+  string grpc_address = 2;
+}
+
+// ControllerResponse indicates success or failure of controller operations
+message ControllerResponse { string success = 1; }
+
+// ClientLocationRequest requests the location of a client
+message ClientLocationRequest { string client_id = 1; }
+
+// ClientLocationResponse returns the controller where a client is located
+message ClientLocationResponse {
+  bool found = 1;
+  string controller_id = 2;
+  string controller_fqdn = 3;
+}
+
+// SetClientLocationRequest sets the location of a client.
+message SetClientLocationRequest {
+  string client_id = 1;
+  string controller_id = 2;
+}
+
+// SetClientLocationResponse indicates success or failure of setting client
+// location
+message SetClientLocationResponse { string success = 1; }
+
+// ForwardCommandRequest contains a command to be forwarded
+message ForwardCommandRequest { Command command = 1; }
+
+// ForwardCommandResponse contains the response from forwarded command
+message ForwardCommandResponse {
+  bool success = 1;
+  string error = 2;
+  CommandResponse response = 3;
+}
+
+message ClientRefreshRequest { string controller_id = 1; }
+
+message ClientRefreshResponse {
+  string success = 1;
+  int32 client_count = 2;
+}
+
+message IsControllerRegisteredRequest { string controller_id = 1; }
+
+message IsControllerRegisteredResponse { bool registered = 1; }
+
+message BulkSetClientLocationsRequest {
+  string controller_id = 1;
+  repeated string client_ids = 2;
+}
+
+message BulkSetClientLocationsResponse {
+  bool success = 1;
+  string error = 2;
+  int32 updated_count = 3;
+}

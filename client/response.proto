@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+import "client/stats.proto";
+import "client/network.proto";
+import "client/frr.proto";
+
+message ResponseDeploy {
+  string files = 1;
+  string service = 2;
+  string network = 3;
+  string downstream_address = 4;
+  uint32 port = 5;
+}
+
+message ResponseUnDeploy {
+  string files = 1;
+  string service = 2;
+  string network = 3;
+  string downstream_address = 4;
+  uint32 port = 5;
+}
+
+message ResponseUpdateBootstrap { string name = 1; }
+
+message ResponseService {
+  string name = 1;
+  ServiceStatus status = 2;
+  repeated Logs logs = 3;
+}
+
+message ServiceStatus {
+  string loaded = 1;
+  string active = 2;
+  string main_pid = 3;
+  string tasks = 4;
+  string memory = 5;
+  string cpu = 6;
+  repeated string cgroup = 7;
+}
+
+message Logs {
+  string message = 1;
+  string level = 2;
+  string component = 3;
+  string timestamp = 4;
+}
+
+message ResponseEnvoyAdmin {
+  int32 status_code = 1;
+  string body = 2;
+  map<string, string> headers = 3;
+}
+
+message GeneralLogs {
+  string message = 1;
+  string level = 2;
+  string module = 3;
+  string timestamp = 4;
+  string file = 5;
+  map<string, string> metadata = 6;
+}
+
+message ResponseGeneralLog { repeated GeneralLogs logs = 1; }
+
+
+message ResponseClientStats {
+  CPUStats cpu = 1;
+  MemoryStats memory = 2;
+  repeated DiskStats disk = 3;
+  NetworkStats network = 4;
+  SystemInfo system = 5;
+}
+
+message ResponseNetwork { 
+  bool success = 1;
+  string message = 2;
+  NetworkState network_state = 3;
+  string current_yaml = 4;
+}
+
+message ResponseFrr {
+  FrrProtocolType protocol = 1;
+  bool success = 2;
+  string message = 3;
+  ResponseBgp bgp = 4;
+}
+
+enum EnvoyVersionStatus {
+  SUCCESS = 0;
+  DOWNLOAD_FAILED = 1;
+  EXTRACTION_FAILED = 2;
+  PERMISSION_FAILED = 3;
+  VERSION_NOT_FOUND = 4;
+  NETWORK_ERROR = 5;
+  DIRECTORY_ERROR = 6;
+}
+
+message ResponseEnvoyVersion {
+  repeated string downloaded_versions = 1;  // GET_VERSIONS için: v1.34.2, v1.35.0 gibi
+  string installed_version = 2;            // SET_VERSION için: kurulu version
+  string download_path = 3;                // SET_VERSION için: kurulum path'i
+  EnvoyVersionStatus status = 4;
+  string error_message = 5;
+}

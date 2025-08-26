@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+import "client/request.proto";
+import "client/response.proto";
+import "client/identity.proto";
+import "client/register.proto";
+import "client/commands.proto";
+import "client/subcommands.proto";
+
+// CommandService handles all client-server communication
+service CommandService {
+  // Register registers a client with the server
+  rpc Register(RegisterRequest) returns (RegisterResponse) {}
+
+  // Unregister removes a client's registration from the server
+  rpc Unregister(UnregisterRequest) returns (UnregisterResponse) {}
+
+  // CommandStream establishes a bidirectional stream for commands
+  // Client initiates the connection and keeps it alive
+  // Server uses this stream to send commands and receive responses
+  rpc CommandStream(stream CommandResponse) returns (stream Command) {}
+  
+  // Ping provides a simple health check endpoint for connectivity testing
+  // Used to verify network configuration changes don't break controller connection
+  rpc Ping(PingRequest) returns (PingResponse) {}
+}
+
+// PingRequest is sent by client to test connectivity
+message PingRequest {
+  int64 timestamp = 1;        // Unix timestamp when ping was sent
+  string client_id = 2;        // Client identifier for tracking
+}
+
+// PingResponse is returned by server to confirm connectivity
+message PingResponse {
+  int64 client_timestamp = 1;  // Echo of client's timestamp
+  int64 server_timestamp = 2;  // Server's current timestamp
+  string message = 3;          // Optional server message
+  bool success = 4;            // Indicates if ping was successful
+}
+
+// Command represents a command to be executed by the client
+message Command {
+  Identity identity = 1;
+  string command_id = 2;
+  CommandType type = 3;
+  SubCommandType sub_type = 4;
+  oneof payload {
+    RequestDeploy deploy = 10;
+    RequestService service = 11;
+    RequestUpdateBootstrap update_bootstrap = 12;
+    RequestEnvoyAdmin envoy_admin = 13;
+    RequestUnDeploy undeploy = 14;
+    RequestGeneralLog general_log = 15;
+    RequestClientStats client_stats = 16;
+    RequestNetwork network = 17;
+    RequestFrr frr = 18;
+    RequestEnvoyVersion envoy_version = 19;
+  }
+}
+
+// CommandResponse represents the response to a command
+message CommandResponse {
+  Identity identity = 1;
+  string command_id = 2;
+  bool success = 3;
+  string error = 4;
+  oneof result {
+    ResponseDeploy deploy = 10;
+    ResponseService service = 11;
+    ResponseUpdateBootstrap update_bootstrap = 12;
+    ResponseEnvoyAdmin envoy_admin = 13;
+    ResponseUnDeploy undeploy = 14;
+    ResponseGeneralLog general_log = 15;
+    ResponseClientStats client_stats = 16;
+    ResponseNetwork network = 17;
+    ResponseFrr frr = 18;
+    ResponseEnvoyVersion envoy_version = 19;
+  }
+}

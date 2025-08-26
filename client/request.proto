@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+import "client/network.proto";
+import "client/frr.proto";
+
+// Deploy related messages
+message RequestDeploy {
+  string name = 1;
+  string downstream_address = 2;
+  uint32 port = 3;
+  string version = 4;
+  bytes bootstrap = 5;
+}
+
+message RequestUnDeploy {
+  string name = 1;
+  uint32 port = 2;
+  string downstream_address = 3;
+}
+
+message RequestService {
+  string name = 1;
+  uint32 port = 2;
+  uint32 count = 3;
+  string search = 4;
+  repeated string levels = 5;
+  repeated string components = 6;
+}
+
+message RequestUpdateBootstrap {
+  string name = 1;
+  uint32 port = 2;
+  bytes bootstrap = 3;
+}
+
+enum HttpMethod {
+  UNSPECIFIED = 0;
+  GET = 1;
+  POST = 2;
+}
+
+message RequestEnvoyAdmin {
+  string name = 1;
+  uint32 port = 2;
+  HttpMethod method = 3;
+  string path = 4;
+  map<string, string> queries = 5;
+  string body = 6;
+}
+
+message RequestGeneralLog { uint32 count = 1; }
+
+message RequestClientStats {}
+
+// Network management requests
+message RequestNetwork { 
+  // Netplan-based interface configuration
+  NetplanConfig netplan_config = 1;
+  
+  // Route management (add/delete/list)
+  repeated RouteOperation route_operations = 2;
+  
+  // Routing policy management (add/delete/list)  
+  repeated RoutingPolicyOperation policy_operations = 3;
+  
+  // Routing table definitions (for initial setup/bulk update)
+  repeated RoutingTableDefinition routing_tables = 4;
+  
+  // Routing table operations (add/delete/replace individual tables)
+  repeated TableOperation table_operations = 5;
+}
+
+message RequestFrr {
+  FrrProtocolType protocol = 1;
+  RequestBgp bgp = 2;
+}
+
+enum EnvoyVersionOperation {
+  GET_VERSIONS = 0;     // Yerel olarak indirilmiş versionları listele
+  SET_VERSION = 1;      // Archive'den belirli version'ı indir ve kur
+}
+
+message RequestEnvoyVersion {
+  EnvoyVersionOperation operation = 1;
+  string version = 2;                    // SET_VERSION operation için
+  bool force_download = 3;               // Binary zaten varsa yeniden indir
+}
+
+

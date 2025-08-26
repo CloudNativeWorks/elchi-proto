@@ -1,0 +1,70 @@
+
+syntax = "proto3";
+
+package client;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+message CPUStats {
+  double usage_percent = 1;
+  double load_avg_1 = 2;
+  double load_avg_5 = 3;
+  double load_avg_15 = 4;
+  map<string, double> core_stats = 5;
+  double temperature = 6;
+  int32 process_count = 7;
+  int32 thread_count = 8;
+  int64 context_switches = 9;
+}
+
+message MemoryStats {
+  uint64 total = 1;
+  uint64 used = 2;
+  uint64 free = 3;
+  double usage_percent = 4;
+  uint64 swap_total = 5;
+  uint64 swap_used = 6;
+  uint64 swap_free = 7;
+  uint64 cached = 8;
+  uint64 buffers = 9;
+}
+
+message DiskStats {
+  string device = 1;
+  string mount_point = 2;
+  string fs_type = 3;
+  uint64 total = 4;
+  uint64 used = 5;
+  uint64 free = 6;
+  double usage_percent = 7;
+  uint64 io_read_bytes = 8;
+  uint64 io_write_bytes = 9;
+  uint64 io_read_ops = 10;
+  uint64 io_write_ops = 11;
+}
+
+message NetworkStats {
+  map<string, InterfaceStats> interfaces = 1;
+  int32 connections = 2;
+  int32 tcp_connections = 3;
+  int32 udp_connections = 4;
+}
+
+message InterfaceStats {
+  uint64 bytes_received = 1;
+  uint64 bytes_sent = 2;
+  uint64 packets_received = 3;
+  uint64 packets_sent = 4;
+  uint64 errors = 5;
+  uint64 dropped = 6;
+}
+
+message SystemInfo {
+  string hostname = 1;
+  string os = 2;
+  string kernel_version = 3;
+  double uptime = 4;
+  google.protobuf.Timestamp last_boot = 5;
+}

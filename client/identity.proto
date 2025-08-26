@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+message Identity {
+    string client_id = 1;
+    string session_token = 2;
+    string client_name = 3;
+}

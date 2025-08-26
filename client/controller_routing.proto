@@ -1,0 +1,172 @@
+syntax = "proto3";
+
+package controller_routing;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+import "google/protobuf/timestamp.proto";
+
+// Controller Routing Service
+service ControllerRoutingService {
+  rpc RegisterController(RegisterControllerRequest)
+      returns (RegisterControllerResponse);
+
+  rpc GetControllerCluster(GetControllerClusterRequest)
+      returns (GetControllerClusterResponse);
+
+  // Controller client'ı aldı notification
+  rpc NotifyClientConnected(NotifyClientConnectedRequest)
+      returns (NotifyClientConnectedResponse);
+
+  // Bulk client update (30sn'de bir)
+  rpc UpdateClientList(UpdateClientListRequest) returns (UpdateClientListResponse);
+
+  // List all controllers
+  rpc ListControllers(ListControllersRequest) returns (ListControllersResponse);
+
+  // List clients by controller
+  rpc ListClientsByController(ListClientsByControllerRequest) returns (ListClientsByControllerResponse);
+
+  // Get all registry data for reporting
+  rpc GetAllRegistryData(GetAllControllerRegistryDataRequest) returns (GetAllControllerRegistryDataResponse);
+
+  // Health check
+  rpc HealthCheck(ControllerHealthCheckRequest) returns (ControllerHealthCheckResponse);
+
+  rpc NotifyClientDisconnected(NotifyClientDisconnectedRequest) returns (NotifyClientDisconnectedResponse);
+
+  // Delete controller
+  rpc DeleteController(DeleteControllerRequest) returns (DeleteControllerResponse);
+}
+
+// Controller kaydı
+message RegisterControllerRequest {
+  string controller_id = 1;
+  string version = 2;
+  google.protobuf.Timestamp timestamp = 4;
+}
+
+message RegisterControllerResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Client'dan routing request'i (external processing)
+message GetControllerClusterRequest {
+  string client_id = 1; // client-app-123
+  string version = 2;   // v1.2.1
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+message GetControllerClusterResponse {
+  bool found = 1;
+  string controller_id = 2;
+}
+
+// Client connected notification
+message NotifyClientConnectedRequest {
+  string controller_id = 1;
+  string client_id = 2;
+  string version = 3;
+  google.protobuf.Timestamp timestamp = 4;
+}
+
+message NotifyClientConnectedResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Bulk client list update (30sn'de bir)
+message UpdateClientListRequest {
+  string controller_id = 1;
+  repeated ClientInfo clients = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+message ClientInfo {
+  string client_id = 1;
+  string version = 2;
+  google.protobuf.Timestamp last_seen = 3;
+}
+
+message UpdateClientListResponse {
+  bool success = 1;
+  string message = 2;
+  int32 updated_count = 3;
+}
+
+// Health check
+message ControllerHealthCheckRequest { 
+  string service = 1; 
+}
+
+message ControllerHealthCheckResponse {
+  bool healthy = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+// List controllers
+message ListControllersRequest {
+  // Empty request
+}
+
+message ControllerInfo {
+  string controller_id = 1;
+  string version = 2;
+  string http_address = 3;
+  google.protobuf.Timestamp last_seen = 4;
+}
+
+message ListControllersResponse {
+  repeated ControllerInfo controllers = 1;
+}
+
+// List clients by controller
+message ListClientsByControllerRequest {
+  string controller_id = 1;
+}
+
+message ListClientsByControllerResponse {
+  repeated ClientInfo clients = 1;
+}
+
+// Get all controller registry data
+message GetAllControllerRegistryDataRequest {
+  // Empty request
+}
+
+message ControllerRegistryData {
+  repeated ControllerInfo controllers = 1;
+  map<string, ClientsData> clients_by_controller = 2;
+}
+
+message ClientsData {
+  repeated ClientInfo clients = 1;
+}
+
+message GetAllControllerRegistryDataResponse {
+  ControllerRegistryData data = 1;
+} 
+
+message NotifyClientDisconnectedRequest {
+    string controller_id = 1;
+    string client_id = 2;
+    string version = 3;
+    google.protobuf.Timestamp timestamp = 4;
+}
+
+message NotifyClientDisconnectedResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+// Delete controller
+message DeleteControllerRequest {
+  string controller_id = 1;
+}
+
+message DeleteControllerResponse {
+  bool success = 1;
+  string message = 2;
+}

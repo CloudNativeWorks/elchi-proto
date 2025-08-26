@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+// Netplan YAML-based interface configuration
+message NetplanConfig {
+  string yaml_content = 1;                    // Full netplan YAML content
+  bool test_mode = 2;                        // Apply with test (rollback on failure)
+  uint32 test_timeout_seconds = 3;           // Custom timeout in seconds (default: 10)
+  bool preserve_controller_connection = 4;    // Monitor and preserve controller connection
+}
+
+// Route management - independent from interface management
+message Route {
+  string to = 1;                    // Destination (e.g., "0.0.0.0/0", "10.0.0.0/24")
+  string via = 2;                   // Gateway IP
+  string interface = 3;             // Interface name (e.g., "eth0")
+  uint32 table = 4;        // Routing table ID (optional, default: main)
+  uint32 metric = 5;       // Route metric
+  string source = 6;                // Source IP for this route
+  string scope = 7;                 // Route scope (e.g., "global", "link", "host")
+  bool is_default = 8;              // Is this a default route
+  string protocol = 9;              // Route protocol (e.g., "kernel", "static", "bgp", "ospf")
+}
+
+// Policy-based routing rule - independent management
+message RoutingPolicy {
+  string from = 1;                  // Source address/network
+  string to = 2;                    // Destination address/network (optional)
+  uint32 table = 3;                 // Routing table ID
+  uint32 priority = 4;              // Rule priority (lower = higher priority)
+  string interface = 5;             // Interface name for netplan (optional)
+}
+
+// Routing table definition for system routing tables
+message RoutingTableDefinition {
+  uint32 id = 1;                    // Table ID (1-252, 253-255 are reserved)
+  string name = 2;                  // Table name (e.g., "mgmt", "production")
+}
+
+// Route operations (add/delete/replace)
+message RouteOperation {
+  enum Action {
+    ADD = 0;
+    DELETE = 1;
+    REPLACE = 2;
+  }
+  Action action = 1;
+  Route route = 2;
+}
+
+// Routing policy operations (add/delete/replace)
+message RoutingPolicyOperation {
+  enum Action {
+    ADD = 0;
+    DELETE = 1;
+    REPLACE = 2;
+  }
+  Action action = 1;
+  RoutingPolicy policy = 2;
+}
+
+// Routing table operations (add/delete/replace)
+message TableOperation {
+  enum Action {
+    ADD = 0;
+    DELETE = 1;
+    REPLACE = 2;
+  }
+  Action action = 1;
+  RoutingTableDefinition table = 2;
+}
+
+// Network state response
+message NetworkState {
+  repeated InterfaceState interfaces = 1;
+  repeated Route routes = 2;
+  repeated RoutingPolicy policies = 3;
+  repeated RoutingTableDefinition routing_tables = 4;
+  string current_netplan_yaml = 5;
+}
+
+// Interface state information
+message InterfaceState {
+  string name = 1;                  // Interface name
+  repeated string addresses = 2;    // Assigned IP addresses
+  string state = 3;                 // Interface state: "up" or "down"
+  bool has_carrier = 4;             // Physical link status
+  string mac_address = 5;           // MAC address
+  uint32 mtu = 6;                   // MTU size
+}
