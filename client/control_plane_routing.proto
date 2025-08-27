@@ -74,11 +74,11 @@ message NotifySnapshotDeliveredResponse {
   string message = 2;
 }
 
-// Bulk node list update (30sn'de bir)
 message UpdateNodeListRequest {
   string control_plane_id = 1;
   repeated NodeInfo nodes = 2;
   google.protobuf.Timestamp timestamp = 3;
+  string version = 4; // Control-plane version for auto-registration
 }
 
 message NodeInfo {
