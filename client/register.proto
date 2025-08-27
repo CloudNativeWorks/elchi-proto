@@ -18,6 +18,8 @@ message RegisterRequest {
     string kernel = 8;
     map<string, string> metadata = 9;
     string project_id = 10; // Optional: Project ID for the client. If empty, default project will be used
+    bool bgp = 11;          // BGP routing capability
+    string provider = 12;   // Infrastructure provider (openstack, other)
 }
 
 // RegisterResponse contains the server's response to registration
