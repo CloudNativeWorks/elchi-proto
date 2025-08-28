@@ -20,6 +20,7 @@ message RegisterRequest {
     string project_id = 10; // Optional: Project ID for the client. If empty, default project will be used
     bool bgp = 11;          // BGP routing capability
     string provider = 12;   // Infrastructure provider (openstack, other)
+    string cloud = 13;
 }
 
 // RegisterResponse contains the server's response to registration
