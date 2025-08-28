@@ -14,12 +14,14 @@ message RequestDeploy {
   uint32 port = 3;
   string version = 4;
   bytes bootstrap = 5;
+  string interface_id = 6;
 }
 
 message RequestUnDeploy {
   string name = 1;
   uint32 port = 2;
   string downstream_address = 3;
+  string interface_id = 4;
 }
 
 message RequestService {
@@ -57,19 +59,19 @@ message RequestGeneralLog { uint32 count = 1; }
 message RequestClientStats {}
 
 // Network management requests
-message RequestNetwork { 
+message RequestNetwork {
   // Netplan-based interface configuration
   NetplanConfig netplan_config = 1;
-  
+
   // Route management (add/delete/list)
   repeated RouteOperation route_operations = 2;
-  
-  // Routing policy management (add/delete/list)  
+
+  // Routing policy management (add/delete/list)
   repeated RoutingPolicyOperation policy_operations = 3;
-  
+
   // Routing table definitions (for initial setup/bulk update)
   repeated RoutingTableDefinition routing_tables = 4;
-  
+
   // Routing table operations (add/delete/replace individual tables)
   repeated TableOperation table_operations = 5;
 }
@@ -80,14 +82,12 @@ message RequestFrr {
 }
 
 enum EnvoyVersionOperation {
-  GET_VERSIONS = 0;     // Yerel olarak indirilmiş versionları listele
-  SET_VERSION = 1;      // Archive'den belirli version'ı indir ve kur
+  GET_VERSIONS = 0; // Yerel olarak indirilmiş versionları listele
+  SET_VERSION = 1;  // Archive'den belirli version'ı indir ve kur
 }
 
 message RequestEnvoyVersion {
   EnvoyVersionOperation operation = 1;
-  string version = 2;                    // SET_VERSION operation için
-  bool force_download = 3;               // Binary zaten varsa yeniden indir
+  string version = 2;      // SET_VERSION operation için
+  bool force_download = 3; // Binary zaten varsa yeniden indir
 }
-
-
