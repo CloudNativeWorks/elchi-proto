@@ -15,6 +15,7 @@ message ResponseDeploy {
   string downstream_address = 4;
   uint32 port = 5;
   string interface_id = 6;
+  string ip_mode = 7;
 }
 
 message ResponseUnDeploy {
@@ -24,6 +25,7 @@ message ResponseUnDeploy {
   string downstream_address = 4;
   uint32 port = 5;
   string interface_id = 6;
+  string ip_mode = 7;
 }
 
 message ResponseUpdateBootstrap { string name = 1; }

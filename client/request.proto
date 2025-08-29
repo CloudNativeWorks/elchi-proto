@@ -15,6 +15,7 @@ message RequestDeploy {
   string version = 4;
   bytes bootstrap = 5;
   string interface_id = 6;
+  string ip_mode = 7;
 }
 
 message RequestUnDeploy {
@@ -22,6 +23,7 @@ message RequestUnDeploy {
   uint32 port = 2;
   string downstream_address = 3;
   string interface_id = 4;
+  string ip_mode = 5;
 }
 
 message RequestService {
