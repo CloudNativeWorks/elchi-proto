@@ -23,6 +23,7 @@ message Route {
   string scope = 7;                 // Route scope (e.g., "global", "link", "host")
   bool is_default = 8;              // Is this a default route
   string protocol = 9;              // Route protocol (e.g., "kernel", "static", "bgp", "ospf")
+  bool onlink = 10;
 }
 
 // Policy-based routing rule - independent management
