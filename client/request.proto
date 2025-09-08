@@ -24,6 +24,7 @@ message RequestUnDeploy {
   string downstream_address = 3;
   string interface_id = 4;
   string ip_mode = 5;
+  string version = 6;
 }
 
 message RequestService {

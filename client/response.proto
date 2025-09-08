@@ -16,6 +16,7 @@ message ResponseDeploy {
   uint32 port = 5;
   string interface_id = 6;
   string ip_mode = 7;
+  string version = 8;
 }
 
 message ResponseUnDeploy {
@@ -26,6 +27,7 @@ message ResponseUnDeploy {
   uint32 port = 5;
   string interface_id = 6;
   string ip_mode = 7;
+  string version = 8;
 }
 
 message ResponseUpdateBootstrap { string name = 1; }
