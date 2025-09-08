@@ -40,6 +40,7 @@ message RequestUpdateBootstrap {
   string name = 1;
   uint32 port = 2;
   bytes bootstrap = 3;
+  string version = 4;
 }
 
 enum HttpMethod {
