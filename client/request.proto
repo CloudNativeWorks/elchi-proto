@@ -27,6 +27,12 @@ message RequestUnDeploy {
   string version = 6;
 }
 
+enum LogType {
+  LOG_TYPE_ALL = 0;    // Both system and access logs
+  LOG_TYPE_SYSTEM = 1; // Only system logs (envoy internal)
+  LOG_TYPE_ACCESS = 2; // Only access logs (HTTP requests)
+}
+
 message RequestService {
   string name = 1;
   uint32 port = 2;
@@ -34,6 +40,7 @@ message RequestService {
   string search = 4;
   repeated string levels = 5;
   repeated string components = 6;
+  LogType log_type = 7;
 }
 
 message RequestUpdateBootstrap {
