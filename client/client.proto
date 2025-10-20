@@ -60,6 +60,7 @@ message Command {
     RequestNetwork network = 17;
     RequestFrr frr = 18;
     RequestEnvoyVersion envoy_version = 19;
+    RequestWafVersion waf_version = 20;
   }
 }
 
@@ -80,5 +81,6 @@ message CommandResponse {
     ResponseNetwork network = 17;
     ResponseFrr frr = 18;
     ResponseEnvoyVersion envoy_version = 19;
+    ResponseWafVersion waf_version = 20;
   }
 }

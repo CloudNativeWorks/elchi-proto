@@ -34,4 +34,6 @@ enum CommandType {
 
   // ENVOY
   ENVOY_VERSION = 71;
+
+  WAF_VERSION = 81;
 }

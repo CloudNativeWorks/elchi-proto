@@ -95,7 +95,7 @@ message ResponseFrr {
   ResponseBgp bgp = 4;
 }
 
-enum EnvoyVersionStatus {
+enum VersionStatus {
   SUCCESS = 0;
   DOWNLOAD_FAILED = 1;
   EXTRACTION_FAILED = 2;
@@ -106,9 +106,17 @@ enum EnvoyVersionStatus {
 }
 
 message ResponseEnvoyVersion {
-  repeated string downloaded_versions = 1;  // GET_VERSIONS için: v1.34.2, v1.35.0 gibi
-  string installed_version = 2;            // SET_VERSION için: kurulu version
-  string download_path = 3;                // SET_VERSION için: kurulum path'i
-  EnvoyVersionStatus status = 4;
+  repeated string downloaded_versions = 1;
+  string installed_version = 2;
+  string download_path = 3;
+  VersionStatus status = 4;
+  string error_message = 5;
+}
+
+message ResponseWafVersion {
+  repeated string downloaded_versions = 1;
+  string installed_version = 2;
+  string download_path = 3;
+  VersionStatus status = 4;
   string error_message = 5;
 }
