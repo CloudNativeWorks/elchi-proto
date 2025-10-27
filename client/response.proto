@@ -7,6 +7,7 @@ option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
 import "client/stats.proto";
 import "client/network.proto";
 import "client/frr.proto";
+import "client/request.proto";
 
 message ResponseDeploy {
   string files = 1;
@@ -119,4 +120,13 @@ message ResponseWafVersion {
   string download_path = 3;
   VersionStatus status = 4;
   string error_message = 5;
+}
+
+message ResponseFilebeat {
+  bool success = 1;                      // Operation success status
+  string message = 2;                    // Success message
+  string error = 3;                      // Error message if failed
+  RequestFilebeat current_config = 4;     // Current configuration (for GET)
+  string service_status = 5;             // Service status ("active", "inactive", "failed")
+  repeated Logs logs = 6;                // Service logs if requested
 }

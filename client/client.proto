@@ -61,6 +61,7 @@ message Command {
     RequestFrr frr = 18;
     RequestEnvoyVersion envoy_version = 19;
     RequestWafVersion waf_version = 20;
+    RequestFilebeat filebeat = 21;
   }
 }
 
@@ -82,5 +83,6 @@ message CommandResponse {
     ResponseFrr frr = 18;
     ResponseEnvoyVersion envoy_version = 19;
     ResponseWafVersion waf_version = 20;
+    ResponseFilebeat filebeat = 21; 
   }
 }

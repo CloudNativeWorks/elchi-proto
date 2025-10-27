@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+
+// Filebeat input configuration
+message FilebeatInput {
+  string type = 1;           // Input type (e.g., "filestream")
+  bool enabled = 2;          // Enable/disable input
+  string id = 3;             // Unique input ID (e.g., "elchi-logs")
+  repeated string paths = 4; // Log file paths (e.g., ["/var/log/elchi/*.log"])
+}
+
+// Timestamp processor configuration
+message TimestampProcessor {
+  string field = 1;                // Field to parse (e.g., "message")
+  repeated string layouts = 2;     // Time layouts (e.g., ["[2006-01-02 15:04:05.000]"])
+  repeated string test = 3;        // Test patterns for validation
+}
+
+// Drop fields processor configuration
+message DropFieldsProcessor {
+  repeated string fields = 1;      // Fields to drop (e.g., ["agent", "input"])
+}
+
+// Logstash output configuration
+message LogstashOutput {
+  repeated string hosts = 1;       // Logstash hosts (e.g., ["10.55.34.100:5044"])
+}

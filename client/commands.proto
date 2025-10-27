@@ -36,4 +36,7 @@ enum CommandType {
   ENVOY_VERSION = 71;
 
   WAF_VERSION = 81;
+
+  FILEBEAT = 82;
+
 }

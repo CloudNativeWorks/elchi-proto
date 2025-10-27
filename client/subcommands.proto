@@ -33,4 +33,8 @@ enum SubCommandType {
   // NETWORK - Table management
   SUB_TABLE_MANAGE = 28;            // Manage routing tables (add/delete/replace)
   SUB_TABLE_LIST = 29;              // List current routing tables
+
+  UPDATE_FILEBEAT_CONFIG = 30;      
+  GET_FILEBEAT_CONFIG = 31;       
+  GET_FILEBEAT_STATUS = 32;       
 }

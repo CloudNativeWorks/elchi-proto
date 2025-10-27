@@ -6,6 +6,7 @@ option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
 
 import "client/network.proto";
 import "client/frr.proto";
+import "client/filebeat.proto";
 
 // Deploy related messages
 message RequestDeploy {
@@ -107,4 +108,11 @@ message RequestWafVersion {
   VersionOperation operation = 1;
   string version = 2;
   bool force_download = 3;
+}
+
+message RequestFilebeat {
+  repeated FilebeatInput inputs = 1;
+  TimestampProcessor timestamp_processor = 2;
+  DropFieldsProcessor drop_fields_processor = 3;
+  LogstashOutput logstash_output = 4;
 }
