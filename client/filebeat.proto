@@ -41,6 +41,8 @@ message ElasticsearchOutput {
     string api_key = 3;            // API key format: "id:api_key"
     BasicAuth basic_auth = 4;      // Username + password authentication
   }
+
+  bool skip_ssl_verify = 5;  
 }
 
 message BasicAuth {
