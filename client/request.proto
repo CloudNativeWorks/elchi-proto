@@ -114,5 +114,5 @@ message RequestFilebeat {
   repeated FilebeatInput inputs = 1;
   TimestampProcessor timestamp_processor = 2;
   DropFieldsProcessor drop_fields_processor = 3;
-  LogstashOutput logstash_output = 4;
+  FilebeatOutput filebeat_output = 4;
 }
