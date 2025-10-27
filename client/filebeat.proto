@@ -25,7 +25,31 @@ message DropFieldsProcessor {
   repeated string fields = 1;      // Fields to drop (e.g., ["agent", "input"])
 }
 
-// Logstash output configuration
+message FilebeatOutput {
+  oneof output {
+    ElasticsearchOutput elasticsearch = 1;
+    LogstashOutput logstash = 2;
+  }
+}
+
+message ElasticsearchOutput {
+  repeated string hosts = 1;       // Elasticsearch hosts (e.g., ["http://elasticsearch:9200"])
+  bool ssl_enabled = 2;            // Enable/disable SSL
+  
+  // Authentication method (mutually exclusive)
+  oneof auth {
+    string api_key = 3;            // API key format: "id:api_key"
+    BasicAuth basic_auth = 4;      // Username + password authentication
+  }
+}
+
+message BasicAuth {
+  string username = 1;
+  string password = 2;
+}
+
 message LogstashOutput {
-  repeated string hosts = 1;       // Logstash hosts (e.g., ["10.55.34.100:5044"])
+  repeated string hosts = 1;       // Logstash hosts (e.g., ["logstash:5044"])
+  bool ssl_enabled = 2;            // Enable/disable SSL
+  bool loadbalance = 3;            // Enable load balancing across hosts
 }

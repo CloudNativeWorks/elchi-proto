@@ -198,18 +198,248 @@ func (x *DropFieldsProcessor) GetFields() []string {
 	return nil
 }
 
-// Logstash output configuration
+type FilebeatOutput struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to Output:
+	//
+	//	*FilebeatOutput_Elasticsearch
+	//	*FilebeatOutput_Logstash
+	Output isFilebeatOutput_Output `protobuf_oneof:"output"`
+}
+
+func (x *FilebeatOutput) Reset() {
+	*x = FilebeatOutput{}
+	mi := &file_client_filebeat_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FilebeatOutput) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FilebeatOutput) ProtoMessage() {}
+
+func (x *FilebeatOutput) ProtoReflect() protoreflect.Message {
+	mi := &file_client_filebeat_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FilebeatOutput.ProtoReflect.Descriptor instead.
+func (*FilebeatOutput) Descriptor() ([]byte, []int) {
+	return file_client_filebeat_proto_rawDescGZIP(), []int{3}
+}
+
+func (m *FilebeatOutput) GetOutput() isFilebeatOutput_Output {
+	if m != nil {
+		return m.Output
+	}
+	return nil
+}
+
+func (x *FilebeatOutput) GetElasticsearch() *ElasticsearchOutput {
+	if x, ok := x.GetOutput().(*FilebeatOutput_Elasticsearch); ok {
+		return x.Elasticsearch
+	}
+	return nil
+}
+
+func (x *FilebeatOutput) GetLogstash() *LogstashOutput {
+	if x, ok := x.GetOutput().(*FilebeatOutput_Logstash); ok {
+		return x.Logstash
+	}
+	return nil
+}
+
+type isFilebeatOutput_Output interface {
+	isFilebeatOutput_Output()
+}
+
+type FilebeatOutput_Elasticsearch struct {
+	Elasticsearch *ElasticsearchOutput `protobuf:"bytes,1,opt,name=elasticsearch,proto3,oneof"`
+}
+
+type FilebeatOutput_Logstash struct {
+	Logstash *LogstashOutput `protobuf:"bytes,2,opt,name=logstash,proto3,oneof"`
+}
+
+func (*FilebeatOutput_Elasticsearch) isFilebeatOutput_Output() {}
+
+func (*FilebeatOutput_Logstash) isFilebeatOutput_Output() {}
+
+type ElasticsearchOutput struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Hosts      []string `protobuf:"bytes,1,rep,name=hosts,proto3" json:"hosts,omitempty"`                              // Elasticsearch hosts (e.g., ["http://elasticsearch:9200"])
+	SslEnabled bool     `protobuf:"varint,2,opt,name=ssl_enabled,json=sslEnabled,proto3" json:"ssl_enabled,omitempty"` // Enable/disable SSL
+	// Authentication method (mutually exclusive)
+	//
+	// Types that are assignable to Auth:
+	//
+	//	*ElasticsearchOutput_ApiKey
+	//	*ElasticsearchOutput_BasicAuth
+	Auth isElasticsearchOutput_Auth `protobuf_oneof:"auth"`
+}
+
+func (x *ElasticsearchOutput) Reset() {
+	*x = ElasticsearchOutput{}
+	mi := &file_client_filebeat_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ElasticsearchOutput) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ElasticsearchOutput) ProtoMessage() {}
+
+func (x *ElasticsearchOutput) ProtoReflect() protoreflect.Message {
+	mi := &file_client_filebeat_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ElasticsearchOutput.ProtoReflect.Descriptor instead.
+func (*ElasticsearchOutput) Descriptor() ([]byte, []int) {
+	return file_client_filebeat_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ElasticsearchOutput) GetHosts() []string {
+	if x != nil {
+		return x.Hosts
+	}
+	return nil
+}
+
+func (x *ElasticsearchOutput) GetSslEnabled() bool {
+	if x != nil {
+		return x.SslEnabled
+	}
+	return false
+}
+
+func (m *ElasticsearchOutput) GetAuth() isElasticsearchOutput_Auth {
+	if m != nil {
+		return m.Auth
+	}
+	return nil
+}
+
+func (x *ElasticsearchOutput) GetApiKey() string {
+	if x, ok := x.GetAuth().(*ElasticsearchOutput_ApiKey); ok {
+		return x.ApiKey
+	}
+	return ""
+}
+
+func (x *ElasticsearchOutput) GetBasicAuth() *BasicAuth {
+	if x, ok := x.GetAuth().(*ElasticsearchOutput_BasicAuth); ok {
+		return x.BasicAuth
+	}
+	return nil
+}
+
+type isElasticsearchOutput_Auth interface {
+	isElasticsearchOutput_Auth()
+}
+
+type ElasticsearchOutput_ApiKey struct {
+	ApiKey string `protobuf:"bytes,3,opt,name=api_key,json=apiKey,proto3,oneof"` // API key format: "id:api_key"
+}
+
+type ElasticsearchOutput_BasicAuth struct {
+	BasicAuth *BasicAuth `protobuf:"bytes,4,opt,name=basic_auth,json=basicAuth,proto3,oneof"` // Username + password authentication
+}
+
+func (*ElasticsearchOutput_ApiKey) isElasticsearchOutput_Auth() {}
+
+func (*ElasticsearchOutput_BasicAuth) isElasticsearchOutput_Auth() {}
+
+type BasicAuth struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+}
+
+func (x *BasicAuth) Reset() {
+	*x = BasicAuth{}
+	mi := &file_client_filebeat_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BasicAuth) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BasicAuth) ProtoMessage() {}
+
+func (x *BasicAuth) ProtoReflect() protoreflect.Message {
+	mi := &file_client_filebeat_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BasicAuth.ProtoReflect.Descriptor instead.
+func (*BasicAuth) Descriptor() ([]byte, []int) {
+	return file_client_filebeat_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *BasicAuth) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *BasicAuth) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
 type LogstashOutput struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Hosts []string `protobuf:"bytes,1,rep,name=hosts,proto3" json:"hosts,omitempty"` // Logstash hosts (e.g., ["10.55.34.100:5044"])
+	Hosts       []string `protobuf:"bytes,1,rep,name=hosts,proto3" json:"hosts,omitempty"`                              // Logstash hosts (e.g., ["logstash:5044"])
+	SslEnabled  bool     `protobuf:"varint,2,opt,name=ssl_enabled,json=sslEnabled,proto3" json:"ssl_enabled,omitempty"` // Enable/disable SSL
+	Loadbalance bool     `protobuf:"varint,3,opt,name=loadbalance,proto3" json:"loadbalance,omitempty"`                 // Enable load balancing across hosts
 }
 
 func (x *LogstashOutput) Reset() {
 	*x = LogstashOutput{}
-	mi := &file_client_filebeat_proto_msgTypes[3]
+	mi := &file_client_filebeat_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -221,7 +451,7 @@ func (x *LogstashOutput) String() string {
 func (*LogstashOutput) ProtoMessage() {}
 
 func (x *LogstashOutput) ProtoReflect() protoreflect.Message {
-	mi := &file_client_filebeat_proto_msgTypes[3]
+	mi := &file_client_filebeat_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -234,7 +464,7 @@ func (x *LogstashOutput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogstashOutput.ProtoReflect.Descriptor instead.
 func (*LogstashOutput) Descriptor() ([]byte, []int) {
-	return file_client_filebeat_proto_rawDescGZIP(), []int{3}
+	return file_client_filebeat_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *LogstashOutput) GetHosts() []string {
@@ -242,6 +472,20 @@ func (x *LogstashOutput) GetHosts() []string {
 		return x.Hosts
 	}
 	return nil
+}
+
+func (x *LogstashOutput) GetSslEnabled() bool {
+	if x != nil {
+		return x.SslEnabled
+	}
+	return false
+}
+
+func (x *LogstashOutput) GetLoadbalance() bool {
+	if x != nil {
+		return x.Loadbalance
+	}
+	return false
 }
 
 var File_client_filebeat_proto protoreflect.FileDescriptor
@@ -263,13 +507,42 @@ var file_client_filebeat_proto_rawDesc = []byte{
 	0x73, 0x74, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09, 0x52, 0x04, 0x74, 0x65, 0x73, 0x74, 0x22, 0x2d,
 	0x0a, 0x13, 0x44, 0x72, 0x6f, 0x70, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x73, 0x50, 0x72, 0x6f, 0x63,
 	0x65, 0x73, 0x73, 0x6f, 0x72, 0x12, 0x16, 0x0a, 0x06, 0x66, 0x69, 0x65, 0x6c, 0x64, 0x73, 0x18,
-	0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x06, 0x66, 0x69, 0x65, 0x6c, 0x64, 0x73, 0x22, 0x26, 0x0a,
-	0x0e, 0x4c, 0x6f, 0x67, 0x73, 0x74, 0x61, 0x73, 0x68, 0x4f, 0x75, 0x74, 0x70, 0x75, 0x74, 0x12,
-	0x14, 0x0a, 0x05, 0x68, 0x6f, 0x73, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x05,
-	0x68, 0x6f, 0x73, 0x74, 0x73, 0x42, 0x30, 0x5a, 0x2e, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e,
-	0x63, 0x6f, 0x6d, 0x2f, 0x43, 0x6c, 0x6f, 0x75, 0x64, 0x4e, 0x61, 0x74, 0x69, 0x76, 0x65, 0x57,
-	0x6f, 0x72, 0x6b, 0x73, 0x2f, 0x65, 0x6c, 0x63, 0x68, 0x69, 0x2d, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x2f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x06, 0x66, 0x69, 0x65, 0x6c, 0x64, 0x73, 0x22, 0x95, 0x01,
+	0x0a, 0x0e, 0x46, 0x69, 0x6c, 0x65, 0x62, 0x65, 0x61, 0x74, 0x4f, 0x75, 0x74, 0x70, 0x75, 0x74,
+	0x12, 0x43, 0x0a, 0x0d, 0x65, 0x6c, 0x61, 0x73, 0x74, 0x69, 0x63, 0x73, 0x65, 0x61, 0x72, 0x63,
+	0x68, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74,
+	0x2e, 0x45, 0x6c, 0x61, 0x73, 0x74, 0x69, 0x63, 0x73, 0x65, 0x61, 0x72, 0x63, 0x68, 0x4f, 0x75,
+	0x74, 0x70, 0x75, 0x74, 0x48, 0x00, 0x52, 0x0d, 0x65, 0x6c, 0x61, 0x73, 0x74, 0x69, 0x63, 0x73,
+	0x65, 0x61, 0x72, 0x63, 0x68, 0x12, 0x34, 0x0a, 0x08, 0x6c, 0x6f, 0x67, 0x73, 0x74, 0x61, 0x73,
+	0x68, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74,
+	0x2e, 0x4c, 0x6f, 0x67, 0x73, 0x74, 0x61, 0x73, 0x68, 0x4f, 0x75, 0x74, 0x70, 0x75, 0x74, 0x48,
+	0x00, 0x52, 0x08, 0x6c, 0x6f, 0x67, 0x73, 0x74, 0x61, 0x73, 0x68, 0x42, 0x08, 0x0a, 0x06, 0x6f,
+	0x75, 0x74, 0x70, 0x75, 0x74, 0x22, 0xa3, 0x01, 0x0a, 0x13, 0x45, 0x6c, 0x61, 0x73, 0x74, 0x69,
+	0x63, 0x73, 0x65, 0x61, 0x72, 0x63, 0x68, 0x4f, 0x75, 0x74, 0x70, 0x75, 0x74, 0x12, 0x14, 0x0a,
+	0x05, 0x68, 0x6f, 0x73, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x05, 0x68, 0x6f,
+	0x73, 0x74, 0x73, 0x12, 0x1f, 0x0a, 0x0b, 0x73, 0x73, 0x6c, 0x5f, 0x65, 0x6e, 0x61, 0x62, 0x6c,
+	0x65, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0a, 0x73, 0x73, 0x6c, 0x45, 0x6e, 0x61,
+	0x62, 0x6c, 0x65, 0x64, 0x12, 0x19, 0x0a, 0x07, 0x61, 0x70, 0x69, 0x5f, 0x6b, 0x65, 0x79, 0x18,
+	0x03, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x06, 0x61, 0x70, 0x69, 0x4b, 0x65, 0x79, 0x12,
+	0x32, 0x0a, 0x0a, 0x62, 0x61, 0x73, 0x69, 0x63, 0x5f, 0x61, 0x75, 0x74, 0x68, 0x18, 0x04, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x11, 0x2e, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x2e, 0x42, 0x61, 0x73,
+	0x69, 0x63, 0x41, 0x75, 0x74, 0x68, 0x48, 0x00, 0x52, 0x09, 0x62, 0x61, 0x73, 0x69, 0x63, 0x41,
+	0x75, 0x74, 0x68, 0x42, 0x06, 0x0a, 0x04, 0x61, 0x75, 0x74, 0x68, 0x22, 0x43, 0x0a, 0x09, 0x42,
+	0x61, 0x73, 0x69, 0x63, 0x41, 0x75, 0x74, 0x68, 0x12, 0x1a, 0x0a, 0x08, 0x75, 0x73, 0x65, 0x72,
+	0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x75, 0x73, 0x65, 0x72,
+	0x6e, 0x61, 0x6d, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64,
+	0x22, 0x69, 0x0a, 0x0e, 0x4c, 0x6f, 0x67, 0x73, 0x74, 0x61, 0x73, 0x68, 0x4f, 0x75, 0x74, 0x70,
+	0x75, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x68, 0x6f, 0x73, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28,
+	0x09, 0x52, 0x05, 0x68, 0x6f, 0x73, 0x74, 0x73, 0x12, 0x1f, 0x0a, 0x0b, 0x73, 0x73, 0x6c, 0x5f,
+	0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0a, 0x73,
+	0x73, 0x6c, 0x45, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x64, 0x12, 0x20, 0x0a, 0x0b, 0x6c, 0x6f, 0x61,
+	0x64, 0x62, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0b,
+	0x6c, 0x6f, 0x61, 0x64, 0x62, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x42, 0x30, 0x5a, 0x2e, 0x67,
+	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x43, 0x6c, 0x6f, 0x75, 0x64, 0x4e,
+	0x61, 0x74, 0x69, 0x76, 0x65, 0x57, 0x6f, 0x72, 0x6b, 0x73, 0x2f, 0x65, 0x6c, 0x63, 0x68, 0x69,
+	0x2d, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x62, 0x06, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -284,19 +557,25 @@ func file_client_filebeat_proto_rawDescGZIP() []byte {
 	return file_client_filebeat_proto_rawDescData
 }
 
-var file_client_filebeat_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_client_filebeat_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_client_filebeat_proto_goTypes = []any{
 	(*FilebeatInput)(nil),       // 0: client.FilebeatInput
 	(*TimestampProcessor)(nil),  // 1: client.TimestampProcessor
 	(*DropFieldsProcessor)(nil), // 2: client.DropFieldsProcessor
-	(*LogstashOutput)(nil),      // 3: client.LogstashOutput
+	(*FilebeatOutput)(nil),      // 3: client.FilebeatOutput
+	(*ElasticsearchOutput)(nil), // 4: client.ElasticsearchOutput
+	(*BasicAuth)(nil),           // 5: client.BasicAuth
+	(*LogstashOutput)(nil),      // 6: client.LogstashOutput
 }
 var file_client_filebeat_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	4, // 0: client.FilebeatOutput.elasticsearch:type_name -> client.ElasticsearchOutput
+	6, // 1: client.FilebeatOutput.logstash:type_name -> client.LogstashOutput
+	5, // 2: client.ElasticsearchOutput.basic_auth:type_name -> client.BasicAuth
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_client_filebeat_proto_init() }
@@ -304,13 +583,21 @@ func file_client_filebeat_proto_init() {
 	if File_client_filebeat_proto != nil {
 		return
 	}
+	file_client_filebeat_proto_msgTypes[3].OneofWrappers = []any{
+		(*FilebeatOutput_Elasticsearch)(nil),
+		(*FilebeatOutput_Logstash)(nil),
+	}
+	file_client_filebeat_proto_msgTypes[4].OneofWrappers = []any{
+		(*ElasticsearchOutput_ApiKey)(nil),
+		(*ElasticsearchOutput_BasicAuth)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_client_filebeat_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
