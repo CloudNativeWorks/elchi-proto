@@ -34,7 +34,7 @@ message FilebeatOutput {
 
 message ElasticsearchOutput {
   repeated string hosts = 1;       // Elasticsearch hosts (e.g., ["http://elasticsearch:9200"])
-  bool ssl_enabled = 2;            // Enable/disable SSL
+  bool loadbalance = 2;            // Enable load balancing across hosts
   
   // Authentication method (mutually exclusive)
   oneof auth {
