@@ -137,4 +137,5 @@ message ResponseRsyslog {
   string message = 2;
   string service_status = 3;        // Service status: "active", "inactive", etc.
   RsyslogConfig current_config = 4; // Current rsyslog configuration
+  repeated Logs logs = 5;
 }
