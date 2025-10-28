@@ -39,4 +39,5 @@ enum CommandType {
 
   FILEBEAT = 82;
 
+  RSYSLOG = 83;
 }

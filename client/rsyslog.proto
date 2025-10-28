@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+// Rsyslog configuration structure
+message RsyslogConfig {
+  RsyslogOutput rsyslog_output = 1;
+}
+
+// Rsyslog output configuration (only variable fields)
+message RsyslogOutput {
+  string target = 1;   // Remote syslog server address (e.g., "syslog.example.com")
+  int32 port = 2;      // Remote syslog port (e.g., 514)
+  string protocol = 3; // Protocol: "udp" or "tcp"
+}

@@ -62,6 +62,7 @@ message Command {
     RequestEnvoyVersion envoy_version = 19;
     RequestWafVersion waf_version = 20;
     RequestFilebeat filebeat = 21;
+    RequestRsyslog rsyslog = 22;
   }
 }
 
@@ -84,5 +85,6 @@ message CommandResponse {
     ResponseEnvoyVersion envoy_version = 19;
     ResponseWafVersion waf_version = 20;
     ResponseFilebeat filebeat = 21; 
+    ResponseRsyslog rsyslog = 22;
   }
 }

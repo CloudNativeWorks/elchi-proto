@@ -8,6 +8,7 @@ import "client/stats.proto";
 import "client/network.proto";
 import "client/frr.proto";
 import "client/request.proto";
+import "client/rsyslog.proto";
 
 message ResponseDeploy {
   string files = 1;
@@ -129,4 +130,11 @@ message ResponseFilebeat {
   RequestFilebeat current_config = 4;     // Current configuration (for GET)
   string service_status = 5;             // Service status ("active", "inactive", "failed")
   repeated Logs logs = 6;                // Service logs if requested
+}
+
+message ResponseRsyslog {
+  bool success = 1;
+  string message = 2;
+  string service_status = 3;        // Service status: "active", "inactive", etc.
+  RsyslogConfig current_config = 4; // Current rsyslog configuration
 }
