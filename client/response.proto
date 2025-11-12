@@ -34,6 +34,16 @@ message ResponseUnDeploy {
 
 message ResponseUpdateBootstrap { string name = 1; }
 
+message ResponseUpgradeListener {
+  string name = 1;
+  string from_version = 2;
+  string to_version = 3;
+  uint32 port = 4;
+  bool graceful = 5;
+  string systemd_service_updated = 6;  // Status of systemd service update
+  string envoy_restarted = 7;  // Status of envoy restart
+}
+
 message ResponseService {
   string name = 1;
   ServiceStatus status = 2;

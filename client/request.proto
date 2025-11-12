@@ -52,6 +52,15 @@ message RequestUpdateBootstrap {
   string version = 4;
 }
 
+message RequestUpgradeListener {
+  string name = 1;
+  string from_version = 2;
+  string to_version = 3;
+  uint32 port = 4;  // Admin port for systemd service management
+  bool graceful = 5;  // Perform graceful upgrade with connection draining
+  uint32 drain_time_seconds = 6;  // Time to wait for connections to drain (default: 30s)
+}
+
 enum HttpMethod {
   UNSPECIFIED = 0;
   GET = 1;

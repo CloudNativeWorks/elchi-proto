@@ -63,6 +63,7 @@ message Command {
     RequestWafVersion waf_version = 20;
     RequestFilebeat filebeat = 21;
     RequestRsyslog rsyslog = 22;
+    RequestUpgradeListener upgrade_listener = 23;
   }
 }
 
@@ -84,7 +85,8 @@ message CommandResponse {
     ResponseFrr frr = 18;
     ResponseEnvoyVersion envoy_version = 19;
     ResponseWafVersion waf_version = 20;
-    ResponseFilebeat filebeat = 21; 
+    ResponseFilebeat filebeat = 21;
     ResponseRsyslog rsyslog = 22;
+    ResponseUpgradeListener upgrade_listener = 23;
   }
 }
