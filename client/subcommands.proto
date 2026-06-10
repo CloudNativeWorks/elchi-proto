@@ -41,4 +41,9 @@ enum SubCommandType {
   UPDATE_RSYSLOG_CONFIG = 33;
   GET_RSYSLOG_CONFIG = 34;
   GET_RSYSLOG_STATUS = 35;
+
+  // SHIELD — push the config bundle, read what's on disk, or read service status
+  UPDATE_SHIELD_CONFIG = 36;
+  GET_SHIELD_CONFIG = 37;
+  GET_SHIELD_STATUS = 38;
 }

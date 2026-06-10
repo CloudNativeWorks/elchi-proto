@@ -8,6 +8,7 @@ import "client/network.proto";
 import "client/frr.proto";
 import "client/filebeat.proto";
 import "client/rsyslog.proto";
+import "client/shield.proto";
 
 // Deploy related messages
 message RequestDeploy {
@@ -129,4 +130,11 @@ message RequestFilebeat {
 
 message RequestRsyslog {
   RsyslogConfig rsyslog_config = 1;
+}
+
+// RequestShield carries an elchi-shield operation. The Command's SubCommandType
+// selects the action: UPDATE_SHIELD_CONFIG uses `config`; GET_SHIELD_CONFIG and
+// GET_SHIELD_STATUS carry no body.
+message RequestShield {
+  ShieldConfig config = 1;
 }

@@ -64,6 +64,7 @@ message Command {
     RequestFilebeat filebeat = 21;
     RequestRsyslog rsyslog = 22;
     RequestUpgradeListener upgrade_listener = 23;
+    RequestShield shield = 24;
   }
 }
 
@@ -88,5 +89,6 @@ message CommandResponse {
     ResponseFilebeat filebeat = 21;
     ResponseRsyslog rsyslog = 22;
     ResponseUpgradeListener upgrade_listener = 23;
+    ResponseShield shield = 24;
   }
 }

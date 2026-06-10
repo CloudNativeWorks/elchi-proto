@@ -9,6 +9,7 @@ import "client/network.proto";
 import "client/frr.proto";
 import "client/request.proto";
 import "client/rsyslog.proto";
+import "client/shield.proto";
 
 message ResponseDeploy {
   string files = 1;
@@ -148,4 +149,29 @@ message ResponseRsyslog {
   string service_status = 3;        // Service status: "active", "inactive", etc.
   RsyslogConfig current_config = 4; // Current rsyslog configuration
   repeated Logs logs = 5;
+}
+
+message ResponseShield {
+  bool success = 1;     // operation succeeded at the client/edge
+  string message = 2;   // human-readable detail
+  string error = 3;     // error detail when success = false
+
+  // Config version now active on the edge (echoes shield's active_config_version /
+  // /configz), so the controller can confirm the edge converged on the push.
+  string applied_version = 4;
+
+  // reload_ok reports shield's reaction to a config push: true = shield loaded the
+  // new bundle cleanly; false = shield REJECTED it (invalid config) and kept its
+  // last-good config — traffic is unaffected but the push did not take effect.
+  // The controller should treat reload_ok = false as a failed rollout, not an outage.
+  bool reload_ok = 5;
+
+  // GET_SHIELD_CONFIG: the file set currently on disk (path + sha256 + mode;
+  // content is omitted for large files). Empty for status/update.
+  repeated ShieldFile current_files = 6;
+
+  // GET_SHIELD_STATUS: shield service state ("active"/"inactive"/"failed") and
+  // recent logs, mirroring the filebeat/rsyslog status responses.
+  string service_status = 7;
+  repeated Logs logs = 8;
 }

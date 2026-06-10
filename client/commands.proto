@@ -41,4 +41,7 @@ enum CommandType {
   FILEBEAT = 82;
 
   RSYSLOG = 83;
+
+  // SHIELD — elchi-shield ext_proc API-security/WAF config delivery
+  SHIELD = 84;
 }

@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+// elchi-shield is a local Envoy ext_proc API-security / WAF engine that runs as a
+// sidecar next to Envoy on the edge host. It watches a config DIRECTORY and
+// hot-reloads it atomically. The control plane delivers that directory's contents
+// to the edge via the client agent using the messages below.
+//
+// Design: shield's config is modeled as an OPAQUE SET OF FILES, not field-by-field.
+// A bundle contains policy documents (YAML/JSON SecurityPolicy envelopes) AND the
+// auxiliary data files engines reference by path (GeoIP .mmdb, threat-feed lists,
+// JWK Sets, OpenAPI specs, Coraza rule files, PEM public keys). Keeping the payload
+// opaque decouples this proto from shield's (rich, evolving) policy schema — shield
+// itself parses and validates the bytes — and lets one message carry text and
+// binary files alike. The client just writes the files; shield watches and reloads.
+
+// ShieldFile is one file in shield's managed config directory.
+message ShieldFile {
+  // Path RELATIVE to shield's managed config root, e.g. "api-public.yaml" or
+  // "feeds/spamhaus_drop.json". The client MUST reject absolute paths and any ".."
+  // segment (path-traversal guard) and only write under the managed root.
+  string path = 1;
+
+  // Content source. Small text/config files are pushed inline; large binary
+  // artifacts (GeoIP .mmdb, big feeds) are fetched by the client itself to avoid
+  // bloating the command stream (mirrors the envoy/waf version-download pattern).
+  oneof source {
+    bytes inline = 2;            // raw file bytes (YAML/JSON/PEM/small feed)
+    ShieldDownload download = 3; // client downloads the artifact (large files)
+  }
+
+  // Lowercase-hex sha256 of the final file content. Used for idempotent writes
+  // (skip rewrite when unchanged) and integrity verification. Required.
+  string sha256 = 4;
+
+  // Octal file mode, e.g. "0600". Empty = client default (0600). Secret-bearing
+  // files (PEM keys, JWK Sets) should be 0600.
+  string mode = 5;
+}
+
+// ShieldDownload references a large artifact the client fetches itself instead of
+// receiving it inline (e.g. a GeoIP MaxMind .mmdb from the elchi-archive mirror).
+message ShieldDownload {
+  string url = 1;      // artifact URL
+  string version = 2;  // artifact version/tag, for tracking
+}
+
+// ShieldConfig is the desired state of shield's watched config directory.
+message ShieldConfig {
+  // The complete set of files shield should have. With full_sync = true the client
+  // makes the directory EXACTLY match this set: write/replace every listed file and
+  // remove any previously-managed file NOT listed, so a removed policy actually
+  // disappears from the edge. With full_sync = false it is an upsert (no deletions),
+  // for incremental pushes. Writes are atomic (temp + rename) so shield never reads
+  // a half-written file.
+  repeated ShieldFile files = 1;
+  bool full_sync = 2;
+
+  // Opaque version/hash of this bundle, surfaced back as shield's
+  // active_config_version so the control plane can track what each edge runs.
+  string version = 3;
+}
