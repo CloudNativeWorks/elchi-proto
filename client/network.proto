@@ -81,14 +81,31 @@ message NetworkState {
   repeated RoutingPolicy policies = 3;
   repeated RoutingTableDefinition routing_tables = 4;
   string current_netplan_yaml = 5;
+  // Who owns interface identity, L2 and addressing on this node:
+  //   "os"    — the appliance OS (Elchi OS console/seed); SUB_NETPLAN_APPLY and
+  //             SUB_NETPLAN_ROLLBACK are refused, the UI shows interfaces read-only
+  //   "agent" — this agent, through netplan (a plain Linux host)
+  string interfaces_managed_by = 6;
 }
 
 // Interface state information
 message InterfaceState {
   string name = 1;                  // Interface name
   repeated string addresses = 2;    // Assigned IP addresses
-  string state = 3;                 // Interface state: "up" or "down"
-  bool has_carrier = 4;             // Physical link status
+  string state = 3;                 // Administrative state: "up" or "down"
+  bool has_carrier = 4;             // Physical link status (IFF_RUNNING)
   string mac_address = 5;           // MAC address
   uint32 mtu = 6;                   // MTU size
+  string type = 7;                  // ethernet | bond | vlan | bridge | dummy | veth | tun | wireguard | other
+  string oper_state = 8;            // IFLA_OPERSTATE as sysfs spells it: up | down | lowerlayerdown | dormant | notpresent | testing | unknown
+  uint32 speed_mbps = 9;            // Link speed, 0 = unknown/virtual
+  string permanent_mac = 10;        // Hardware MAC (IFLA_PERM_ADDRESS), "" when none
+  string driver = 11;               // Kernel driver name, "" for virtual devices
+  string owner = 12;                // os | ui | ui-legacy | service | unmanaged (see NetworkState.interfaces_managed_by)
+  string source_file = 13;          // Basename of the /etc/netplan file that defines it, "" if unmanaged
+  string netplan_id = 14;           // Definition key in that file (== name unless match/set-name is used)
+  string parent = 15;               // VLAN link, or the bond/bridge master of a member
+  repeated string members = 16;     // Bond/bridge member names
+  uint32 vlan_id = 17;              // 802.1Q id for a VLAN device
+  string label = 18;                // Operator-given role label from the OS ("management", …), "" otherwise
 }

@@ -651,8 +651,14 @@ type NetworkState struct {
 	Policies           []*RoutingPolicy          `protobuf:"bytes,3,rep,name=policies,proto3" json:"policies,omitempty"`
 	RoutingTables      []*RoutingTableDefinition `protobuf:"bytes,4,rep,name=routing_tables,json=routingTables,proto3" json:"routing_tables,omitempty"`
 	CurrentNetplanYaml string                    `protobuf:"bytes,5,opt,name=current_netplan_yaml,json=currentNetplanYaml,proto3" json:"current_netplan_yaml,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Who owns interface identity, L2 and addressing on this node:
+	//
+	//	"os"    — the appliance OS (Elchi OS console/seed); SUB_NETPLAN_APPLY and
+	//	          SUB_NETPLAN_ROLLBACK are refused, the UI shows interfaces read-only
+	//	"agent" — this agent, through netplan (a plain Linux host)
+	InterfacesManagedBy string `protobuf:"bytes,6,opt,name=interfaces_managed_by,json=interfacesManagedBy,proto3" json:"interfaces_managed_by,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *NetworkState) Reset() {
@@ -720,15 +726,34 @@ func (x *NetworkState) GetCurrentNetplanYaml() string {
 	return ""
 }
 
+func (x *NetworkState) GetInterfacesManagedBy() string {
+	if x != nil {
+		return x.InterfacesManagedBy
+	}
+	return ""
+}
+
 // Interface state information
 type InterfaceState struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`                                // Interface name
-	Addresses     []string               `protobuf:"bytes,2,rep,name=addresses,proto3" json:"addresses,omitempty"`                      // Assigned IP addresses
-	State         string                 `protobuf:"bytes,3,opt,name=state,proto3" json:"state,omitempty"`                              // Interface state: "up" or "down"
-	HasCarrier    bool                   `protobuf:"varint,4,opt,name=has_carrier,json=hasCarrier,proto3" json:"has_carrier,omitempty"` // Physical link status
-	MacAddress    string                 `protobuf:"bytes,5,opt,name=mac_address,json=macAddress,proto3" json:"mac_address,omitempty"`  // MAC address
-	Mtu           uint32                 `protobuf:"varint,6,opt,name=mtu,proto3" json:"mtu,omitempty"`                                 // MTU size
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`                                      // Interface name
+	Addresses     []string               `protobuf:"bytes,2,rep,name=addresses,proto3" json:"addresses,omitempty"`                            // Assigned IP addresses
+	State         string                 `protobuf:"bytes,3,opt,name=state,proto3" json:"state,omitempty"`                                    // Administrative state: "up" or "down"
+	HasCarrier    bool                   `protobuf:"varint,4,opt,name=has_carrier,json=hasCarrier,proto3" json:"has_carrier,omitempty"`       // Physical link status (IFF_RUNNING)
+	MacAddress    string                 `protobuf:"bytes,5,opt,name=mac_address,json=macAddress,proto3" json:"mac_address,omitempty"`        // MAC address
+	Mtu           uint32                 `protobuf:"varint,6,opt,name=mtu,proto3" json:"mtu,omitempty"`                                       // MTU size
+	Type          string                 `protobuf:"bytes,7,opt,name=type,proto3" json:"type,omitempty"`                                      // ethernet | bond | vlan | bridge | dummy | veth | tun | wireguard | other
+	OperState     string                 `protobuf:"bytes,8,opt,name=oper_state,json=operState,proto3" json:"oper_state,omitempty"`           // IFLA_OPERSTATE as sysfs spells it: up | down | lowerlayerdown | dormant | notpresent | testing | unknown
+	SpeedMbps     uint32                 `protobuf:"varint,9,opt,name=speed_mbps,json=speedMbps,proto3" json:"speed_mbps,omitempty"`          // Link speed, 0 = unknown/virtual
+	PermanentMac  string                 `protobuf:"bytes,10,opt,name=permanent_mac,json=permanentMac,proto3" json:"permanent_mac,omitempty"` // Hardware MAC (IFLA_PERM_ADDRESS), "" when none
+	Driver        string                 `protobuf:"bytes,11,opt,name=driver,proto3" json:"driver,omitempty"`                                 // Kernel driver name, "" for virtual devices
+	Owner         string                 `protobuf:"bytes,12,opt,name=owner,proto3" json:"owner,omitempty"`                                   // os | ui | ui-legacy | service | unmanaged (see NetworkState.interfaces_managed_by)
+	SourceFile    string                 `protobuf:"bytes,13,opt,name=source_file,json=sourceFile,proto3" json:"source_file,omitempty"`       // Basename of the /etc/netplan file that defines it, "" if unmanaged
+	NetplanId     string                 `protobuf:"bytes,14,opt,name=netplan_id,json=netplanId,proto3" json:"netplan_id,omitempty"`          // Definition key in that file (== name unless match/set-name is used)
+	Parent        string                 `protobuf:"bytes,15,opt,name=parent,proto3" json:"parent,omitempty"`                                 // VLAN link, or the bond/bridge master of a member
+	Members       []string               `protobuf:"bytes,16,rep,name=members,proto3" json:"members,omitempty"`                               // Bond/bridge member names
+	VlanId        uint32                 `protobuf:"varint,17,opt,name=vlan_id,json=vlanId,proto3" json:"vlan_id,omitempty"`                  // 802.1Q id for a VLAN device
+	Label         string                 `protobuf:"bytes,18,opt,name=label,proto3" json:"label,omitempty"`                                   // Operator-given role label from the OS ("management", …), "" otherwise
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -805,6 +830,90 @@ func (x *InterfaceState) GetMtu() uint32 {
 	return 0
 }
 
+func (x *InterfaceState) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *InterfaceState) GetOperState() string {
+	if x != nil {
+		return x.OperState
+	}
+	return ""
+}
+
+func (x *InterfaceState) GetSpeedMbps() uint32 {
+	if x != nil {
+		return x.SpeedMbps
+	}
+	return 0
+}
+
+func (x *InterfaceState) GetPermanentMac() string {
+	if x != nil {
+		return x.PermanentMac
+	}
+	return ""
+}
+
+func (x *InterfaceState) GetDriver() string {
+	if x != nil {
+		return x.Driver
+	}
+	return ""
+}
+
+func (x *InterfaceState) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *InterfaceState) GetSourceFile() string {
+	if x != nil {
+		return x.SourceFile
+	}
+	return ""
+}
+
+func (x *InterfaceState) GetNetplanId() string {
+	if x != nil {
+		return x.NetplanId
+	}
+	return ""
+}
+
+func (x *InterfaceState) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
+func (x *InterfaceState) GetMembers() []string {
+	if x != nil {
+		return x.Members
+	}
+	return nil
+}
+
+func (x *InterfaceState) GetVlanId() uint32 {
+	if x != nil {
+		return x.VlanId
+	}
+	return 0
+}
+
+func (x *InterfaceState) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
 var File_client_network_proto protoreflect.FileDescriptor
 
 const file_client_network_proto_rawDesc = "" +
@@ -860,7 +969,7 @@ const file_client_network_proto_rawDesc = "" +
 	"\x03ADD\x10\x00\x12\n" +
 	"\n" +
 	"\x06DELETE\x10\x01\x12\v\n" +
-	"\aREPLACE\x10\x02\"\x99\x02\n" +
+	"\aREPLACE\x10\x02\"\xcd\x02\n" +
 	"\fNetworkState\x126\n" +
 	"\n" +
 	"interfaces\x18\x01 \x03(\v2\x16.client.InterfaceStateR\n" +
@@ -868,7 +977,8 @@ const file_client_network_proto_rawDesc = "" +
 	"\x06routes\x18\x02 \x03(\v2\r.client.RouteR\x06routes\x121\n" +
 	"\bpolicies\x18\x03 \x03(\v2\x15.client.RoutingPolicyR\bpolicies\x12E\n" +
 	"\x0erouting_tables\x18\x04 \x03(\v2\x1e.client.RoutingTableDefinitionR\rroutingTables\x120\n" +
-	"\x14current_netplan_yaml\x18\x05 \x01(\tR\x12currentNetplanYaml\"\xac\x01\n" +
+	"\x14current_netplan_yaml\x18\x05 \x01(\tR\x12currentNetplanYaml\x122\n" +
+	"\x15interfaces_managed_by\x18\x06 \x01(\tR\x13interfacesManagedBy\"\xf2\x03\n" +
 	"\x0eInterfaceState\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
 	"\taddresses\x18\x02 \x03(\tR\taddresses\x12\x14\n" +
@@ -877,7 +987,24 @@ const file_client_network_proto_rawDesc = "" +
 	"hasCarrier\x12\x1f\n" +
 	"\vmac_address\x18\x05 \x01(\tR\n" +
 	"macAddress\x12\x10\n" +
-	"\x03mtu\x18\x06 \x01(\rR\x03mtuB0Z.github.com/CloudNativeWorks/elchi-proto/clientb\x06proto3"
+	"\x03mtu\x18\x06 \x01(\rR\x03mtu\x12\x12\n" +
+	"\x04type\x18\a \x01(\tR\x04type\x12\x1d\n" +
+	"\n" +
+	"oper_state\x18\b \x01(\tR\toperState\x12\x1d\n" +
+	"\n" +
+	"speed_mbps\x18\t \x01(\rR\tspeedMbps\x12#\n" +
+	"\rpermanent_mac\x18\n" +
+	" \x01(\tR\fpermanentMac\x12\x16\n" +
+	"\x06driver\x18\v \x01(\tR\x06driver\x12\x14\n" +
+	"\x05owner\x18\f \x01(\tR\x05owner\x12\x1f\n" +
+	"\vsource_file\x18\r \x01(\tR\n" +
+	"sourceFile\x12\x1d\n" +
+	"\n" +
+	"netplan_id\x18\x0e \x01(\tR\tnetplanId\x12\x16\n" +
+	"\x06parent\x18\x0f \x01(\tR\x06parent\x12\x18\n" +
+	"\amembers\x18\x10 \x03(\tR\amembers\x12\x17\n" +
+	"\avlan_id\x18\x11 \x01(\rR\x06vlanId\x12\x14\n" +
+	"\x05label\x18\x12 \x01(\tR\x05labelB0Z.github.com/CloudNativeWorks/elchi-proto/clientb\x06proto3"
 
 var (
 	file_client_network_proto_rawDescOnce sync.Once
