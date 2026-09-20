@@ -10,6 +10,8 @@ import "client/frr.proto";
 import "client/request.proto";
 import "client/rsyslog.proto";
 import "client/shield.proto";
+import "client/ai_gateway.proto";
+import "client/appliance.proto";
 
 message ResponseDeploy {
   string files = 1;
@@ -174,4 +176,56 @@ message ResponseShield {
   // recent logs, mirroring the filebeat/rsyslog status responses.
   string service_status = 7;
   repeated Logs logs = 8;
+
+  // Further facts about the edge's shield for the status panel, as key/value
+  // pairs (e.g. "shield_version", "crs_version", "engines"): new facts need no
+  // proto change. The keys are the reporter's; the control plane shows what it
+  // does not recognise.
+  map<string, string> info = 9;
+}
+
+message ResponseAIGateway {
+  bool success = 1;     // operation succeeded at the client/edge
+  string message = 2;   // human-readable detail
+  string error = 3;     // error detail when success = false
+
+  // Bundle version now active on the edge, so the controller can confirm the
+  // edge converged on the push.
+  string applied_version = 4;
+
+  // The supervisor's verdict on a push: true = the ext_proc binary accepted
+  // the rendered config; false = it was rejected and the last-good config
+  // stays (a failed rollout, not an outage).
+  bool reload_ok = 5;
+
+  // GET_AI_GATEWAY_CONFIG: the file set currently on disk (path + sha256 +
+  // mode; content omitted for large files). Empty for status/update.
+  repeated AIGatewayFile current_files = 6;
+
+  // GET_AI_GATEWAY_STATUS: service state ("active"/"inactive"/"failed") and
+  // recent logs, mirroring the shield status response.
+  string service_status = 7;
+  repeated Logs logs = 8;
+
+  // The wrapped ext_proc binary's version. Its config version gate fails
+  // silently (a log line only); this lets the control plane explain a
+  // reload_ok = false.
+  string extproc_version = 9;
+
+  // Further facts the supervisor reports for the status panel, as key/value
+  // pairs (e.g. "supervisor_version", "usage_export": "ok|failing: …",
+  // "provider.<name>": "ok|…"): new facts need no proto change. The keys are
+  // the supervisor's; the control plane shows what it does not recognise.
+  map<string, string> info = 10;
+}
+
+message ResponseAppliance {
+  bool supported = 1;              // false on a host that is not Elchi OS 0.5.0+
+  string message = 2;
+  ApplianceStatus status = 3;      // GET_APPLIANCE_STATUS
+  ApplianceArtifact artifact = 4;  // CREATE / GET / DELETE
+  bytes data = 5;                  // FETCH
+  uint64 offset = 6;               // FETCH: where `data` starts
+  bool eof = 7;                    // FETCH: `data` ends the file
+  map<string, string> info = 8;
 }

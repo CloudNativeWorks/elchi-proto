@@ -48,4 +48,17 @@ The repository contains the following proto definitions:
 - Protocol Buffers Compiler (protoc) 3.0+
 - Go protocol buffers plugins:
   - `go install google.golang.org/protobuf/cmd/protoc-gen-go@latest`
-  - `go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest` 
+  - `go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest`
+
+## Versioning & Releases
+
+The root `VERSION` file (plain `X.Y.Z`, no `v` prefix) is the single source of
+truth. `.github/workflows/create-release.yml` runs on every push to `main`: it
+reads `VERSION`, and if no release carries that version yet it verifies the
+module builds, pushes the `vX.Y.Z` tag and creates the GitHub Release with a
+changelog since the previous tag. Pushes that leave `VERSION` untouched are a
+no-op.
+
+To cut a release: bump `VERSION` and merge to `main`. Consumers can then pin the
+contracts with `go get github.com/CloudNativeWorks/elchi-proto@vX.Y.Z` instead of
+a `v0.0.0-<date>-<sha>` pseudo-version.

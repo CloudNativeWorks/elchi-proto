@@ -44,4 +44,11 @@ enum CommandType {
 
   // SHIELD — elchi-shield ext_proc API-security/WAF config delivery
   SHIELD = 84;
+
+  // AI_GATEWAY — elchi-ai-gateway (LLM gateway ext_proc supervisor) config delivery
+  AI_GATEWAY = 85;
+
+  // APPLIANCE — the appliance OS itself (Elchi OS 0.5.0+): status, exports,
+  // compliance. The 90s are the appliance-OS group.
+  APPLIANCE = 91;
 }

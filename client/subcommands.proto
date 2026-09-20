@@ -46,4 +46,18 @@ enum SubCommandType {
   UPDATE_SHIELD_CONFIG = 36;
   GET_SHIELD_CONFIG = 37;
   GET_SHIELD_STATUS = 38;
+
+  // AI GATEWAY — push the config bundle, read what's on disk, or read service status
+  UPDATE_AI_GATEWAY_CONFIG = 39;
+  GET_AI_GATEWAY_CONFIG = 40;
+  GET_AI_GATEWAY_STATUS = 41;
+
+  // APPLIANCE (Elchi OS only) — status, background exports read in chunks,
+  // compliance check
+  GET_APPLIANCE_STATUS = 42;
+  CREATE_APPLIANCE_ARTIFACT = 43;
+  GET_APPLIANCE_ARTIFACT = 44;
+  FETCH_APPLIANCE_ARTIFACT = 45;
+  DELETE_APPLIANCE_ARTIFACT = 46;
+  RUN_APPLIANCE_COMPLIANCE = 47;
 }

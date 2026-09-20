@@ -9,6 +9,8 @@ import "client/frr.proto";
 import "client/filebeat.proto";
 import "client/rsyslog.proto";
 import "client/shield.proto";
+import "client/ai_gateway.proto";
+import "client/appliance.proto";
 
 // Deploy related messages
 message RequestDeploy {
@@ -137,4 +139,21 @@ message RequestRsyslog {
 // GET_SHIELD_STATUS carry no body.
 message RequestShield {
   ShieldConfig config = 1;
+}
+
+// RequestAIGateway carries an elchi-ai-gateway operation. The Command's
+// SubCommandType selects the action: UPDATE_AI_GATEWAY_CONFIG uses `config`;
+// GET_AI_GATEWAY_CONFIG and GET_AI_GATEWAY_STATUS carry no body.
+message RequestAIGateway {
+  AIGatewayConfig config = 1;
+}
+
+// RequestAppliance carries an appliance operation; the SubCommandType picks
+// which fields matter.
+message RequestAppliance {
+  ApplianceArtifactKind kind = 1;  // CREATE_APPLIANCE_ARTIFACT
+  string artifact_id = 2;          // GET / FETCH / DELETE: 32 lowercase hex
+  uint64 offset = 3;               // FETCH
+  uint32 length = 4;               // FETCH: 0 = 1 MiB; the agent never returns more than 1 MiB
+  bool refresh = 5;                // GET_APPLIANCE_STATUS: bypass the agent's short cache
 }

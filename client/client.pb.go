@@ -167,6 +167,8 @@ type Command struct {
 	//	*Command_Rsyslog
 	//	*Command_UpgradeListener
 	//	*Command_Shield
+	//	*Command_AiGateway
+	//	*Command_Appliance
 	Payload       isCommand_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -372,6 +374,24 @@ func (x *Command) GetShield() *RequestShield {
 	return nil
 }
 
+func (x *Command) GetAiGateway() *RequestAIGateway {
+	if x != nil {
+		if x, ok := x.Payload.(*Command_AiGateway); ok {
+			return x.AiGateway
+		}
+	}
+	return nil
+}
+
+func (x *Command) GetAppliance() *RequestAppliance {
+	if x != nil {
+		if x, ok := x.Payload.(*Command_Appliance); ok {
+			return x.Appliance
+		}
+	}
+	return nil
+}
+
 type isCommand_Payload interface {
 	isCommand_Payload()
 }
@@ -436,6 +456,14 @@ type Command_Shield struct {
 	Shield *RequestShield `protobuf:"bytes,24,opt,name=shield,proto3,oneof"`
 }
 
+type Command_AiGateway struct {
+	AiGateway *RequestAIGateway `protobuf:"bytes,25,opt,name=ai_gateway,json=aiGateway,proto3,oneof"`
+}
+
+type Command_Appliance struct {
+	Appliance *RequestAppliance `protobuf:"bytes,26,opt,name=appliance,proto3,oneof"`
+}
+
 func (*Command_Deploy) isCommand_Payload() {}
 
 func (*Command_Service) isCommand_Payload() {}
@@ -466,6 +494,10 @@ func (*Command_UpgradeListener) isCommand_Payload() {}
 
 func (*Command_Shield) isCommand_Payload() {}
 
+func (*Command_AiGateway) isCommand_Payload() {}
+
+func (*Command_Appliance) isCommand_Payload() {}
+
 // CommandResponse represents the response to a command
 type CommandResponse struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
@@ -490,6 +522,8 @@ type CommandResponse struct {
 	//	*CommandResponse_Rsyslog
 	//	*CommandResponse_UpgradeListener
 	//	*CommandResponse_Shield
+	//	*CommandResponse_AiGateway
+	//	*CommandResponse_Appliance
 	Result        isCommandResponse_Result `protobuf_oneof:"result"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -695,6 +729,24 @@ func (x *CommandResponse) GetShield() *ResponseShield {
 	return nil
 }
 
+func (x *CommandResponse) GetAiGateway() *ResponseAIGateway {
+	if x != nil {
+		if x, ok := x.Result.(*CommandResponse_AiGateway); ok {
+			return x.AiGateway
+		}
+	}
+	return nil
+}
+
+func (x *CommandResponse) GetAppliance() *ResponseAppliance {
+	if x != nil {
+		if x, ok := x.Result.(*CommandResponse_Appliance); ok {
+			return x.Appliance
+		}
+	}
+	return nil
+}
+
 type isCommandResponse_Result interface {
 	isCommandResponse_Result()
 }
@@ -759,6 +811,14 @@ type CommandResponse_Shield struct {
 	Shield *ResponseShield `protobuf:"bytes,24,opt,name=shield,proto3,oneof"`
 }
 
+type CommandResponse_AiGateway struct {
+	AiGateway *ResponseAIGateway `protobuf:"bytes,25,opt,name=ai_gateway,json=aiGateway,proto3,oneof"`
+}
+
+type CommandResponse_Appliance struct {
+	Appliance *ResponseAppliance `protobuf:"bytes,26,opt,name=appliance,proto3,oneof"`
+}
+
 func (*CommandResponse_Deploy) isCommandResponse_Result() {}
 
 func (*CommandResponse_Service) isCommandResponse_Result() {}
@@ -789,6 +849,10 @@ func (*CommandResponse_UpgradeListener) isCommandResponse_Result() {}
 
 func (*CommandResponse_Shield) isCommandResponse_Result() {}
 
+func (*CommandResponse_AiGateway) isCommandResponse_Result() {}
+
+func (*CommandResponse_Appliance) isCommandResponse_Result() {}
+
 var File_client_client_proto protoreflect.FileDescriptor
 
 const file_client_client_proto_rawDesc = "" +
@@ -801,7 +865,7 @@ const file_client_client_proto_rawDesc = "" +
 	"\x10client_timestamp\x18\x01 \x01(\x03R\x0fclientTimestamp\x12)\n" +
 	"\x10server_timestamp\x18\x02 \x01(\x03R\x0fserverTimestamp\x12\x18\n" +
 	"\amessage\x18\x03 \x01(\tR\amessage\x12\x18\n" +
-	"\asuccess\x18\x04 \x01(\bR\asuccess\"\xaa\b\n" +
+	"\asuccess\x18\x04 \x01(\bR\asuccess\"\x9f\t\n" +
 	"\aCommand\x12,\n" +
 	"\bidentity\x18\x01 \x01(\v2\x10.client.IdentityR\bidentity\x12\x1d\n" +
 	"\n" +
@@ -826,8 +890,11 @@ const file_client_client_proto_rawDesc = "" +
 	"\bfilebeat\x18\x15 \x01(\v2\x17.client.RequestFilebeatH\x00R\bfilebeat\x122\n" +
 	"\arsyslog\x18\x16 \x01(\v2\x16.client.RequestRsyslogH\x00R\arsyslog\x12K\n" +
 	"\x10upgrade_listener\x18\x17 \x01(\v2\x1e.client.RequestUpgradeListenerH\x00R\x0fupgradeListener\x12/\n" +
-	"\x06shield\x18\x18 \x01(\v2\x15.client.RequestShieldH\x00R\x06shieldB\t\n" +
-	"\apayload\"\x94\b\n" +
+	"\x06shield\x18\x18 \x01(\v2\x15.client.RequestShieldH\x00R\x06shield\x129\n" +
+	"\n" +
+	"ai_gateway\x18\x19 \x01(\v2\x18.client.RequestAIGatewayH\x00R\taiGateway\x128\n" +
+	"\tappliance\x18\x1a \x01(\v2\x18.client.RequestApplianceH\x00R\tapplianceB\t\n" +
+	"\apayload\"\x8b\t\n" +
 	"\x0fCommandResponse\x12,\n" +
 	"\bidentity\x18\x01 \x01(\v2\x10.client.IdentityR\bidentity\x12\x1d\n" +
 	"\n" +
@@ -852,7 +919,10 @@ const file_client_client_proto_rawDesc = "" +
 	"\bfilebeat\x18\x15 \x01(\v2\x18.client.ResponseFilebeatH\x00R\bfilebeat\x123\n" +
 	"\arsyslog\x18\x16 \x01(\v2\x17.client.ResponseRsyslogH\x00R\arsyslog\x12L\n" +
 	"\x10upgrade_listener\x18\x17 \x01(\v2\x1f.client.ResponseUpgradeListenerH\x00R\x0fupgradeListener\x120\n" +
-	"\x06shield\x18\x18 \x01(\v2\x16.client.ResponseShieldH\x00R\x06shieldB\b\n" +
+	"\x06shield\x18\x18 \x01(\v2\x16.client.ResponseShieldH\x00R\x06shield\x12:\n" +
+	"\n" +
+	"ai_gateway\x18\x19 \x01(\v2\x19.client.ResponseAIGatewayH\x00R\taiGateway\x129\n" +
+	"\tappliance\x18\x1a \x01(\v2\x19.client.ResponseApplianceH\x00R\tapplianceB\b\n" +
 	"\x06result2\x8e\x02\n" +
 	"\x0eCommandService\x12?\n" +
 	"\bRegister\x12\x17.client.RegisterRequest\x1a\x18.client.RegisterResponse\"\x00\x12E\n" +
@@ -897,25 +967,29 @@ var file_client_client_proto_goTypes = []any{
 	(*RequestRsyslog)(nil),          // 19: client.RequestRsyslog
 	(*RequestUpgradeListener)(nil),  // 20: client.RequestUpgradeListener
 	(*RequestShield)(nil),           // 21: client.RequestShield
-	(*ResponseDeploy)(nil),          // 22: client.ResponseDeploy
-	(*ResponseService)(nil),         // 23: client.ResponseService
-	(*ResponseUpdateBootstrap)(nil), // 24: client.ResponseUpdateBootstrap
-	(*ResponseEnvoyAdmin)(nil),      // 25: client.ResponseEnvoyAdmin
-	(*ResponseUnDeploy)(nil),        // 26: client.ResponseUnDeploy
-	(*ResponseGeneralLog)(nil),      // 27: client.ResponseGeneralLog
-	(*ResponseClientStats)(nil),     // 28: client.ResponseClientStats
-	(*ResponseNetwork)(nil),         // 29: client.ResponseNetwork
-	(*ResponseFrr)(nil),             // 30: client.ResponseFrr
-	(*ResponseEnvoyVersion)(nil),    // 31: client.ResponseEnvoyVersion
-	(*ResponseWafVersion)(nil),      // 32: client.ResponseWafVersion
-	(*ResponseFilebeat)(nil),        // 33: client.ResponseFilebeat
-	(*ResponseRsyslog)(nil),         // 34: client.ResponseRsyslog
-	(*ResponseUpgradeListener)(nil), // 35: client.ResponseUpgradeListener
-	(*ResponseShield)(nil),          // 36: client.ResponseShield
-	(*RegisterRequest)(nil),         // 37: client.RegisterRequest
-	(*UnregisterRequest)(nil),       // 38: client.UnregisterRequest
-	(*RegisterResponse)(nil),        // 39: client.RegisterResponse
-	(*UnregisterResponse)(nil),      // 40: client.UnregisterResponse
+	(*RequestAIGateway)(nil),        // 22: client.RequestAIGateway
+	(*RequestAppliance)(nil),        // 23: client.RequestAppliance
+	(*ResponseDeploy)(nil),          // 24: client.ResponseDeploy
+	(*ResponseService)(nil),         // 25: client.ResponseService
+	(*ResponseUpdateBootstrap)(nil), // 26: client.ResponseUpdateBootstrap
+	(*ResponseEnvoyAdmin)(nil),      // 27: client.ResponseEnvoyAdmin
+	(*ResponseUnDeploy)(nil),        // 28: client.ResponseUnDeploy
+	(*ResponseGeneralLog)(nil),      // 29: client.ResponseGeneralLog
+	(*ResponseClientStats)(nil),     // 30: client.ResponseClientStats
+	(*ResponseNetwork)(nil),         // 31: client.ResponseNetwork
+	(*ResponseFrr)(nil),             // 32: client.ResponseFrr
+	(*ResponseEnvoyVersion)(nil),    // 33: client.ResponseEnvoyVersion
+	(*ResponseWafVersion)(nil),      // 34: client.ResponseWafVersion
+	(*ResponseFilebeat)(nil),        // 35: client.ResponseFilebeat
+	(*ResponseRsyslog)(nil),         // 36: client.ResponseRsyslog
+	(*ResponseUpgradeListener)(nil), // 37: client.ResponseUpgradeListener
+	(*ResponseShield)(nil),          // 38: client.ResponseShield
+	(*ResponseAIGateway)(nil),       // 39: client.ResponseAIGateway
+	(*ResponseAppliance)(nil),       // 40: client.ResponseAppliance
+	(*RegisterRequest)(nil),         // 41: client.RegisterRequest
+	(*UnregisterRequest)(nil),       // 42: client.UnregisterRequest
+	(*RegisterResponse)(nil),        // 43: client.RegisterResponse
+	(*UnregisterResponse)(nil),      // 44: client.UnregisterResponse
 }
 var file_client_client_proto_depIdxs = []int32{
 	4,  // 0: client.Command.identity:type_name -> client.Identity
@@ -936,35 +1010,39 @@ var file_client_client_proto_depIdxs = []int32{
 	19, // 15: client.Command.rsyslog:type_name -> client.RequestRsyslog
 	20, // 16: client.Command.upgrade_listener:type_name -> client.RequestUpgradeListener
 	21, // 17: client.Command.shield:type_name -> client.RequestShield
-	4,  // 18: client.CommandResponse.identity:type_name -> client.Identity
-	22, // 19: client.CommandResponse.deploy:type_name -> client.ResponseDeploy
-	23, // 20: client.CommandResponse.service:type_name -> client.ResponseService
-	24, // 21: client.CommandResponse.update_bootstrap:type_name -> client.ResponseUpdateBootstrap
-	25, // 22: client.CommandResponse.envoy_admin:type_name -> client.ResponseEnvoyAdmin
-	26, // 23: client.CommandResponse.undeploy:type_name -> client.ResponseUnDeploy
-	27, // 24: client.CommandResponse.general_log:type_name -> client.ResponseGeneralLog
-	28, // 25: client.CommandResponse.client_stats:type_name -> client.ResponseClientStats
-	29, // 26: client.CommandResponse.network:type_name -> client.ResponseNetwork
-	30, // 27: client.CommandResponse.frr:type_name -> client.ResponseFrr
-	31, // 28: client.CommandResponse.envoy_version:type_name -> client.ResponseEnvoyVersion
-	32, // 29: client.CommandResponse.waf_version:type_name -> client.ResponseWafVersion
-	33, // 30: client.CommandResponse.filebeat:type_name -> client.ResponseFilebeat
-	34, // 31: client.CommandResponse.rsyslog:type_name -> client.ResponseRsyslog
-	35, // 32: client.CommandResponse.upgrade_listener:type_name -> client.ResponseUpgradeListener
-	36, // 33: client.CommandResponse.shield:type_name -> client.ResponseShield
-	37, // 34: client.CommandService.Register:input_type -> client.RegisterRequest
-	38, // 35: client.CommandService.Unregister:input_type -> client.UnregisterRequest
-	3,  // 36: client.CommandService.CommandStream:input_type -> client.CommandResponse
-	0,  // 37: client.CommandService.Ping:input_type -> client.PingRequest
-	39, // 38: client.CommandService.Register:output_type -> client.RegisterResponse
-	40, // 39: client.CommandService.Unregister:output_type -> client.UnregisterResponse
-	2,  // 40: client.CommandService.CommandStream:output_type -> client.Command
-	1,  // 41: client.CommandService.Ping:output_type -> client.PingResponse
-	38, // [38:42] is the sub-list for method output_type
-	34, // [34:38] is the sub-list for method input_type
-	34, // [34:34] is the sub-list for extension type_name
-	34, // [34:34] is the sub-list for extension extendee
-	0,  // [0:34] is the sub-list for field type_name
+	22, // 18: client.Command.ai_gateway:type_name -> client.RequestAIGateway
+	23, // 19: client.Command.appliance:type_name -> client.RequestAppliance
+	4,  // 20: client.CommandResponse.identity:type_name -> client.Identity
+	24, // 21: client.CommandResponse.deploy:type_name -> client.ResponseDeploy
+	25, // 22: client.CommandResponse.service:type_name -> client.ResponseService
+	26, // 23: client.CommandResponse.update_bootstrap:type_name -> client.ResponseUpdateBootstrap
+	27, // 24: client.CommandResponse.envoy_admin:type_name -> client.ResponseEnvoyAdmin
+	28, // 25: client.CommandResponse.undeploy:type_name -> client.ResponseUnDeploy
+	29, // 26: client.CommandResponse.general_log:type_name -> client.ResponseGeneralLog
+	30, // 27: client.CommandResponse.client_stats:type_name -> client.ResponseClientStats
+	31, // 28: client.CommandResponse.network:type_name -> client.ResponseNetwork
+	32, // 29: client.CommandResponse.frr:type_name -> client.ResponseFrr
+	33, // 30: client.CommandResponse.envoy_version:type_name -> client.ResponseEnvoyVersion
+	34, // 31: client.CommandResponse.waf_version:type_name -> client.ResponseWafVersion
+	35, // 32: client.CommandResponse.filebeat:type_name -> client.ResponseFilebeat
+	36, // 33: client.CommandResponse.rsyslog:type_name -> client.ResponseRsyslog
+	37, // 34: client.CommandResponse.upgrade_listener:type_name -> client.ResponseUpgradeListener
+	38, // 35: client.CommandResponse.shield:type_name -> client.ResponseShield
+	39, // 36: client.CommandResponse.ai_gateway:type_name -> client.ResponseAIGateway
+	40, // 37: client.CommandResponse.appliance:type_name -> client.ResponseAppliance
+	41, // 38: client.CommandService.Register:input_type -> client.RegisterRequest
+	42, // 39: client.CommandService.Unregister:input_type -> client.UnregisterRequest
+	3,  // 40: client.CommandService.CommandStream:input_type -> client.CommandResponse
+	0,  // 41: client.CommandService.Ping:input_type -> client.PingRequest
+	43, // 42: client.CommandService.Register:output_type -> client.RegisterResponse
+	44, // 43: client.CommandService.Unregister:output_type -> client.UnregisterResponse
+	2,  // 44: client.CommandService.CommandStream:output_type -> client.Command
+	1,  // 45: client.CommandService.Ping:output_type -> client.PingResponse
+	42, // [42:46] is the sub-list for method output_type
+	38, // [38:42] is the sub-list for method input_type
+	38, // [38:38] is the sub-list for extension type_name
+	38, // [38:38] is the sub-list for extension extendee
+	0,  // [0:38] is the sub-list for field type_name
 }
 
 func init() { file_client_client_proto_init() }
@@ -994,6 +1072,8 @@ func file_client_client_proto_init() {
 		(*Command_Rsyslog)(nil),
 		(*Command_UpgradeListener)(nil),
 		(*Command_Shield)(nil),
+		(*Command_AiGateway)(nil),
+		(*Command_Appliance)(nil),
 	}
 	file_client_client_proto_msgTypes[3].OneofWrappers = []any{
 		(*CommandResponse_Deploy)(nil),
@@ -1011,6 +1091,8 @@ func file_client_client_proto_init() {
 		(*CommandResponse_Rsyslog)(nil),
 		(*CommandResponse_UpgradeListener)(nil),
 		(*CommandResponse_Shield)(nil),
+		(*CommandResponse_AiGateway)(nil),
+		(*CommandResponse_Appliance)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

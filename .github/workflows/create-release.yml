@@ -1,0 +1,118 @@
+name: Create Release
+
+# Versioning for the proto contracts: the root VERSION file is the source of truth.
+# Every push to main checks it — if no release carries that version yet, the tag
+# and GitHub Release are cut automatically. So releasing = bump VERSION, merge.
+# Pushes that don't change VERSION are a no-op (the release already exists).
+#
+# The tag matters beyond bookkeeping: consumers (elchi-backend, elchi-client, ...)
+# currently pin a v0.0.0-<date>-<sha> pseudo-version; a vX.Y.Z tag lets them do
+#   go get github.com/CloudNativeWorks/elchi-proto@vX.Y.Z
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to create release from'
+        required: true
+        default: 'main'
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+jobs:
+  create-release:
+    name: Tag and release VERSION
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || github.ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+
+      - name: Get version
+        id: get_version
+        run: |
+          if [ ! -f VERSION ]; then
+            echo "::error::VERSION file is missing at the repo root"
+            exit 1
+          fi
+          VERSION=$(tr -d ' \t\r\n' < VERSION)
+          # Plain semver only — the tag is a Go module version, so no suffixes.
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::VERSION must be X.Y.Z, got '${VERSION}'"
+            exit 1
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Version found: ${VERSION}"
+
+      - name: Check if release exists
+        id: check_release
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          if gh release view "v${VERSION}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Release v${VERSION} already exists — nothing to do"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Release v${VERSION} does not exist — will create"
+          fi
+
+      - name: Set up Go
+        if: steps.check_release.outputs.exists == 'false'
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          check-latest: true
+          cache: false
+
+      - name: Verify module builds
+        if: steps.check_release.outputs.exists == 'false'
+        # A tag is immutable once consumers fetch it through the module proxy,
+        # so never publish one that doesn't compile.
+        run: |
+          go build ./...
+          go vet ./...
+
+      - name: Create tag and GitHub Release
+        if: steps.check_release.outputs.exists == 'false'
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+        run: |
+          # A stale local tag would make the push fail loudly rather than silently
+          # re-point an already published module version.
+          git tag "v${VERSION}"
+          git push origin "v${VERSION}"
+
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 "v${VERSION}^" 2>/dev/null || echo "")
+          if [ -n "$PREVIOUS_TAG" ]; then
+            CHANGELOG=$(git log --pretty=format:"* %s" "${PREVIOUS_TAG}..HEAD")
+          else
+            CHANGELOG=$(git log --pretty=format:"* %s")
+          fi
+
+          gh release create "v${VERSION}" \
+            --title "elchi-proto v${VERSION}" \
+            --notes "${CHANGELOG}"
+
+      - name: Release status
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          if [ "${{ steps.check_release.outputs.exists }}" = "true" ]; then
+            echo "Release v${VERSION} already exists — skipped."
+          else
+            echo "Release v${VERSION} created."
+          fi

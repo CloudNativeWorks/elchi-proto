@@ -23,20 +23,25 @@ const (
 
 // RegisterRequest contains client registration information
 type RegisterRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClientId      string                 `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	Token         string                 `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Version       string                 `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`
-	Hostname      string                 `protobuf:"bytes,5,opt,name=hostname,proto3" json:"hostname,omitempty"`
-	Os            string                 `protobuf:"bytes,6,opt,name=os,proto3" json:"os,omitempty"`
-	Arch          string                 `protobuf:"bytes,7,opt,name=arch,proto3" json:"arch,omitempty"`
-	Kernel        string                 `protobuf:"bytes,8,opt,name=kernel,proto3" json:"kernel,omitempty"`
-	Metadata      map[string]string      `protobuf:"bytes,9,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	ProjectId     string                 `protobuf:"bytes,10,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"` // Optional: Project ID for the client. If empty, default project will be used
-	Bgp           bool                   `protobuf:"varint,11,opt,name=bgp,proto3" json:"bgp,omitempty"`                             // BGP routing capability
-	Provider      string                 `protobuf:"bytes,12,opt,name=provider,proto3" json:"provider,omitempty"`                    // Infrastructure provider (openstack, other)
-	Cloud         string                 `protobuf:"bytes,13,opt,name=cloud,proto3" json:"cloud,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	ClientId string                 `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	Token    string                 `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"`
+	Name     string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Version  string                 `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`
+	Hostname string                 `protobuf:"bytes,5,opt,name=hostname,proto3" json:"hostname,omitempty"`
+	Os       string                 `protobuf:"bytes,6,opt,name=os,proto3" json:"os,omitempty"`
+	Arch     string                 `protobuf:"bytes,7,opt,name=arch,proto3" json:"arch,omitempty"`
+	Kernel   string                 `protobuf:"bytes,8,opt,name=kernel,proto3" json:"kernel,omitempty"`
+	// Free-form facts about the host. Keys the control plane reads:
+	//
+	//	network_managed_by — "os" (the appliance console owns interfaces;
+	//	                     Elchi OS 0.5.0+) or "agent" (this agent edits netplan)
+	//	os_id              — os-release ID ("elchi", "ubuntu", …)
+	Metadata      map[string]string `protobuf:"bytes,9,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	ProjectId     string            `protobuf:"bytes,10,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"` // Optional: Project ID for the client. If empty, default project will be used
+	Bgp           bool              `protobuf:"varint,11,opt,name=bgp,proto3" json:"bgp,omitempty"`                             // BGP routing capability
+	Provider      string            `protobuf:"bytes,12,opt,name=provider,proto3" json:"provider,omitempty"`                    // Infrastructure provider (openstack, other)
+	Cloud         string            `protobuf:"bytes,13,opt,name=cloud,proto3" json:"cloud,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

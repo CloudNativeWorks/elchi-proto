@@ -1163,11 +1163,136 @@ func (x *RequestShield) GetConfig() *ShieldConfig {
 	return nil
 }
 
+// RequestAIGateway carries an elchi-ai-gateway operation. The Command's
+// SubCommandType selects the action: UPDATE_AI_GATEWAY_CONFIG uses `config`;
+// GET_AI_GATEWAY_CONFIG and GET_AI_GATEWAY_STATUS carry no body.
+type RequestAIGateway struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Config        *AIGatewayConfig       `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RequestAIGateway) Reset() {
+	*x = RequestAIGateway{}
+	mi := &file_client_request_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RequestAIGateway) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RequestAIGateway) ProtoMessage() {}
+
+func (x *RequestAIGateway) ProtoReflect() protoreflect.Message {
+	mi := &file_client_request_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RequestAIGateway.ProtoReflect.Descriptor instead.
+func (*RequestAIGateway) Descriptor() ([]byte, []int) {
+	return file_client_request_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *RequestAIGateway) GetConfig() *AIGatewayConfig {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
+// RequestAppliance carries an appliance operation; the SubCommandType picks
+// which fields matter.
+type RequestAppliance struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Kind          ApplianceArtifactKind  `protobuf:"varint,1,opt,name=kind,proto3,enum=client.ApplianceArtifactKind" json:"kind,omitempty"` // CREATE_APPLIANCE_ARTIFACT
+	ArtifactId    string                 `protobuf:"bytes,2,opt,name=artifact_id,json=artifactId,proto3" json:"artifact_id,omitempty"`      // GET / FETCH / DELETE: 32 lowercase hex
+	Offset        uint64                 `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`                               // FETCH
+	Length        uint32                 `protobuf:"varint,4,opt,name=length,proto3" json:"length,omitempty"`                               // FETCH: 0 = 1 MiB; the agent never returns more than 1 MiB
+	Refresh       bool                   `protobuf:"varint,5,opt,name=refresh,proto3" json:"refresh,omitempty"`                             // GET_APPLIANCE_STATUS: bypass the agent's short cache
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RequestAppliance) Reset() {
+	*x = RequestAppliance{}
+	mi := &file_client_request_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RequestAppliance) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RequestAppliance) ProtoMessage() {}
+
+func (x *RequestAppliance) ProtoReflect() protoreflect.Message {
+	mi := &file_client_request_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RequestAppliance.ProtoReflect.Descriptor instead.
+func (*RequestAppliance) Descriptor() ([]byte, []int) {
+	return file_client_request_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *RequestAppliance) GetKind() ApplianceArtifactKind {
+	if x != nil {
+		return x.Kind
+	}
+	return ApplianceArtifactKind_APPLIANCE_ARTIFACT_KIND_UNSPECIFIED
+}
+
+func (x *RequestAppliance) GetArtifactId() string {
+	if x != nil {
+		return x.ArtifactId
+	}
+	return ""
+}
+
+func (x *RequestAppliance) GetOffset() uint64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *RequestAppliance) GetLength() uint32 {
+	if x != nil {
+		return x.Length
+	}
+	return 0
+}
+
+func (x *RequestAppliance) GetRefresh() bool {
+	if x != nil {
+		return x.Refresh
+	}
+	return false
+}
+
 var File_client_request_proto protoreflect.FileDescriptor
 
 const file_client_request_proto_rawDesc = "" +
 	"\n" +
-	"\x14client/request.proto\x12\x06client\x1a\x14client/network.proto\x1a\x10client/frr.proto\x1a\x15client/filebeat.proto\x1a\x14client/rsyslog.proto\x1a\x13client/shield.proto\"\xda\x01\n" +
+	"\x14client/request.proto\x12\x06client\x1a\x14client/network.proto\x1a\x10client/frr.proto\x1a\x15client/filebeat.proto\x1a\x14client/rsyslog.proto\x1a\x13client/shield.proto\x1a\x17client/ai_gateway.proto\x1a\x16client/appliance.proto\"\xda\x01\n" +
 	"\rRequestDeploy\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12-\n" +
 	"\x12downstream_address\x18\x02 \x01(\tR\x11downstreamAddress\x12\x12\n" +
@@ -1245,7 +1370,16 @@ const file_client_request_proto_rawDesc = "" +
 	"\x0eRequestRsyslog\x12<\n" +
 	"\x0ersyslog_config\x18\x01 \x01(\v2\x15.client.RsyslogConfigR\rrsyslogConfig\"=\n" +
 	"\rRequestShield\x12,\n" +
-	"\x06config\x18\x01 \x01(\v2\x14.client.ShieldConfigR\x06config*E\n" +
+	"\x06config\x18\x01 \x01(\v2\x14.client.ShieldConfigR\x06config\"C\n" +
+	"\x10RequestAIGateway\x12/\n" +
+	"\x06config\x18\x01 \x01(\v2\x17.client.AIGatewayConfigR\x06config\"\xb0\x01\n" +
+	"\x10RequestAppliance\x121\n" +
+	"\x04kind\x18\x01 \x01(\x0e2\x1d.client.ApplianceArtifactKindR\x04kind\x12\x1f\n" +
+	"\vartifact_id\x18\x02 \x01(\tR\n" +
+	"artifactId\x12\x16\n" +
+	"\x06offset\x18\x03 \x01(\x04R\x06offset\x12\x16\n" +
+	"\x06length\x18\x04 \x01(\rR\x06length\x12\x18\n" +
+	"\arefresh\x18\x05 \x01(\bR\arefresh*E\n" +
 	"\aLogType\x12\x10\n" +
 	"\fLOG_TYPE_ALL\x10\x00\x12\x13\n" +
 	"\x0fLOG_TYPE_SYSTEM\x10\x01\x12\x13\n" +
@@ -1272,7 +1406,7 @@ func file_client_request_proto_rawDescGZIP() []byte {
 }
 
 var file_client_request_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_client_request_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_client_request_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_client_request_proto_goTypes = []any{
 	(LogType)(0),                   // 0: client.LogType
 	(HttpMethod)(0),                // 1: client.HttpMethod
@@ -1292,45 +1426,51 @@ var file_client_request_proto_goTypes = []any{
 	(*RequestFilebeat)(nil),        // 15: client.RequestFilebeat
 	(*RequestRsyslog)(nil),         // 16: client.RequestRsyslog
 	(*RequestShield)(nil),          // 17: client.RequestShield
-	nil,                            // 18: client.RequestEnvoyAdmin.QueriesEntry
-	(*NetplanConfig)(nil),          // 19: client.NetplanConfig
-	(*RouteOperation)(nil),         // 20: client.RouteOperation
-	(*RoutingPolicyOperation)(nil), // 21: client.RoutingPolicyOperation
-	(*RoutingTableDefinition)(nil), // 22: client.RoutingTableDefinition
-	(*TableOperation)(nil),         // 23: client.TableOperation
-	(FrrProtocolType)(0),           // 24: client.FrrProtocolType
-	(*RequestBgp)(nil),             // 25: client.RequestBgp
-	(*FilebeatInput)(nil),          // 26: client.FilebeatInput
-	(*TimestampProcessor)(nil),     // 27: client.TimestampProcessor
-	(*DropFieldsProcessor)(nil),    // 28: client.DropFieldsProcessor
-	(*FilebeatOutput)(nil),         // 29: client.FilebeatOutput
-	(*RsyslogConfig)(nil),          // 30: client.RsyslogConfig
-	(*ShieldConfig)(nil),           // 31: client.ShieldConfig
+	(*RequestAIGateway)(nil),       // 18: client.RequestAIGateway
+	(*RequestAppliance)(nil),       // 19: client.RequestAppliance
+	nil,                            // 20: client.RequestEnvoyAdmin.QueriesEntry
+	(*NetplanConfig)(nil),          // 21: client.NetplanConfig
+	(*RouteOperation)(nil),         // 22: client.RouteOperation
+	(*RoutingPolicyOperation)(nil), // 23: client.RoutingPolicyOperation
+	(*RoutingTableDefinition)(nil), // 24: client.RoutingTableDefinition
+	(*TableOperation)(nil),         // 25: client.TableOperation
+	(FrrProtocolType)(0),           // 26: client.FrrProtocolType
+	(*RequestBgp)(nil),             // 27: client.RequestBgp
+	(*FilebeatInput)(nil),          // 28: client.FilebeatInput
+	(*TimestampProcessor)(nil),     // 29: client.TimestampProcessor
+	(*DropFieldsProcessor)(nil),    // 30: client.DropFieldsProcessor
+	(*FilebeatOutput)(nil),         // 31: client.FilebeatOutput
+	(*RsyslogConfig)(nil),          // 32: client.RsyslogConfig
+	(*ShieldConfig)(nil),           // 33: client.ShieldConfig
+	(*AIGatewayConfig)(nil),        // 34: client.AIGatewayConfig
+	(ApplianceArtifactKind)(0),     // 35: client.ApplianceArtifactKind
 }
 var file_client_request_proto_depIdxs = []int32{
 	0,  // 0: client.RequestService.log_type:type_name -> client.LogType
 	1,  // 1: client.RequestEnvoyAdmin.method:type_name -> client.HttpMethod
-	18, // 2: client.RequestEnvoyAdmin.queries:type_name -> client.RequestEnvoyAdmin.QueriesEntry
-	19, // 3: client.RequestNetwork.netplan_config:type_name -> client.NetplanConfig
-	20, // 4: client.RequestNetwork.route_operations:type_name -> client.RouteOperation
-	21, // 5: client.RequestNetwork.policy_operations:type_name -> client.RoutingPolicyOperation
-	22, // 6: client.RequestNetwork.routing_tables:type_name -> client.RoutingTableDefinition
-	23, // 7: client.RequestNetwork.table_operations:type_name -> client.TableOperation
-	24, // 8: client.RequestFrr.protocol:type_name -> client.FrrProtocolType
-	25, // 9: client.RequestFrr.bgp:type_name -> client.RequestBgp
+	20, // 2: client.RequestEnvoyAdmin.queries:type_name -> client.RequestEnvoyAdmin.QueriesEntry
+	21, // 3: client.RequestNetwork.netplan_config:type_name -> client.NetplanConfig
+	22, // 4: client.RequestNetwork.route_operations:type_name -> client.RouteOperation
+	23, // 5: client.RequestNetwork.policy_operations:type_name -> client.RoutingPolicyOperation
+	24, // 6: client.RequestNetwork.routing_tables:type_name -> client.RoutingTableDefinition
+	25, // 7: client.RequestNetwork.table_operations:type_name -> client.TableOperation
+	26, // 8: client.RequestFrr.protocol:type_name -> client.FrrProtocolType
+	27, // 9: client.RequestFrr.bgp:type_name -> client.RequestBgp
 	2,  // 10: client.RequestEnvoyVersion.operation:type_name -> client.VersionOperation
 	2,  // 11: client.RequestWafVersion.operation:type_name -> client.VersionOperation
-	26, // 12: client.RequestFilebeat.inputs:type_name -> client.FilebeatInput
-	27, // 13: client.RequestFilebeat.timestamp_processor:type_name -> client.TimestampProcessor
-	28, // 14: client.RequestFilebeat.drop_fields_processor:type_name -> client.DropFieldsProcessor
-	29, // 15: client.RequestFilebeat.filebeat_output:type_name -> client.FilebeatOutput
-	30, // 16: client.RequestRsyslog.rsyslog_config:type_name -> client.RsyslogConfig
-	31, // 17: client.RequestShield.config:type_name -> client.ShieldConfig
-	18, // [18:18] is the sub-list for method output_type
-	18, // [18:18] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	28, // 12: client.RequestFilebeat.inputs:type_name -> client.FilebeatInput
+	29, // 13: client.RequestFilebeat.timestamp_processor:type_name -> client.TimestampProcessor
+	30, // 14: client.RequestFilebeat.drop_fields_processor:type_name -> client.DropFieldsProcessor
+	31, // 15: client.RequestFilebeat.filebeat_output:type_name -> client.FilebeatOutput
+	32, // 16: client.RequestRsyslog.rsyslog_config:type_name -> client.RsyslogConfig
+	33, // 17: client.RequestShield.config:type_name -> client.ShieldConfig
+	34, // 18: client.RequestAIGateway.config:type_name -> client.AIGatewayConfig
+	35, // 19: client.RequestAppliance.kind:type_name -> client.ApplianceArtifactKind
+	20, // [20:20] is the sub-list for method output_type
+	20, // [20:20] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_client_request_proto_init() }
@@ -1343,13 +1483,15 @@ func file_client_request_proto_init() {
 	file_client_filebeat_proto_init()
 	file_client_rsyslog_proto_init()
 	file_client_shield_proto_init()
+	file_client_ai_gateway_proto_init()
+	file_client_appliance_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_client_request_proto_rawDesc), len(file_client_request_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   16,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

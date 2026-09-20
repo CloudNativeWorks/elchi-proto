@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+// elchi-ai-gateway is the LLM gateway supervisor that runs next to Envoy on the
+// edge host: it manages the upstream AI gateway ext_proc binary as a child
+// process, renders its own AIGatewayConfig documents into that binary's config
+// and exports token usage. It watches a config DIRECTORY; the control plane
+// delivers that directory's contents to the edge via the client agent using
+// the messages below.
+//
+// Design: the same OPAQUE SET OF FILES as elchi-shield (shield.proto), for the
+// same reasons and one more. The ext_proc binary's config schema is internal to
+// the upstream project and version-gated — only the edge knows which binary it
+// installed, so only the supervisor can stamp and render the final config.
+// What travels is elchi-ai-gateway's own documents (providers, model routes,
+// limits), which must be free to evolve with the upstream pin without proto
+// changes in three repos.
+
+// AIGatewayFile is one file in the gateway's managed config directory.
+message AIGatewayFile {
+  // Path RELATIVE to the managed config root (conf.d), e.g. "providers.yaml".
+  // The client MUST reject absolute paths and any ".." segment and only write
+  // under the managed root.
+  string path = 1;
+
+  // Content source: small documents inline; large artifacts fetched by the
+  // client itself (the shield/envoy version-download pattern).
+  oneof source {
+    bytes inline = 2;
+    AIGatewayDownload download = 3;
+  }
+
+  // Lowercase-hex sha256 of the final file content: idempotent writes (skip
+  // when unchanged) and integrity verification. Required.
+  string sha256 = 4;
+
+  // Octal file mode, e.g. "0600". Empty = client default (0600). Provider
+  // credentials live in these files.
+  string mode = 5;
+}
+
+// AIGatewayDownload references an artifact the client fetches itself instead
+// of receiving it inline.
+message AIGatewayDownload {
+  string url = 1;      // artifact URL
+  string version = 2;  // artifact version/tag, for tracking
+}
+
+// AIGatewayConfig is the desired state of the gateway's watched config
+// directory. With full_sync = true the client makes the directory EXACTLY match
+// the set (unlisted managed files are removed); with false it is an upsert.
+// Writes are atomic (temp + rename).
+message AIGatewayConfig {
+  repeated AIGatewayFile files = 1;
+  bool full_sync = 2;
+
+  // Opaque version/hash of this bundle, surfaced back as applied_version so the
+  // control plane can track what each edge runs.
+  string version = 3;
+}

@@ -239,17 +239,25 @@ func (x *NetplanConfig) GetPreserveControllerConnection() bool {
 
 // Route management - independent from interface management
 type Route struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	To            string                 `protobuf:"bytes,1,opt,name=to,proto3" json:"to,omitempty"`                                 // Destination (e.g., "0.0.0.0/0", "10.0.0.0/24")
-	Via           string                 `protobuf:"bytes,2,opt,name=via,proto3" json:"via,omitempty"`                               // Gateway IP
-	Interface     string                 `protobuf:"bytes,3,opt,name=interface,proto3" json:"interface,omitempty"`                   // Interface name (e.g., "eth0")
-	Table         uint32                 `protobuf:"varint,4,opt,name=table,proto3" json:"table,omitempty"`                          // Routing table ID (optional, default: main)
-	Metric        uint32                 `protobuf:"varint,5,opt,name=metric,proto3" json:"metric,omitempty"`                        // Route metric
-	Source        string                 `protobuf:"bytes,6,opt,name=source,proto3" json:"source,omitempty"`                         // Source IP for this route
-	Scope         string                 `protobuf:"bytes,7,opt,name=scope,proto3" json:"scope,omitempty"`                           // Route scope (e.g., "global", "link", "host")
-	IsDefault     bool                   `protobuf:"varint,8,opt,name=is_default,json=isDefault,proto3" json:"is_default,omitempty"` // Is this a default route
-	Protocol      string                 `protobuf:"bytes,9,opt,name=protocol,proto3" json:"protocol,omitempty"`                     // Route protocol (e.g., "kernel", "static", "bgp", "ospf")
-	Onlink        bool                   `protobuf:"varint,10,opt,name=onlink,proto3" json:"onlink,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	To        string                 `protobuf:"bytes,1,opt,name=to,proto3" json:"to,omitempty"`                                 // Destination (e.g., "0.0.0.0/0", "10.0.0.0/24")
+	Via       string                 `protobuf:"bytes,2,opt,name=via,proto3" json:"via,omitempty"`                               // Gateway IP
+	Interface string                 `protobuf:"bytes,3,opt,name=interface,proto3" json:"interface,omitempty"`                   // Interface name (e.g., "eth0")
+	Table     uint32                 `protobuf:"varint,4,opt,name=table,proto3" json:"table,omitempty"`                          // Routing table ID (optional, default: main)
+	Metric    uint32                 `protobuf:"varint,5,opt,name=metric,proto3" json:"metric,omitempty"`                        // Route metric
+	Source    string                 `protobuf:"bytes,6,opt,name=source,proto3" json:"source,omitempty"`                         // Source IP for this route
+	Scope     string                 `protobuf:"bytes,7,opt,name=scope,proto3" json:"scope,omitempty"`                           // Route scope (e.g., "global", "link", "host")
+	IsDefault bool                   `protobuf:"varint,8,opt,name=is_default,json=isDefault,proto3" json:"is_default,omitempty"` // Is this a default route
+	Protocol  string                 `protobuf:"bytes,9,opt,name=protocol,proto3" json:"protocol,omitempty"`                     // Route protocol (e.g., "kernel", "static", "bgp", "ospf")
+	Onlink    bool                   `protobuf:"varint,10,opt,name=onlink,proto3" json:"onlink,omitempty"`
+	// Who put the route there, as the agent sees it (NetworkState.routes only):
+	//
+	//	"ui"      — one of this agent's 99-elchi-route-*.yaml files (the control plane's)
+	//	"os"      — another netplan file (Elchi OS console/seed, cloud-init, the operator)
+	//	"kernel" | "dhcp" | "bgp" | "ra" | … — the kernel's route protocol, not in any file
+	//
+	// "" from agents before 1.7.0.
+	Owner         string `protobuf:"bytes,11,opt,name=owner,proto3" json:"owner,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -352,6 +360,13 @@ func (x *Route) GetOnlink() bool {
 		return x.Onlink
 	}
 	return false
+}
+
+func (x *Route) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
 }
 
 // Policy-based routing rule - independent management
@@ -657,8 +672,12 @@ type NetworkState struct {
 	//	          SUB_NETPLAN_ROLLBACK are refused, the UI shows interfaces read-only
 	//	"agent" — this agent, through netplan (a plain Linux host)
 	InterfacesManagedBy string `protobuf:"bytes,6,opt,name=interfaces_managed_by,json=interfacesManagedBy,proto3" json:"interfaces_managed_by,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Interfaces the OS configured whose pinned card is not in the machine
+	// (Elchi OS: the NIC was replaced or removed); they are absent from
+	// `interfaces`. Empty elsewhere.
+	MissingInterfaces []string `protobuf:"bytes,7,rep,name=missing_interfaces,json=missingInterfaces,proto3" json:"missing_interfaces,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *NetworkState) Reset() {
@@ -733,6 +752,13 @@ func (x *NetworkState) GetInterfacesManagedBy() string {
 	return ""
 }
 
+func (x *NetworkState) GetMissingInterfaces() []string {
+	if x != nil {
+		return x.MissingInterfaces
+	}
+	return nil
+}
+
 // Interface state information
 type InterfaceState struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -754,6 +780,8 @@ type InterfaceState struct {
 	Members       []string               `protobuf:"bytes,16,rep,name=members,proto3" json:"members,omitempty"`                               // Bond/bridge member names
 	VlanId        uint32                 `protobuf:"varint,17,opt,name=vlan_id,json=vlanId,proto3" json:"vlan_id,omitempty"`                  // 802.1Q id for a VLAN device
 	Label         string                 `protobuf:"bytes,18,opt,name=label,proto3" json:"label,omitempty"`                                   // Operator-given role label from the OS ("management", …), "" otherwise
+	Addressing    string                 `protobuf:"bytes,19,opt,name=addressing,proto3" json:"addressing,omitempty"`                         // static | dhcp | none — as the OS configured it; "" when unknown
+	BondMode      string                 `protobuf:"bytes,20,opt,name=bond_mode,json=bondMode,proto3" json:"bond_mode,omitempty"`             // active-backup | lacp | … for a bond the OS configured; "" otherwise
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -914,6 +942,20 @@ func (x *InterfaceState) GetLabel() string {
 	return ""
 }
 
+func (x *InterfaceState) GetAddressing() string {
+	if x != nil {
+		return x.Addressing
+	}
+	return ""
+}
+
+func (x *InterfaceState) GetBondMode() string {
+	if x != nil {
+		return x.BondMode
+	}
+	return ""
+}
+
 var File_client_network_proto protoreflect.FileDescriptor
 
 const file_client_network_proto_rawDesc = "" +
@@ -923,7 +965,7 @@ const file_client_network_proto_rawDesc = "" +
 	"\fyaml_content\x18\x01 \x01(\tR\vyamlContent\x12\x1b\n" +
 	"\ttest_mode\x18\x02 \x01(\bR\btestMode\x120\n" +
 	"\x14test_timeout_seconds\x18\x03 \x01(\rR\x12testTimeoutSeconds\x12D\n" +
-	"\x1epreserve_controller_connection\x18\x04 \x01(\bR\x1cpreserveControllerConnection\"\xf6\x01\n" +
+	"\x1epreserve_controller_connection\x18\x04 \x01(\bR\x1cpreserveControllerConnection\"\x8c\x02\n" +
 	"\x05Route\x12\x0e\n" +
 	"\x02to\x18\x01 \x01(\tR\x02to\x12\x10\n" +
 	"\x03via\x18\x02 \x01(\tR\x03via\x12\x1c\n" +
@@ -936,7 +978,8 @@ const file_client_network_proto_rawDesc = "" +
 	"is_default\x18\b \x01(\bR\tisDefault\x12\x1a\n" +
 	"\bprotocol\x18\t \x01(\tR\bprotocol\x12\x16\n" +
 	"\x06onlink\x18\n" +
-	" \x01(\bR\x06onlink\"\x83\x01\n" +
+	" \x01(\bR\x06onlink\x12\x14\n" +
+	"\x05owner\x18\v \x01(\tR\x05owner\"\x83\x01\n" +
 	"\rRoutingPolicy\x12\x12\n" +
 	"\x04from\x18\x01 \x01(\tR\x04from\x12\x0e\n" +
 	"\x02to\x18\x02 \x01(\tR\x02to\x12\x14\n" +
@@ -969,7 +1012,7 @@ const file_client_network_proto_rawDesc = "" +
 	"\x03ADD\x10\x00\x12\n" +
 	"\n" +
 	"\x06DELETE\x10\x01\x12\v\n" +
-	"\aREPLACE\x10\x02\"\xcd\x02\n" +
+	"\aREPLACE\x10\x02\"\xfc\x02\n" +
 	"\fNetworkState\x126\n" +
 	"\n" +
 	"interfaces\x18\x01 \x03(\v2\x16.client.InterfaceStateR\n" +
@@ -978,7 +1021,8 @@ const file_client_network_proto_rawDesc = "" +
 	"\bpolicies\x18\x03 \x03(\v2\x15.client.RoutingPolicyR\bpolicies\x12E\n" +
 	"\x0erouting_tables\x18\x04 \x03(\v2\x1e.client.RoutingTableDefinitionR\rroutingTables\x120\n" +
 	"\x14current_netplan_yaml\x18\x05 \x01(\tR\x12currentNetplanYaml\x122\n" +
-	"\x15interfaces_managed_by\x18\x06 \x01(\tR\x13interfacesManagedBy\"\xf2\x03\n" +
+	"\x15interfaces_managed_by\x18\x06 \x01(\tR\x13interfacesManagedBy\x12-\n" +
+	"\x12missing_interfaces\x18\a \x03(\tR\x11missingInterfaces\"\xaf\x04\n" +
 	"\x0eInterfaceState\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
 	"\taddresses\x18\x02 \x03(\tR\taddresses\x12\x14\n" +
@@ -1004,7 +1048,11 @@ const file_client_network_proto_rawDesc = "" +
 	"\x06parent\x18\x0f \x01(\tR\x06parent\x12\x18\n" +
 	"\amembers\x18\x10 \x03(\tR\amembers\x12\x17\n" +
 	"\avlan_id\x18\x11 \x01(\rR\x06vlanId\x12\x14\n" +
-	"\x05label\x18\x12 \x01(\tR\x05labelB0Z.github.com/CloudNativeWorks/elchi-proto/clientb\x06proto3"
+	"\x05label\x18\x12 \x01(\tR\x05label\x12\x1e\n" +
+	"\n" +
+	"addressing\x18\x13 \x01(\tR\n" +
+	"addressing\x12\x1b\n" +
+	"\tbond_mode\x18\x14 \x01(\tR\bbondModeB0Z.github.com/CloudNativeWorks/elchi-proto/clientb\x06proto3"
 
 var (
 	file_client_network_proto_rawDescOnce sync.Once

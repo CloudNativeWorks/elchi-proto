@@ -24,6 +24,12 @@ message Route {
   bool is_default = 8;              // Is this a default route
   string protocol = 9;              // Route protocol (e.g., "kernel", "static", "bgp", "ospf")
   bool onlink = 10;
+  // Who put the route there, as the agent sees it (NetworkState.routes only):
+  //   "ui"      — one of this agent's 99-elchi-route-*.yaml files (the control plane's)
+  //   "os"      — another netplan file (Elchi OS console/seed, cloud-init, the operator)
+  //   "kernel" | "dhcp" | "bgp" | "ra" | … — the kernel's route protocol, not in any file
+  // "" from agents before 1.7.0.
+  string owner = 11;
 }
 
 // Policy-based routing rule - independent management
@@ -86,6 +92,10 @@ message NetworkState {
   //             SUB_NETPLAN_ROLLBACK are refused, the UI shows interfaces read-only
   //   "agent" — this agent, through netplan (a plain Linux host)
   string interfaces_managed_by = 6;
+  // Interfaces the OS configured whose pinned card is not in the machine
+  // (Elchi OS: the NIC was replaced or removed); they are absent from
+  // `interfaces`. Empty elsewhere.
+  repeated string missing_interfaces = 7;
 }
 
 // Interface state information
@@ -108,4 +118,6 @@ message InterfaceState {
   repeated string members = 16;     // Bond/bridge member names
   uint32 vlan_id = 17;              // 802.1Q id for a VLAN device
   string label = 18;                // Operator-given role label from the OS ("management", …), "" otherwise
+  string addressing = 19;           // static | dhcp | none — as the OS configured it; "" when unknown
+  string bond_mode = 20;            // active-backup | lacp | … for a bond the OS configured; "" otherwise
 }

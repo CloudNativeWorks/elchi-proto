@@ -1,0 +1,151 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+// The appliance OS (Elchi OS 0.5.0 and later) as the control plane sees it:
+// its status, and the exports an operator used to fetch from the console
+// (the support bundle and the configuration archive).
+//
+// Status is structured so the control plane can read it without parsing (a
+// fleet view reads worst_level, os_version, upgrade.available, compliance.fail)
+// yet tolerant: severities, states and decisions are the OS's own strings,
+// passed through verbatim; a section the appliance could not read is left
+// unset and named in `unavailable`; `info` carries new facts without a proto
+// change.
+//
+// An export runs on the appliance in the background: CREATE returns at once
+// with the artifact RUNNING, GET reports READY with size and sha256, FETCH
+// reads it in chunks of at most 1 MiB (the agent-to-controller message limit
+// is 4 MiB), DELETE removes it. Nothing is stored by the control plane.
+
+enum ApplianceArtifactKind {
+  APPLIANCE_ARTIFACT_KIND_UNSPECIFIED = 0;
+  APPLIANCE_ARTIFACT_SUPPORT_BUNDLE = 1;  // redacted diagnostics
+  APPLIANCE_ARTIFACT_CONFIG_ARCHIVE = 2;  // configuration, without proxy binaries; holds the control-plane token
+}
+
+enum ApplianceArtifactState {
+  APPLIANCE_ARTIFACT_STATE_UNSPECIFIED = 0;
+  APPLIANCE_ARTIFACT_RUNNING = 1;
+  APPLIANCE_ARTIFACT_READY = 2;
+  APPLIANCE_ARTIFACT_FAILED = 3;
+  APPLIANCE_ARTIFACT_EXPIRED = 4;
+}
+
+// One `show health` line.
+message ApplianceHealthItem {
+  string area = 1;      // agent, listener, nic, firewall, upgrade, …
+  string severity = 2;  // ok | info | WARN | CRIT (as the console prints it)
+  int32 level = 3;      // 0 ok, 1 info, 2 warn, 3 crit
+  string text = 4;
+}
+
+message ApplianceHealth {
+  string checked_at = 1;              // RFC 3339
+  string worst = 2;
+  int32 worst_level = 3;
+  repeated ApplianceHealthItem items = 4;  // worst first
+  repeated string missing = 5;        // probes that did not answer in time
+  double elapsed_seconds = 6;
+}
+
+message ApplianceBootSlots {
+  string running = 1;    // a | b
+  string committed = 2;
+  string next_boot = 3;  // "-" when the next boot is the committed slot
+  string slot_a = 4;     // "installed (0.5.0)", "empty", …
+  string slot_b = 5;
+}
+
+message ApplianceUpgrade {
+  string state = 1;          // the upgrader's state line ("committed 0.5.0 slot b at …")
+  string available = 2;      // "0.5.1 2026-10-01" or ""
+  string schedule = 3;       // "daily 03:30", "off"
+  string last_result = 4;
+  repeated string history = 5;  // newest first, at most 10
+  bool notes_staged = 6;
+}
+
+message ApplianceFirewall {
+  string decision = 1;         // on | off | undecided
+  bool loaded = 2;             // the ruleset is in the kernel
+  string warning = 3;          // the last rejection, "" when none
+  bool change_pending = 4;     // an unconfirmed rule change is waiting
+  int32 revert_in_seconds = 5; // -1 when nothing is pending
+  repeated string open_ports = 6;  // data ports the listeners opened, "tcp/443"
+  string ssh_allow = 7;        // management SSH allow list, "" = any source
+  int32 operator_rules = 8;
+  bool management_public = 9;  // the management address is publicly routable
+}
+
+message ApplianceComplianceCheck {
+  string status = 1;  // PASS | FAIL | DEV | N/A
+  string id = 2;
+  string title = 3;
+  string evidence = 4;
+}
+
+message ApplianceCompliance {
+  string benchmark = 1;
+  string checked_at = 2;
+  uint32 pass = 3;
+  uint32 fail = 4;
+  uint32 deviation = 5;
+  uint32 not_applicable = 6;
+  repeated ApplianceComplianceCheck failing = 7;  // FAIL only, at most 100
+  bool running = 8;    // a check is in progress
+  bool never_run = 9;
+  string next_run = 10;
+}
+
+message ApplianceNetwork {
+  bool change_unconfirmed = 1;  // a network change waits for `network confirm`
+  int32 revert_in_seconds = 2;  // -1 when nothing waits
+  string last_revert = 3;
+  repeated string missing_nics = 4;
+  string management_interface = 5;
+}
+
+message ApplianceComponent {
+  string name = 1;
+  string version = 2;
+  string bundled = 3;  // the version this release ships
+  bool pinned = 4;     // installed by the operator, kept across upgrades
+  string origin = 5;
+  bool mismatch = 6;   // the binary on disk does not match its record
+}
+
+message ApplianceArtifact {
+  string artifact_id = 1;  // 32 lowercase hex
+  ApplianceArtifactKind kind = 2;
+  ApplianceArtifactState state = 3;
+  string filename = 4;
+  uint64 size = 5;
+  string sha256 = 6;
+  string created_at = 7;
+  string expires_at = 8;
+  string error = 9;
+}
+
+message ApplianceStatus {
+  string schema = 1;        // the producer's document schema, "elchi.appliance.status/1"
+  string collected_at = 2;
+  string product = 3;
+  string os_version = 4;
+  string hostname = 5;
+  string upgraded_from = 6;
+  string uptime = 7;
+  bool reboot_required = 8;
+  ApplianceBootSlots boot_slots = 9;
+  ApplianceUpgrade upgrade = 10;
+  ApplianceHealth health = 11;
+  ApplianceFirewall firewall = 12;
+  ApplianceCompliance compliance = 13;
+  ApplianceNetwork network = 14;
+  repeated ApplianceComponent components = 15;
+  repeated ApplianceArtifact artifacts = 16;  // exports present on the appliance
+  repeated string unavailable = 17;           // sections that could not be read, "firewall: <why>"
+  map<string, string> info = 18;              // further facts; the UI shows keys it does not know
+}

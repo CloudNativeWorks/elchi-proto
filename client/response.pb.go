@@ -1370,6 +1370,11 @@ type ResponseShield struct {
 	// recent logs, mirroring the filebeat/rsyslog status responses.
 	ServiceStatus string  `protobuf:"bytes,7,opt,name=service_status,json=serviceStatus,proto3" json:"service_status,omitempty"`
 	Logs          []*Logs `protobuf:"bytes,8,rep,name=logs,proto3" json:"logs,omitempty"`
+	// Further facts about the edge's shield for the status panel, as key/value
+	// pairs (e.g. "shield_version", "crs_version", "engines"): new facts need no
+	// proto change. The keys are the reporter's; the control plane shows what it
+	// does not recognise.
+	Info          map[string]string `protobuf:"bytes,9,rep,name=info,proto3" json:"info,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1460,11 +1465,250 @@ func (x *ResponseShield) GetLogs() []*Logs {
 	return nil
 }
 
+func (x *ResponseShield) GetInfo() map[string]string {
+	if x != nil {
+		return x.Info
+	}
+	return nil
+}
+
+type ResponseAIGateway struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Success bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"` // operation succeeded at the client/edge
+	Message string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`  // human-readable detail
+	Error   string                 `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`      // error detail when success = false
+	// Bundle version now active on the edge, so the controller can confirm the
+	// edge converged on the push.
+	AppliedVersion string `protobuf:"bytes,4,opt,name=applied_version,json=appliedVersion,proto3" json:"applied_version,omitempty"`
+	// The supervisor's verdict on a push: true = the ext_proc binary accepted
+	// the rendered config; false = it was rejected and the last-good config
+	// stays (a failed rollout, not an outage).
+	ReloadOk bool `protobuf:"varint,5,opt,name=reload_ok,json=reloadOk,proto3" json:"reload_ok,omitempty"`
+	// GET_AI_GATEWAY_CONFIG: the file set currently on disk (path + sha256 +
+	// mode; content omitted for large files). Empty for status/update.
+	CurrentFiles []*AIGatewayFile `protobuf:"bytes,6,rep,name=current_files,json=currentFiles,proto3" json:"current_files,omitempty"`
+	// GET_AI_GATEWAY_STATUS: service state ("active"/"inactive"/"failed") and
+	// recent logs, mirroring the shield status response.
+	ServiceStatus string  `protobuf:"bytes,7,opt,name=service_status,json=serviceStatus,proto3" json:"service_status,omitempty"`
+	Logs          []*Logs `protobuf:"bytes,8,rep,name=logs,proto3" json:"logs,omitempty"`
+	// The wrapped ext_proc binary's version. Its config version gate fails
+	// silently (a log line only); this lets the control plane explain a
+	// reload_ok = false.
+	ExtprocVersion string `protobuf:"bytes,9,opt,name=extproc_version,json=extprocVersion,proto3" json:"extproc_version,omitempty"`
+	// Further facts the supervisor reports for the status panel, as key/value
+	// pairs (e.g. "supervisor_version", "usage_export": "ok|failing: …",
+	// "provider.<name>": "ok|…"): new facts need no proto change. The keys are
+	// the supervisor's; the control plane shows what it does not recognise.
+	Info          map[string]string `protobuf:"bytes,10,rep,name=info,proto3" json:"info,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResponseAIGateway) Reset() {
+	*x = ResponseAIGateway{}
+	mi := &file_client_response_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResponseAIGateway) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResponseAIGateway) ProtoMessage() {}
+
+func (x *ResponseAIGateway) ProtoReflect() protoreflect.Message {
+	mi := &file_client_response_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResponseAIGateway.ProtoReflect.Descriptor instead.
+func (*ResponseAIGateway) Descriptor() ([]byte, []int) {
+	return file_client_response_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ResponseAIGateway) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ResponseAIGateway) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *ResponseAIGateway) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+func (x *ResponseAIGateway) GetAppliedVersion() string {
+	if x != nil {
+		return x.AppliedVersion
+	}
+	return ""
+}
+
+func (x *ResponseAIGateway) GetReloadOk() bool {
+	if x != nil {
+		return x.ReloadOk
+	}
+	return false
+}
+
+func (x *ResponseAIGateway) GetCurrentFiles() []*AIGatewayFile {
+	if x != nil {
+		return x.CurrentFiles
+	}
+	return nil
+}
+
+func (x *ResponseAIGateway) GetServiceStatus() string {
+	if x != nil {
+		return x.ServiceStatus
+	}
+	return ""
+}
+
+func (x *ResponseAIGateway) GetLogs() []*Logs {
+	if x != nil {
+		return x.Logs
+	}
+	return nil
+}
+
+func (x *ResponseAIGateway) GetExtprocVersion() string {
+	if x != nil {
+		return x.ExtprocVersion
+	}
+	return ""
+}
+
+func (x *ResponseAIGateway) GetInfo() map[string]string {
+	if x != nil {
+		return x.Info
+	}
+	return nil
+}
+
+type ResponseAppliance struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Supported     bool                   `protobuf:"varint,1,opt,name=supported,proto3" json:"supported,omitempty"` // false on a host that is not Elchi OS 0.5.0+
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Status        *ApplianceStatus       `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`     // GET_APPLIANCE_STATUS
+	Artifact      *ApplianceArtifact     `protobuf:"bytes,4,opt,name=artifact,proto3" json:"artifact,omitempty"` // CREATE / GET / DELETE
+	Data          []byte                 `protobuf:"bytes,5,opt,name=data,proto3" json:"data,omitempty"`         // FETCH
+	Offset        uint64                 `protobuf:"varint,6,opt,name=offset,proto3" json:"offset,omitempty"`    // FETCH: where `data` starts
+	Eof           bool                   `protobuf:"varint,7,opt,name=eof,proto3" json:"eof,omitempty"`          // FETCH: `data` ends the file
+	Info          map[string]string      `protobuf:"bytes,8,rep,name=info,proto3" json:"info,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResponseAppliance) Reset() {
+	*x = ResponseAppliance{}
+	mi := &file_client_response_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResponseAppliance) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResponseAppliance) ProtoMessage() {}
+
+func (x *ResponseAppliance) ProtoReflect() protoreflect.Message {
+	mi := &file_client_response_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResponseAppliance.ProtoReflect.Descriptor instead.
+func (*ResponseAppliance) Descriptor() ([]byte, []int) {
+	return file_client_response_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ResponseAppliance) GetSupported() bool {
+	if x != nil {
+		return x.Supported
+	}
+	return false
+}
+
+func (x *ResponseAppliance) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *ResponseAppliance) GetStatus() *ApplianceStatus {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+func (x *ResponseAppliance) GetArtifact() *ApplianceArtifact {
+	if x != nil {
+		return x.Artifact
+	}
+	return nil
+}
+
+func (x *ResponseAppliance) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+func (x *ResponseAppliance) GetOffset() uint64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *ResponseAppliance) GetEof() bool {
+	if x != nil {
+		return x.Eof
+	}
+	return false
+}
+
+func (x *ResponseAppliance) GetInfo() map[string]string {
+	if x != nil {
+		return x.Info
+	}
+	return nil
+}
+
 var File_client_response_proto protoreflect.FileDescriptor
 
 const file_client_response_proto_rawDesc = "" +
 	"\n" +
-	"\x15client/response.proto\x12\x06client\x1a\x12client/stats.proto\x1a\x14client/network.proto\x1a\x10client/frr.proto\x1a\x14client/request.proto\x1a\x14client/rsyslog.proto\x1a\x13client/shield.proto\"\xf3\x01\n" +
+	"\x15client/response.proto\x12\x06client\x1a\x12client/stats.proto\x1a\x14client/network.proto\x1a\x10client/frr.proto\x1a\x14client/request.proto\x1a\x14client/rsyslog.proto\x1a\x13client/shield.proto\x1a\x17client/ai_gateway.proto\x1a\x16client/appliance.proto\"\xf3\x01\n" +
 	"\x0eResponseDeploy\x12\x14\n" +
 	"\x05files\x18\x01 \x01(\tR\x05files\x12\x18\n" +
 	"\aservice\x18\x02 \x01(\tR\aservice\x12\x18\n" +
@@ -1571,7 +1815,7 @@ const file_client_response_proto_rawDesc = "" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12%\n" +
 	"\x0eservice_status\x18\x03 \x01(\tR\rserviceStatus\x12<\n" +
 	"\x0ecurrent_config\x18\x04 \x01(\v2\x15.client.RsyslogConfigR\rcurrentConfig\x12 \n" +
-	"\x04logs\x18\x05 \x03(\v2\f.client.LogsR\x04logs\"\xa2\x02\n" +
+	"\x04logs\x18\x05 \x03(\v2\f.client.LogsR\x04logs\"\x91\x03\n" +
 	"\x0eResponseShield\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12\x14\n" +
@@ -1580,7 +1824,38 @@ const file_client_response_proto_rawDesc = "" +
 	"\treload_ok\x18\x05 \x01(\bR\breloadOk\x127\n" +
 	"\rcurrent_files\x18\x06 \x03(\v2\x12.client.ShieldFileR\fcurrentFiles\x12%\n" +
 	"\x0eservice_status\x18\a \x01(\tR\rserviceStatus\x12 \n" +
-	"\x04logs\x18\b \x03(\v2\f.client.LogsR\x04logs*\x9e\x01\n" +
+	"\x04logs\x18\b \x03(\v2\f.client.LogsR\x04logs\x124\n" +
+	"\x04info\x18\t \x03(\v2 .client.ResponseShield.InfoEntryR\x04info\x1a7\n" +
+	"\tInfoEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc3\x03\n" +
+	"\x11ResponseAIGateway\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12\x14\n" +
+	"\x05error\x18\x03 \x01(\tR\x05error\x12'\n" +
+	"\x0fapplied_version\x18\x04 \x01(\tR\x0eappliedVersion\x12\x1b\n" +
+	"\treload_ok\x18\x05 \x01(\bR\breloadOk\x12:\n" +
+	"\rcurrent_files\x18\x06 \x03(\v2\x15.client.AIGatewayFileR\fcurrentFiles\x12%\n" +
+	"\x0eservice_status\x18\a \x01(\tR\rserviceStatus\x12 \n" +
+	"\x04logs\x18\b \x03(\v2\f.client.LogsR\x04logs\x12'\n" +
+	"\x0fextproc_version\x18\t \x01(\tR\x0eextprocVersion\x127\n" +
+	"\x04info\x18\n" +
+	" \x03(\v2#.client.ResponseAIGateway.InfoEntryR\x04info\x1a7\n" +
+	"\tInfoEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe3\x02\n" +
+	"\x11ResponseAppliance\x12\x1c\n" +
+	"\tsupported\x18\x01 \x01(\bR\tsupported\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12/\n" +
+	"\x06status\x18\x03 \x01(\v2\x17.client.ApplianceStatusR\x06status\x125\n" +
+	"\bartifact\x18\x04 \x01(\v2\x19.client.ApplianceArtifactR\bartifact\x12\x12\n" +
+	"\x04data\x18\x05 \x01(\fR\x04data\x12\x16\n" +
+	"\x06offset\x18\x06 \x01(\x04R\x06offset\x12\x10\n" +
+	"\x03eof\x18\a \x01(\bR\x03eof\x127\n" +
+	"\x04info\x18\b \x03(\v2#.client.ResponseAppliance.InfoEntryR\x04info\x1a7\n" +
+	"\tInfoEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\x9e\x01\n" +
 	"\rVersionStatus\x12\v\n" +
 	"\aSUCCESS\x10\x00\x12\x13\n" +
 	"\x0fDOWNLOAD_FAILED\x10\x01\x12\x15\n" +
@@ -1603,7 +1878,7 @@ func file_client_response_proto_rawDescGZIP() []byte {
 }
 
 var file_client_response_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_client_response_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_client_response_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_client_response_proto_goTypes = []any{
 	(VersionStatus)(0),              // 0: client.VersionStatus
 	(*ResponseDeploy)(nil),          // 1: client.ResponseDeploy
@@ -1624,47 +1899,62 @@ var file_client_response_proto_goTypes = []any{
 	(*ResponseFilebeat)(nil),        // 16: client.ResponseFilebeat
 	(*ResponseRsyslog)(nil),         // 17: client.ResponseRsyslog
 	(*ResponseShield)(nil),          // 18: client.ResponseShield
-	nil,                             // 19: client.ResponseEnvoyAdmin.HeadersEntry
-	nil,                             // 20: client.GeneralLogs.MetadataEntry
-	(*CPUStats)(nil),                // 21: client.CPUStats
-	(*MemoryStats)(nil),             // 22: client.MemoryStats
-	(*DiskStats)(nil),               // 23: client.DiskStats
-	(*NetworkStats)(nil),            // 24: client.NetworkStats
-	(*SystemInfo)(nil),              // 25: client.SystemInfo
-	(*NetworkState)(nil),            // 26: client.NetworkState
-	(FrrProtocolType)(0),            // 27: client.FrrProtocolType
-	(*ResponseBgp)(nil),             // 28: client.ResponseBgp
-	(*RequestFilebeat)(nil),         // 29: client.RequestFilebeat
-	(*RsyslogConfig)(nil),           // 30: client.RsyslogConfig
-	(*ShieldFile)(nil),              // 31: client.ShieldFile
+	(*ResponseAIGateway)(nil),       // 19: client.ResponseAIGateway
+	(*ResponseAppliance)(nil),       // 20: client.ResponseAppliance
+	nil,                             // 21: client.ResponseEnvoyAdmin.HeadersEntry
+	nil,                             // 22: client.GeneralLogs.MetadataEntry
+	nil,                             // 23: client.ResponseShield.InfoEntry
+	nil,                             // 24: client.ResponseAIGateway.InfoEntry
+	nil,                             // 25: client.ResponseAppliance.InfoEntry
+	(*CPUStats)(nil),                // 26: client.CPUStats
+	(*MemoryStats)(nil),             // 27: client.MemoryStats
+	(*DiskStats)(nil),               // 28: client.DiskStats
+	(*NetworkStats)(nil),            // 29: client.NetworkStats
+	(*SystemInfo)(nil),              // 30: client.SystemInfo
+	(*NetworkState)(nil),            // 31: client.NetworkState
+	(FrrProtocolType)(0),            // 32: client.FrrProtocolType
+	(*ResponseBgp)(nil),             // 33: client.ResponseBgp
+	(*RequestFilebeat)(nil),         // 34: client.RequestFilebeat
+	(*RsyslogConfig)(nil),           // 35: client.RsyslogConfig
+	(*ShieldFile)(nil),              // 36: client.ShieldFile
+	(*AIGatewayFile)(nil),           // 37: client.AIGatewayFile
+	(*ApplianceStatus)(nil),         // 38: client.ApplianceStatus
+	(*ApplianceArtifact)(nil),       // 39: client.ApplianceArtifact
 }
 var file_client_response_proto_depIdxs = []int32{
 	6,  // 0: client.ResponseService.status:type_name -> client.ServiceStatus
 	7,  // 1: client.ResponseService.logs:type_name -> client.Logs
-	19, // 2: client.ResponseEnvoyAdmin.headers:type_name -> client.ResponseEnvoyAdmin.HeadersEntry
-	20, // 3: client.GeneralLogs.metadata:type_name -> client.GeneralLogs.MetadataEntry
+	21, // 2: client.ResponseEnvoyAdmin.headers:type_name -> client.ResponseEnvoyAdmin.HeadersEntry
+	22, // 3: client.GeneralLogs.metadata:type_name -> client.GeneralLogs.MetadataEntry
 	9,  // 4: client.ResponseGeneralLog.logs:type_name -> client.GeneralLogs
-	21, // 5: client.ResponseClientStats.cpu:type_name -> client.CPUStats
-	22, // 6: client.ResponseClientStats.memory:type_name -> client.MemoryStats
-	23, // 7: client.ResponseClientStats.disk:type_name -> client.DiskStats
-	24, // 8: client.ResponseClientStats.network:type_name -> client.NetworkStats
-	25, // 9: client.ResponseClientStats.system:type_name -> client.SystemInfo
-	26, // 10: client.ResponseNetwork.network_state:type_name -> client.NetworkState
-	27, // 11: client.ResponseFrr.protocol:type_name -> client.FrrProtocolType
-	28, // 12: client.ResponseFrr.bgp:type_name -> client.ResponseBgp
+	26, // 5: client.ResponseClientStats.cpu:type_name -> client.CPUStats
+	27, // 6: client.ResponseClientStats.memory:type_name -> client.MemoryStats
+	28, // 7: client.ResponseClientStats.disk:type_name -> client.DiskStats
+	29, // 8: client.ResponseClientStats.network:type_name -> client.NetworkStats
+	30, // 9: client.ResponseClientStats.system:type_name -> client.SystemInfo
+	31, // 10: client.ResponseNetwork.network_state:type_name -> client.NetworkState
+	32, // 11: client.ResponseFrr.protocol:type_name -> client.FrrProtocolType
+	33, // 12: client.ResponseFrr.bgp:type_name -> client.ResponseBgp
 	0,  // 13: client.ResponseEnvoyVersion.status:type_name -> client.VersionStatus
 	0,  // 14: client.ResponseWafVersion.status:type_name -> client.VersionStatus
-	29, // 15: client.ResponseFilebeat.current_config:type_name -> client.RequestFilebeat
+	34, // 15: client.ResponseFilebeat.current_config:type_name -> client.RequestFilebeat
 	7,  // 16: client.ResponseFilebeat.logs:type_name -> client.Logs
-	30, // 17: client.ResponseRsyslog.current_config:type_name -> client.RsyslogConfig
+	35, // 17: client.ResponseRsyslog.current_config:type_name -> client.RsyslogConfig
 	7,  // 18: client.ResponseRsyslog.logs:type_name -> client.Logs
-	31, // 19: client.ResponseShield.current_files:type_name -> client.ShieldFile
+	36, // 19: client.ResponseShield.current_files:type_name -> client.ShieldFile
 	7,  // 20: client.ResponseShield.logs:type_name -> client.Logs
-	21, // [21:21] is the sub-list for method output_type
-	21, // [21:21] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	23, // 21: client.ResponseShield.info:type_name -> client.ResponseShield.InfoEntry
+	37, // 22: client.ResponseAIGateway.current_files:type_name -> client.AIGatewayFile
+	7,  // 23: client.ResponseAIGateway.logs:type_name -> client.Logs
+	24, // 24: client.ResponseAIGateway.info:type_name -> client.ResponseAIGateway.InfoEntry
+	38, // 25: client.ResponseAppliance.status:type_name -> client.ApplianceStatus
+	39, // 26: client.ResponseAppliance.artifact:type_name -> client.ApplianceArtifact
+	25, // 27: client.ResponseAppliance.info:type_name -> client.ResponseAppliance.InfoEntry
+	28, // [28:28] is the sub-list for method output_type
+	28, // [28:28] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_client_response_proto_init() }
@@ -1678,13 +1968,15 @@ func file_client_response_proto_init() {
 	file_client_request_proto_init()
 	file_client_rsyslog_proto_init()
 	file_client_shield_proto_init()
+	file_client_ai_gateway_proto_init()
+	file_client_appliance_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_client_response_proto_rawDesc), len(file_client_response_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   20,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

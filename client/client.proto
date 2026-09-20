@@ -65,6 +65,8 @@ message Command {
     RequestRsyslog rsyslog = 22;
     RequestUpgradeListener upgrade_listener = 23;
     RequestShield shield = 24;
+    RequestAIGateway ai_gateway = 25;
+    RequestAppliance appliance = 26;
   }
 }
 
@@ -90,5 +92,7 @@ message CommandResponse {
     ResponseRsyslog rsyslog = 22;
     ResponseUpgradeListener upgrade_listener = 23;
     ResponseShield shield = 24;
+    ResponseAIGateway ai_gateway = 25;
+    ResponseAppliance appliance = 26;
   }
 }

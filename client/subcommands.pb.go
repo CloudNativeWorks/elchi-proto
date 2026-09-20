@@ -57,6 +57,18 @@ const (
 	SubCommandType_UPDATE_SHIELD_CONFIG SubCommandType = 36
 	SubCommandType_GET_SHIELD_CONFIG    SubCommandType = 37
 	SubCommandType_GET_SHIELD_STATUS    SubCommandType = 38
+	// AI GATEWAY — push the config bundle, read what's on disk, or read service status
+	SubCommandType_UPDATE_AI_GATEWAY_CONFIG SubCommandType = 39
+	SubCommandType_GET_AI_GATEWAY_CONFIG    SubCommandType = 40
+	SubCommandType_GET_AI_GATEWAY_STATUS    SubCommandType = 41
+	// APPLIANCE (Elchi OS only) — status, background exports read in chunks,
+	// compliance check
+	SubCommandType_GET_APPLIANCE_STATUS      SubCommandType = 42
+	SubCommandType_CREATE_APPLIANCE_ARTIFACT SubCommandType = 43
+	SubCommandType_GET_APPLIANCE_ARTIFACT    SubCommandType = 44
+	SubCommandType_FETCH_APPLIANCE_ARTIFACT  SubCommandType = 45
+	SubCommandType_DELETE_APPLIANCE_ARTIFACT SubCommandType = 46
+	SubCommandType_RUN_APPLIANCE_COMPLIANCE  SubCommandType = 47
 )
 
 // Enum value maps for SubCommandType.
@@ -88,34 +100,52 @@ var (
 		36: "UPDATE_SHIELD_CONFIG",
 		37: "GET_SHIELD_CONFIG",
 		38: "GET_SHIELD_STATUS",
+		39: "UPDATE_AI_GATEWAY_CONFIG",
+		40: "GET_AI_GATEWAY_CONFIG",
+		41: "GET_AI_GATEWAY_STATUS",
+		42: "GET_APPLIANCE_STATUS",
+		43: "CREATE_APPLIANCE_ARTIFACT",
+		44: "GET_APPLIANCE_ARTIFACT",
+		45: "FETCH_APPLIANCE_ARTIFACT",
+		46: "DELETE_APPLIANCE_ARTIFACT",
+		47: "RUN_APPLIANCE_COMPLIANCE",
 	}
 	SubCommandType_value = map[string]int32{
-		"SUB_UNKNOWN":            0,
-		"SUB_START":              1,
-		"SUB_STOP":               2,
-		"SUB_RESTART":            3,
-		"SUB_RELOAD":             4,
-		"SUB_STATUS":             5,
-		"SUB_LOGS":               6,
-		"SUB_NETPLAN_APPLY":      20,
-		"SUB_NETPLAN_GET":        21,
-		"SUB_NETPLAN_ROLLBACK":   22,
-		"SUB_ROUTE_MANAGE":       23,
-		"SUB_ROUTE_LIST":         24,
-		"SUB_POLICY_MANAGE":      25,
-		"SUB_POLICY_LIST":        26,
-		"SUB_GET_NETWORK_STATE":  27,
-		"SUB_TABLE_MANAGE":       28,
-		"SUB_TABLE_LIST":         29,
-		"UPDATE_FILEBEAT_CONFIG": 30,
-		"GET_FILEBEAT_CONFIG":    31,
-		"GET_FILEBEAT_STATUS":    32,
-		"UPDATE_RSYSLOG_CONFIG":  33,
-		"GET_RSYSLOG_CONFIG":     34,
-		"GET_RSYSLOG_STATUS":     35,
-		"UPDATE_SHIELD_CONFIG":   36,
-		"GET_SHIELD_CONFIG":      37,
-		"GET_SHIELD_STATUS":      38,
+		"SUB_UNKNOWN":               0,
+		"SUB_START":                 1,
+		"SUB_STOP":                  2,
+		"SUB_RESTART":               3,
+		"SUB_RELOAD":                4,
+		"SUB_STATUS":                5,
+		"SUB_LOGS":                  6,
+		"SUB_NETPLAN_APPLY":         20,
+		"SUB_NETPLAN_GET":           21,
+		"SUB_NETPLAN_ROLLBACK":      22,
+		"SUB_ROUTE_MANAGE":          23,
+		"SUB_ROUTE_LIST":            24,
+		"SUB_POLICY_MANAGE":         25,
+		"SUB_POLICY_LIST":           26,
+		"SUB_GET_NETWORK_STATE":     27,
+		"SUB_TABLE_MANAGE":          28,
+		"SUB_TABLE_LIST":            29,
+		"UPDATE_FILEBEAT_CONFIG":    30,
+		"GET_FILEBEAT_CONFIG":       31,
+		"GET_FILEBEAT_STATUS":       32,
+		"UPDATE_RSYSLOG_CONFIG":     33,
+		"GET_RSYSLOG_CONFIG":        34,
+		"GET_RSYSLOG_STATUS":        35,
+		"UPDATE_SHIELD_CONFIG":      36,
+		"GET_SHIELD_CONFIG":         37,
+		"GET_SHIELD_STATUS":         38,
+		"UPDATE_AI_GATEWAY_CONFIG":  39,
+		"GET_AI_GATEWAY_CONFIG":     40,
+		"GET_AI_GATEWAY_STATUS":     41,
+		"GET_APPLIANCE_STATUS":      42,
+		"CREATE_APPLIANCE_ARTIFACT": 43,
+		"GET_APPLIANCE_ARTIFACT":    44,
+		"FETCH_APPLIANCE_ARTIFACT":  45,
+		"DELETE_APPLIANCE_ARTIFACT": 46,
+		"RUN_APPLIANCE_COMPLIANCE":  47,
 	}
 )
 
@@ -150,7 +180,7 @@ var File_client_subcommands_proto protoreflect.FileDescriptor
 
 const file_client_subcommands_proto_rawDesc = "" +
 	"\n" +
-	"\x18client/subcommands.proto\x12\x06client*\xbf\x04\n" +
+	"\x18client/subcommands.proto\x12\x06client*\xc3\x06\n" +
 	"\x0eSubCommandType\x12\x0f\n" +
 	"\vSUB_UNKNOWN\x10\x00\x12\r\n" +
 	"\tSUB_START\x10\x01\x12\f\n" +
@@ -179,7 +209,16 @@ const file_client_subcommands_proto_rawDesc = "" +
 	"\x12GET_RSYSLOG_STATUS\x10#\x12\x18\n" +
 	"\x14UPDATE_SHIELD_CONFIG\x10$\x12\x15\n" +
 	"\x11GET_SHIELD_CONFIG\x10%\x12\x15\n" +
-	"\x11GET_SHIELD_STATUS\x10&B0Z.github.com/CloudNativeWorks/elchi-proto/clientb\x06proto3"
+	"\x11GET_SHIELD_STATUS\x10&\x12\x1c\n" +
+	"\x18UPDATE_AI_GATEWAY_CONFIG\x10'\x12\x19\n" +
+	"\x15GET_AI_GATEWAY_CONFIG\x10(\x12\x19\n" +
+	"\x15GET_AI_GATEWAY_STATUS\x10)\x12\x18\n" +
+	"\x14GET_APPLIANCE_STATUS\x10*\x12\x1d\n" +
+	"\x19CREATE_APPLIANCE_ARTIFACT\x10+\x12\x1a\n" +
+	"\x16GET_APPLIANCE_ARTIFACT\x10,\x12\x1c\n" +
+	"\x18FETCH_APPLIANCE_ARTIFACT\x10-\x12\x1d\n" +
+	"\x19DELETE_APPLIANCE_ARTIFACT\x10.\x12\x1c\n" +
+	"\x18RUN_APPLIANCE_COMPLIANCE\x10/B0Z.github.com/CloudNativeWorks/elchi-proto/clientb\x06proto3"
 
 var (
 	file_client_subcommands_proto_rawDescOnce sync.Once

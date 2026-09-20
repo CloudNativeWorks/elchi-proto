@@ -51,6 +51,11 @@ const (
 	CommandType_RSYSLOG       CommandType = 83
 	// SHIELD — elchi-shield ext_proc API-security/WAF config delivery
 	CommandType_SHIELD CommandType = 84
+	// AI_GATEWAY — elchi-ai-gateway (LLM gateway ext_proc supervisor) config delivery
+	CommandType_AI_GATEWAY CommandType = 85
+	// APPLIANCE — the appliance OS itself (Elchi OS 0.5.0+): status, exports,
+	// compliance. The 90s are the appliance-OS group.
+	CommandType_APPLIANCE CommandType = 91
 )
 
 // Enum value maps for CommandType.
@@ -73,6 +78,8 @@ var (
 		82: "FILEBEAT",
 		83: "RSYSLOG",
 		84: "SHIELD",
+		85: "AI_GATEWAY",
+		91: "APPLIANCE",
 	}
 	CommandType_value = map[string]int32{
 		"UNKNOWN":          0,
@@ -92,6 +99,8 @@ var (
 		"FILEBEAT":         82,
 		"RSYSLOG":          83,
 		"SHIELD":           84,
+		"AI_GATEWAY":       85,
+		"APPLIANCE":        91,
 	}
 )
 
@@ -126,7 +135,7 @@ var File_client_commands_proto protoreflect.FileDescriptor
 
 const file_client_commands_proto_rawDesc = "" +
 	"\n" +
-	"\x15client/commands.proto\x12\x06client*\x8a\x02\n" +
+	"\x15client/commands.proto\x12\x06client*\xa9\x02\n" +
 	"\vCommandType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\n" +
 	"\n" +
@@ -146,7 +155,10 @@ const file_client_commands_proto_rawDesc = "" +
 	"\bFILEBEAT\x10R\x12\v\n" +
 	"\aRSYSLOG\x10S\x12\n" +
 	"\n" +
-	"\x06SHIELD\x10TB0Z.github.com/CloudNativeWorks/elchi-proto/clientb\x06proto3"
+	"\x06SHIELD\x10T\x12\x0e\n" +
+	"\n" +
+	"AI_GATEWAY\x10U\x12\r\n" +
+	"\tAPPLIANCE\x10[B0Z.github.com/CloudNativeWorks/elchi-proto/clientb\x06proto3"
 
 var (
 	file_client_commands_proto_rawDescOnce sync.Once
