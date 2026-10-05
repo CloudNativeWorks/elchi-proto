@@ -1183,8 +1183,13 @@ type BgpNeighbor struct {
 	GracefulRestart        bool `protobuf:"varint,19,opt,name=graceful_restart,json=gracefulRestart,proto3" json:"graceful_restart,omitempty"`                        // Enable GR for this neighbor
 	GracefulRestartHelper  bool `protobuf:"varint,20,opt,name=graceful_restart_helper,json=gracefulRestartHelper,proto3" json:"graceful_restart_helper,omitempty"`    // Act as GR helper only
 	GracefulRestartDisable bool `protobuf:"varint,21,opt,name=graceful_restart_disable,json=gracefulRestartDisable,proto3" json:"graceful_restart_disable,omitempty"` // Disable GR for this neighbor
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	// The MD5 password is write-only: the agent never returns it. A read
+	// reports password_set instead; an update that leaves password empty keeps
+	// the one configured, and clear_password removes it.
+	PasswordSet   bool `protobuf:"varint,22,opt,name=password_set,json=passwordSet,proto3" json:"password_set,omitempty"`
+	ClearPassword bool `protobuf:"varint,23,opt,name=clear_password,json=clearPassword,proto3" json:"clear_password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *BgpNeighbor) Reset() {
@@ -1360,6 +1365,20 @@ func (x *BgpNeighbor) GetGracefulRestartHelper() bool {
 func (x *BgpNeighbor) GetGracefulRestartDisable() bool {
 	if x != nil {
 		return x.GracefulRestartDisable
+	}
+	return false
+}
+
+func (x *BgpNeighbor) GetPasswordSet() bool {
+	if x != nil {
+		return x.PasswordSet
+	}
+	return false
+}
+
+func (x *BgpNeighbor) GetClearPassword() bool {
+	if x != nil {
+		return x.ClearPassword
 	}
 	return false
 }
@@ -3900,7 +3919,7 @@ const file_client_frr_proto_rawDesc = "" +
 	"\x04desc\x18\x13 \x01(\tR\x04desc\x12\x16\n" +
 	"\x06idType\x18\x14 \x01(\tR\x06idType\"9\n" +
 	"\x0fBestPathOptions\x12&\n" +
-	"\x0emultiPathRelax\x18\x01 \x01(\bR\x0emultiPathRelax\"\xfe\x06\n" +
+	"\x0emultiPathRelax\x18\x01 \x01(\bR\x0emultiPathRelax\"\xc8\a\n" +
 	"\vBgpNeighbor\x12\x17\n" +
 	"\apeer_ip\x18\x01 \x01(\tR\x06peerIp\x12\x1b\n" +
 	"\tremote_as\x18\x02 \x01(\rR\bremoteAs\x12 \n" +
@@ -3925,7 +3944,9 @@ const file_client_frr_proto_rawDesc = "" +
 	"\x17disable_connected_check\x18\x12 \x01(\bR\x15disableConnectedCheck\x12)\n" +
 	"\x10graceful_restart\x18\x13 \x01(\bR\x0fgracefulRestart\x126\n" +
 	"\x17graceful_restart_helper\x18\x14 \x01(\bR\x15gracefulRestartHelper\x128\n" +
-	"\x18graceful_restart_disable\x18\x15 \x01(\bR\x16gracefulRestartDisable\"r\n" +
+	"\x18graceful_restart_disable\x18\x15 \x01(\bR\x16gracefulRestartDisable\x12!\n" +
+	"\fpassword_set\x18\x16 \x01(\bR\vpasswordSet\x12%\n" +
+	"\x0eclear_password\x18\x17 \x01(\bR\rclearPassword\"r\n" +
 	"\x11BgpNeighborTimers\x12\x1c\n" +
 	"\tkeepalive\x18\x01 \x01(\rR\tkeepalive\x12\x1a\n" +
 	"\bholdtime\x18\x02 \x01(\rR\bholdtime\x12#\n" +

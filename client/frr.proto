@@ -163,6 +163,12 @@ message BgpNeighbor {
   bool graceful_restart = 19;              // Enable GR for this neighbor
   bool graceful_restart_helper = 20;       // Act as GR helper only
   bool graceful_restart_disable = 21;      // Disable GR for this neighbor
+
+  // The MD5 password is write-only: the agent never returns it. A read
+  // reports password_set instead; an update that leaves password empty keeps
+  // the one configured, and clear_password removes it.
+  bool password_set = 22;
+  bool clear_password = 23;
 }
 
 // BGP Neighbor Timers
