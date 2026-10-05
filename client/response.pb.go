@@ -487,6 +487,7 @@ type ServiceStatus struct {
 	Memory        string                 `protobuf:"bytes,5,opt,name=memory,proto3" json:"memory,omitempty"`
 	Cpu           string                 `protobuf:"bytes,6,opt,name=cpu,proto3" json:"cpu,omitempty"`
 	Cgroup        []string               `protobuf:"bytes,7,rep,name=cgroup,proto3" json:"cgroup,omitempty"`
+	VipState      *VipState              `protobuf:"bytes,8,opt,name=vip_state,json=vipState,proto3" json:"vip_state,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -570,6 +571,148 @@ func (x *ServiceStatus) GetCgroup() []string {
 	return nil
 }
 
+func (x *ServiceStatus) GetVipState() *VipState {
+	if x != nil {
+		return x.VipState
+	}
+	return nil
+}
+
+// VipState is a listener's VIP announcement as the agent's health loop sees
+// it: whether the /32 is on the dummy interface (and so, with BGP, advertised),
+// why, and the probe counters behind the decision.
+type VipState struct {
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	State                string                 `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`   // announced | withdrawn | held | n/a
+	Reason               string                 `protobuf:"bytes,2,opt,name=reason,proto3" json:"reason,omitempty"` // what put it in this state
+	Since                string                 `protobuf:"bytes,3,opt,name=since,proto3" json:"since,omitempty"`   // RFC3339
+	Vip                  string                 `protobuf:"bytes,4,opt,name=vip,proto3" json:"vip,omitempty"`
+	Iface                string                 `protobuf:"bytes,5,opt,name=iface,proto3" json:"iface,omitempty"`
+	ConsecutiveFailures  uint32                 `protobuf:"varint,6,opt,name=consecutive_failures,json=consecutiveFailures,proto3" json:"consecutive_failures,omitempty"`
+	ConsecutiveSuccesses uint32                 `protobuf:"varint,7,opt,name=consecutive_successes,json=consecutiveSuccesses,proto3" json:"consecutive_successes,omitempty"`
+	RestartsInWindow     uint32                 `protobuf:"varint,8,opt,name=restarts_in_window,json=restartsInWindow,proto3" json:"restarts_in_window,omitempty"`
+	LastProbe            string                 `protobuf:"bytes,9,opt,name=last_probe,json=lastProbe,proto3" json:"last_probe,omitempty"` // ok | fail | unit-down | unknown
+	LastProbeDetail      string                 `protobuf:"bytes,10,opt,name=last_probe_detail,json=lastProbeDetail,proto3" json:"last_probe_detail,omitempty"`
+	Bgp                  bool                   `protobuf:"varint,11,opt,name=bgp,proto3" json:"bgp,omitempty"`                             // false: the box only reports, the address is never touched
+	HoldUntil            string                 `protobuf:"bytes,12,opt,name=hold_until,json=holdUntil,proto3" json:"hold_until,omitempty"` // RFC3339, when held
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *VipState) Reset() {
+	*x = VipState{}
+	mi := &file_client_response_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VipState) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VipState) ProtoMessage() {}
+
+func (x *VipState) ProtoReflect() protoreflect.Message {
+	mi := &file_client_response_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VipState.ProtoReflect.Descriptor instead.
+func (*VipState) Descriptor() ([]byte, []int) {
+	return file_client_response_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *VipState) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *VipState) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *VipState) GetSince() string {
+	if x != nil {
+		return x.Since
+	}
+	return ""
+}
+
+func (x *VipState) GetVip() string {
+	if x != nil {
+		return x.Vip
+	}
+	return ""
+}
+
+func (x *VipState) GetIface() string {
+	if x != nil {
+		return x.Iface
+	}
+	return ""
+}
+
+func (x *VipState) GetConsecutiveFailures() uint32 {
+	if x != nil {
+		return x.ConsecutiveFailures
+	}
+	return 0
+}
+
+func (x *VipState) GetConsecutiveSuccesses() uint32 {
+	if x != nil {
+		return x.ConsecutiveSuccesses
+	}
+	return 0
+}
+
+func (x *VipState) GetRestartsInWindow() uint32 {
+	if x != nil {
+		return x.RestartsInWindow
+	}
+	return 0
+}
+
+func (x *VipState) GetLastProbe() string {
+	if x != nil {
+		return x.LastProbe
+	}
+	return ""
+}
+
+func (x *VipState) GetLastProbeDetail() string {
+	if x != nil {
+		return x.LastProbeDetail
+	}
+	return ""
+}
+
+func (x *VipState) GetBgp() bool {
+	if x != nil {
+		return x.Bgp
+	}
+	return false
+}
+
+func (x *VipState) GetHoldUntil() string {
+	if x != nil {
+		return x.HoldUntil
+	}
+	return ""
+}
+
 type Logs struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
@@ -582,7 +725,7 @@ type Logs struct {
 
 func (x *Logs) Reset() {
 	*x = Logs{}
-	mi := &file_client_response_proto_msgTypes[6]
+	mi := &file_client_response_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -594,7 +737,7 @@ func (x *Logs) String() string {
 func (*Logs) ProtoMessage() {}
 
 func (x *Logs) ProtoReflect() protoreflect.Message {
-	mi := &file_client_response_proto_msgTypes[6]
+	mi := &file_client_response_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -607,7 +750,7 @@ func (x *Logs) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Logs.ProtoReflect.Descriptor instead.
 func (*Logs) Descriptor() ([]byte, []int) {
-	return file_client_response_proto_rawDescGZIP(), []int{6}
+	return file_client_response_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *Logs) GetMessage() string {
@@ -649,7 +792,7 @@ type ResponseEnvoyAdmin struct {
 
 func (x *ResponseEnvoyAdmin) Reset() {
 	*x = ResponseEnvoyAdmin{}
-	mi := &file_client_response_proto_msgTypes[7]
+	mi := &file_client_response_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -661,7 +804,7 @@ func (x *ResponseEnvoyAdmin) String() string {
 func (*ResponseEnvoyAdmin) ProtoMessage() {}
 
 func (x *ResponseEnvoyAdmin) ProtoReflect() protoreflect.Message {
-	mi := &file_client_response_proto_msgTypes[7]
+	mi := &file_client_response_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -674,7 +817,7 @@ func (x *ResponseEnvoyAdmin) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResponseEnvoyAdmin.ProtoReflect.Descriptor instead.
 func (*ResponseEnvoyAdmin) Descriptor() ([]byte, []int) {
-	return file_client_response_proto_rawDescGZIP(), []int{7}
+	return file_client_response_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ResponseEnvoyAdmin) GetStatusCode() int32 {
@@ -712,7 +855,7 @@ type GeneralLogs struct {
 
 func (x *GeneralLogs) Reset() {
 	*x = GeneralLogs{}
-	mi := &file_client_response_proto_msgTypes[8]
+	mi := &file_client_response_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -724,7 +867,7 @@ func (x *GeneralLogs) String() string {
 func (*GeneralLogs) ProtoMessage() {}
 
 func (x *GeneralLogs) ProtoReflect() protoreflect.Message {
-	mi := &file_client_response_proto_msgTypes[8]
+	mi := &file_client_response_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -737,7 +880,7 @@ func (x *GeneralLogs) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GeneralLogs.ProtoReflect.Descriptor instead.
 func (*GeneralLogs) Descriptor() ([]byte, []int) {
-	return file_client_response_proto_rawDescGZIP(), []int{8}
+	return file_client_response_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GeneralLogs) GetMessage() string {
@@ -791,7 +934,7 @@ type ResponseGeneralLog struct {
 
 func (x *ResponseGeneralLog) Reset() {
 	*x = ResponseGeneralLog{}
-	mi := &file_client_response_proto_msgTypes[9]
+	mi := &file_client_response_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -803,7 +946,7 @@ func (x *ResponseGeneralLog) String() string {
 func (*ResponseGeneralLog) ProtoMessage() {}
 
 func (x *ResponseGeneralLog) ProtoReflect() protoreflect.Message {
-	mi := &file_client_response_proto_msgTypes[9]
+	mi := &file_client_response_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -816,7 +959,7 @@ func (x *ResponseGeneralLog) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResponseGeneralLog.ProtoReflect.Descriptor instead.
 func (*ResponseGeneralLog) Descriptor() ([]byte, []int) {
-	return file_client_response_proto_rawDescGZIP(), []int{9}
+	return file_client_response_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ResponseGeneralLog) GetLogs() []*GeneralLogs {
@@ -839,7 +982,7 @@ type ResponseClientStats struct {
 
 func (x *ResponseClientStats) Reset() {
 	*x = ResponseClientStats{}
-	mi := &file_client_response_proto_msgTypes[10]
+	mi := &file_client_response_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -851,7 +994,7 @@ func (x *ResponseClientStats) String() string {
 func (*ResponseClientStats) ProtoMessage() {}
 
 func (x *ResponseClientStats) ProtoReflect() protoreflect.Message {
-	mi := &file_client_response_proto_msgTypes[10]
+	mi := &file_client_response_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -864,7 +1007,7 @@ func (x *ResponseClientStats) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResponseClientStats.ProtoReflect.Descriptor instead.
 func (*ResponseClientStats) Descriptor() ([]byte, []int) {
-	return file_client_response_proto_rawDescGZIP(), []int{10}
+	return file_client_response_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ResponseClientStats) GetCpu() *CPUStats {
@@ -914,7 +1057,7 @@ type ResponseNetwork struct {
 
 func (x *ResponseNetwork) Reset() {
 	*x = ResponseNetwork{}
-	mi := &file_client_response_proto_msgTypes[11]
+	mi := &file_client_response_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -926,7 +1069,7 @@ func (x *ResponseNetwork) String() string {
 func (*ResponseNetwork) ProtoMessage() {}
 
 func (x *ResponseNetwork) ProtoReflect() protoreflect.Message {
-	mi := &file_client_response_proto_msgTypes[11]
+	mi := &file_client_response_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -939,7 +1082,7 @@ func (x *ResponseNetwork) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResponseNetwork.ProtoReflect.Descriptor instead.
 func (*ResponseNetwork) Descriptor() ([]byte, []int) {
-	return file_client_response_proto_rawDescGZIP(), []int{11}
+	return file_client_response_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ResponseNetwork) GetSuccess() bool {
@@ -982,7 +1125,7 @@ type ResponseFrr struct {
 
 func (x *ResponseFrr) Reset() {
 	*x = ResponseFrr{}
-	mi := &file_client_response_proto_msgTypes[12]
+	mi := &file_client_response_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -994,7 +1137,7 @@ func (x *ResponseFrr) String() string {
 func (*ResponseFrr) ProtoMessage() {}
 
 func (x *ResponseFrr) ProtoReflect() protoreflect.Message {
-	mi := &file_client_response_proto_msgTypes[12]
+	mi := &file_client_response_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1007,7 +1150,7 @@ func (x *ResponseFrr) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResponseFrr.ProtoReflect.Descriptor instead.
 func (*ResponseFrr) Descriptor() ([]byte, []int) {
-	return file_client_response_proto_rawDescGZIP(), []int{12}
+	return file_client_response_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ResponseFrr) GetProtocol() FrrProtocolType {
@@ -1051,7 +1194,7 @@ type ResponseEnvoyVersion struct {
 
 func (x *ResponseEnvoyVersion) Reset() {
 	*x = ResponseEnvoyVersion{}
-	mi := &file_client_response_proto_msgTypes[13]
+	mi := &file_client_response_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1063,7 +1206,7 @@ func (x *ResponseEnvoyVersion) String() string {
 func (*ResponseEnvoyVersion) ProtoMessage() {}
 
 func (x *ResponseEnvoyVersion) ProtoReflect() protoreflect.Message {
-	mi := &file_client_response_proto_msgTypes[13]
+	mi := &file_client_response_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1076,7 +1219,7 @@ func (x *ResponseEnvoyVersion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResponseEnvoyVersion.ProtoReflect.Descriptor instead.
 func (*ResponseEnvoyVersion) Descriptor() ([]byte, []int) {
-	return file_client_response_proto_rawDescGZIP(), []int{13}
+	return file_client_response_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ResponseEnvoyVersion) GetDownloadedVersions() []string {
@@ -1127,7 +1270,7 @@ type ResponseWafVersion struct {
 
 func (x *ResponseWafVersion) Reset() {
 	*x = ResponseWafVersion{}
-	mi := &file_client_response_proto_msgTypes[14]
+	mi := &file_client_response_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1139,7 +1282,7 @@ func (x *ResponseWafVersion) String() string {
 func (*ResponseWafVersion) ProtoMessage() {}
 
 func (x *ResponseWafVersion) ProtoReflect() protoreflect.Message {
-	mi := &file_client_response_proto_msgTypes[14]
+	mi := &file_client_response_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1152,7 +1295,7 @@ func (x *ResponseWafVersion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResponseWafVersion.ProtoReflect.Descriptor instead.
 func (*ResponseWafVersion) Descriptor() ([]byte, []int) {
-	return file_client_response_proto_rawDescGZIP(), []int{14}
+	return file_client_response_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ResponseWafVersion) GetDownloadedVersions() []string {
@@ -1204,7 +1347,7 @@ type ResponseFilebeat struct {
 
 func (x *ResponseFilebeat) Reset() {
 	*x = ResponseFilebeat{}
-	mi := &file_client_response_proto_msgTypes[15]
+	mi := &file_client_response_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1216,7 +1359,7 @@ func (x *ResponseFilebeat) String() string {
 func (*ResponseFilebeat) ProtoMessage() {}
 
 func (x *ResponseFilebeat) ProtoReflect() protoreflect.Message {
-	mi := &file_client_response_proto_msgTypes[15]
+	mi := &file_client_response_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1229,7 +1372,7 @@ func (x *ResponseFilebeat) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResponseFilebeat.ProtoReflect.Descriptor instead.
 func (*ResponseFilebeat) Descriptor() ([]byte, []int) {
-	return file_client_response_proto_rawDescGZIP(), []int{15}
+	return file_client_response_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ResponseFilebeat) GetSuccess() bool {
@@ -1287,7 +1430,7 @@ type ResponseRsyslog struct {
 
 func (x *ResponseRsyslog) Reset() {
 	*x = ResponseRsyslog{}
-	mi := &file_client_response_proto_msgTypes[16]
+	mi := &file_client_response_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1299,7 +1442,7 @@ func (x *ResponseRsyslog) String() string {
 func (*ResponseRsyslog) ProtoMessage() {}
 
 func (x *ResponseRsyslog) ProtoReflect() protoreflect.Message {
-	mi := &file_client_response_proto_msgTypes[16]
+	mi := &file_client_response_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1312,7 +1455,7 @@ func (x *ResponseRsyslog) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResponseRsyslog.ProtoReflect.Descriptor instead.
 func (*ResponseRsyslog) Descriptor() ([]byte, []int) {
-	return file_client_response_proto_rawDescGZIP(), []int{16}
+	return file_client_response_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ResponseRsyslog) GetSuccess() bool {
@@ -1381,7 +1524,7 @@ type ResponseShield struct {
 
 func (x *ResponseShield) Reset() {
 	*x = ResponseShield{}
-	mi := &file_client_response_proto_msgTypes[17]
+	mi := &file_client_response_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1393,7 +1536,7 @@ func (x *ResponseShield) String() string {
 func (*ResponseShield) ProtoMessage() {}
 
 func (x *ResponseShield) ProtoReflect() protoreflect.Message {
-	mi := &file_client_response_proto_msgTypes[17]
+	mi := &file_client_response_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1406,7 +1549,7 @@ func (x *ResponseShield) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResponseShield.ProtoReflect.Descriptor instead.
 func (*ResponseShield) Descriptor() ([]byte, []int) {
-	return file_client_response_proto_rawDescGZIP(), []int{17}
+	return file_client_response_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ResponseShield) GetSuccess() bool {
@@ -1506,7 +1649,7 @@ type ResponseAIGateway struct {
 
 func (x *ResponseAIGateway) Reset() {
 	*x = ResponseAIGateway{}
-	mi := &file_client_response_proto_msgTypes[18]
+	mi := &file_client_response_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1518,7 +1661,7 @@ func (x *ResponseAIGateway) String() string {
 func (*ResponseAIGateway) ProtoMessage() {}
 
 func (x *ResponseAIGateway) ProtoReflect() protoreflect.Message {
-	mi := &file_client_response_proto_msgTypes[18]
+	mi := &file_client_response_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1531,7 +1674,7 @@ func (x *ResponseAIGateway) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResponseAIGateway.ProtoReflect.Descriptor instead.
 func (*ResponseAIGateway) Descriptor() ([]byte, []int) {
-	return file_client_response_proto_rawDescGZIP(), []int{18}
+	return file_client_response_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ResponseAIGateway) GetSuccess() bool {
@@ -1620,7 +1763,7 @@ type ResponseAppliance struct {
 
 func (x *ResponseAppliance) Reset() {
 	*x = ResponseAppliance{}
-	mi := &file_client_response_proto_msgTypes[19]
+	mi := &file_client_response_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1632,7 +1775,7 @@ func (x *ResponseAppliance) String() string {
 func (*ResponseAppliance) ProtoMessage() {}
 
 func (x *ResponseAppliance) ProtoReflect() protoreflect.Message {
-	mi := &file_client_response_proto_msgTypes[19]
+	mi := &file_client_response_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1645,7 +1788,7 @@ func (x *ResponseAppliance) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResponseAppliance.ProtoReflect.Descriptor instead.
 func (*ResponseAppliance) Descriptor() ([]byte, []int) {
-	return file_client_response_proto_rawDescGZIP(), []int{19}
+	return file_client_response_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ResponseAppliance) GetSupported() bool {
@@ -1741,7 +1884,7 @@ const file_client_response_proto_rawDesc = "" +
 	"\x0fResponseService\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12-\n" +
 	"\x06status\x18\x02 \x01(\v2\x15.client.ServiceStatusR\x06status\x12 \n" +
-	"\x04logs\x18\x03 \x03(\v2\f.client.LogsR\x04logs\"\xb2\x01\n" +
+	"\x04logs\x18\x03 \x03(\v2\f.client.LogsR\x04logs\"\xe1\x01\n" +
 	"\rServiceStatus\x12\x16\n" +
 	"\x06loaded\x18\x01 \x01(\tR\x06loaded\x12\x16\n" +
 	"\x06active\x18\x02 \x01(\tR\x06active\x12\x19\n" +
@@ -1749,7 +1892,24 @@ const file_client_response_proto_rawDesc = "" +
 	"\x05tasks\x18\x04 \x01(\tR\x05tasks\x12\x16\n" +
 	"\x06memory\x18\x05 \x01(\tR\x06memory\x12\x10\n" +
 	"\x03cpu\x18\x06 \x01(\tR\x03cpu\x12\x16\n" +
-	"\x06cgroup\x18\a \x03(\tR\x06cgroup\"r\n" +
+	"\x06cgroup\x18\a \x03(\tR\x06cgroup\x12-\n" +
+	"\tvip_state\x18\b \x01(\v2\x10.client.VipStateR\bvipState\"\x88\x03\n" +
+	"\bVipState\x12\x14\n" +
+	"\x05state\x18\x01 \x01(\tR\x05state\x12\x16\n" +
+	"\x06reason\x18\x02 \x01(\tR\x06reason\x12\x14\n" +
+	"\x05since\x18\x03 \x01(\tR\x05since\x12\x10\n" +
+	"\x03vip\x18\x04 \x01(\tR\x03vip\x12\x14\n" +
+	"\x05iface\x18\x05 \x01(\tR\x05iface\x121\n" +
+	"\x14consecutive_failures\x18\x06 \x01(\rR\x13consecutiveFailures\x123\n" +
+	"\x15consecutive_successes\x18\a \x01(\rR\x14consecutiveSuccesses\x12,\n" +
+	"\x12restarts_in_window\x18\b \x01(\rR\x10restartsInWindow\x12\x1d\n" +
+	"\n" +
+	"last_probe\x18\t \x01(\tR\tlastProbe\x12*\n" +
+	"\x11last_probe_detail\x18\n" +
+	" \x01(\tR\x0flastProbeDetail\x12\x10\n" +
+	"\x03bgp\x18\v \x01(\bR\x03bgp\x12\x1d\n" +
+	"\n" +
+	"hold_until\x18\f \x01(\tR\tholdUntil\"r\n" +
 	"\x04Logs\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\x12\x14\n" +
 	"\x05level\x18\x02 \x01(\tR\x05level\x12\x1c\n" +
@@ -1878,7 +2038,7 @@ func file_client_response_proto_rawDescGZIP() []byte {
 }
 
 var file_client_response_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_client_response_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_client_response_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_client_response_proto_goTypes = []any{
 	(VersionStatus)(0),              // 0: client.VersionStatus
 	(*ResponseDeploy)(nil),          // 1: client.ResponseDeploy
@@ -1887,74 +2047,76 @@ var file_client_response_proto_goTypes = []any{
 	(*ResponseUpgradeListener)(nil), // 4: client.ResponseUpgradeListener
 	(*ResponseService)(nil),         // 5: client.ResponseService
 	(*ServiceStatus)(nil),           // 6: client.ServiceStatus
-	(*Logs)(nil),                    // 7: client.Logs
-	(*ResponseEnvoyAdmin)(nil),      // 8: client.ResponseEnvoyAdmin
-	(*GeneralLogs)(nil),             // 9: client.GeneralLogs
-	(*ResponseGeneralLog)(nil),      // 10: client.ResponseGeneralLog
-	(*ResponseClientStats)(nil),     // 11: client.ResponseClientStats
-	(*ResponseNetwork)(nil),         // 12: client.ResponseNetwork
-	(*ResponseFrr)(nil),             // 13: client.ResponseFrr
-	(*ResponseEnvoyVersion)(nil),    // 14: client.ResponseEnvoyVersion
-	(*ResponseWafVersion)(nil),      // 15: client.ResponseWafVersion
-	(*ResponseFilebeat)(nil),        // 16: client.ResponseFilebeat
-	(*ResponseRsyslog)(nil),         // 17: client.ResponseRsyslog
-	(*ResponseShield)(nil),          // 18: client.ResponseShield
-	(*ResponseAIGateway)(nil),       // 19: client.ResponseAIGateway
-	(*ResponseAppliance)(nil),       // 20: client.ResponseAppliance
-	nil,                             // 21: client.ResponseEnvoyAdmin.HeadersEntry
-	nil,                             // 22: client.GeneralLogs.MetadataEntry
-	nil,                             // 23: client.ResponseShield.InfoEntry
-	nil,                             // 24: client.ResponseAIGateway.InfoEntry
-	nil,                             // 25: client.ResponseAppliance.InfoEntry
-	(*CPUStats)(nil),                // 26: client.CPUStats
-	(*MemoryStats)(nil),             // 27: client.MemoryStats
-	(*DiskStats)(nil),               // 28: client.DiskStats
-	(*NetworkStats)(nil),            // 29: client.NetworkStats
-	(*SystemInfo)(nil),              // 30: client.SystemInfo
-	(*NetworkState)(nil),            // 31: client.NetworkState
-	(FrrProtocolType)(0),            // 32: client.FrrProtocolType
-	(*ResponseBgp)(nil),             // 33: client.ResponseBgp
-	(*RequestFilebeat)(nil),         // 34: client.RequestFilebeat
-	(*RsyslogConfig)(nil),           // 35: client.RsyslogConfig
-	(*ShieldFile)(nil),              // 36: client.ShieldFile
-	(*AIGatewayFile)(nil),           // 37: client.AIGatewayFile
-	(*ApplianceStatus)(nil),         // 38: client.ApplianceStatus
-	(*ApplianceArtifact)(nil),       // 39: client.ApplianceArtifact
+	(*VipState)(nil),                // 7: client.VipState
+	(*Logs)(nil),                    // 8: client.Logs
+	(*ResponseEnvoyAdmin)(nil),      // 9: client.ResponseEnvoyAdmin
+	(*GeneralLogs)(nil),             // 10: client.GeneralLogs
+	(*ResponseGeneralLog)(nil),      // 11: client.ResponseGeneralLog
+	(*ResponseClientStats)(nil),     // 12: client.ResponseClientStats
+	(*ResponseNetwork)(nil),         // 13: client.ResponseNetwork
+	(*ResponseFrr)(nil),             // 14: client.ResponseFrr
+	(*ResponseEnvoyVersion)(nil),    // 15: client.ResponseEnvoyVersion
+	(*ResponseWafVersion)(nil),      // 16: client.ResponseWafVersion
+	(*ResponseFilebeat)(nil),        // 17: client.ResponseFilebeat
+	(*ResponseRsyslog)(nil),         // 18: client.ResponseRsyslog
+	(*ResponseShield)(nil),          // 19: client.ResponseShield
+	(*ResponseAIGateway)(nil),       // 20: client.ResponseAIGateway
+	(*ResponseAppliance)(nil),       // 21: client.ResponseAppliance
+	nil,                             // 22: client.ResponseEnvoyAdmin.HeadersEntry
+	nil,                             // 23: client.GeneralLogs.MetadataEntry
+	nil,                             // 24: client.ResponseShield.InfoEntry
+	nil,                             // 25: client.ResponseAIGateway.InfoEntry
+	nil,                             // 26: client.ResponseAppliance.InfoEntry
+	(*CPUStats)(nil),                // 27: client.CPUStats
+	(*MemoryStats)(nil),             // 28: client.MemoryStats
+	(*DiskStats)(nil),               // 29: client.DiskStats
+	(*NetworkStats)(nil),            // 30: client.NetworkStats
+	(*SystemInfo)(nil),              // 31: client.SystemInfo
+	(*NetworkState)(nil),            // 32: client.NetworkState
+	(FrrProtocolType)(0),            // 33: client.FrrProtocolType
+	(*ResponseBgp)(nil),             // 34: client.ResponseBgp
+	(*RequestFilebeat)(nil),         // 35: client.RequestFilebeat
+	(*RsyslogConfig)(nil),           // 36: client.RsyslogConfig
+	(*ShieldFile)(nil),              // 37: client.ShieldFile
+	(*AIGatewayFile)(nil),           // 38: client.AIGatewayFile
+	(*ApplianceStatus)(nil),         // 39: client.ApplianceStatus
+	(*ApplianceArtifact)(nil),       // 40: client.ApplianceArtifact
 }
 var file_client_response_proto_depIdxs = []int32{
 	6,  // 0: client.ResponseService.status:type_name -> client.ServiceStatus
-	7,  // 1: client.ResponseService.logs:type_name -> client.Logs
-	21, // 2: client.ResponseEnvoyAdmin.headers:type_name -> client.ResponseEnvoyAdmin.HeadersEntry
-	22, // 3: client.GeneralLogs.metadata:type_name -> client.GeneralLogs.MetadataEntry
-	9,  // 4: client.ResponseGeneralLog.logs:type_name -> client.GeneralLogs
-	26, // 5: client.ResponseClientStats.cpu:type_name -> client.CPUStats
-	27, // 6: client.ResponseClientStats.memory:type_name -> client.MemoryStats
-	28, // 7: client.ResponseClientStats.disk:type_name -> client.DiskStats
-	29, // 8: client.ResponseClientStats.network:type_name -> client.NetworkStats
-	30, // 9: client.ResponseClientStats.system:type_name -> client.SystemInfo
-	31, // 10: client.ResponseNetwork.network_state:type_name -> client.NetworkState
-	32, // 11: client.ResponseFrr.protocol:type_name -> client.FrrProtocolType
-	33, // 12: client.ResponseFrr.bgp:type_name -> client.ResponseBgp
-	0,  // 13: client.ResponseEnvoyVersion.status:type_name -> client.VersionStatus
-	0,  // 14: client.ResponseWafVersion.status:type_name -> client.VersionStatus
-	34, // 15: client.ResponseFilebeat.current_config:type_name -> client.RequestFilebeat
-	7,  // 16: client.ResponseFilebeat.logs:type_name -> client.Logs
-	35, // 17: client.ResponseRsyslog.current_config:type_name -> client.RsyslogConfig
-	7,  // 18: client.ResponseRsyslog.logs:type_name -> client.Logs
-	36, // 19: client.ResponseShield.current_files:type_name -> client.ShieldFile
-	7,  // 20: client.ResponseShield.logs:type_name -> client.Logs
-	23, // 21: client.ResponseShield.info:type_name -> client.ResponseShield.InfoEntry
-	37, // 22: client.ResponseAIGateway.current_files:type_name -> client.AIGatewayFile
-	7,  // 23: client.ResponseAIGateway.logs:type_name -> client.Logs
-	24, // 24: client.ResponseAIGateway.info:type_name -> client.ResponseAIGateway.InfoEntry
-	38, // 25: client.ResponseAppliance.status:type_name -> client.ApplianceStatus
-	39, // 26: client.ResponseAppliance.artifact:type_name -> client.ApplianceArtifact
-	25, // 27: client.ResponseAppliance.info:type_name -> client.ResponseAppliance.InfoEntry
-	28, // [28:28] is the sub-list for method output_type
-	28, // [28:28] is the sub-list for method input_type
-	28, // [28:28] is the sub-list for extension type_name
-	28, // [28:28] is the sub-list for extension extendee
-	0,  // [0:28] is the sub-list for field type_name
+	8,  // 1: client.ResponseService.logs:type_name -> client.Logs
+	7,  // 2: client.ServiceStatus.vip_state:type_name -> client.VipState
+	22, // 3: client.ResponseEnvoyAdmin.headers:type_name -> client.ResponseEnvoyAdmin.HeadersEntry
+	23, // 4: client.GeneralLogs.metadata:type_name -> client.GeneralLogs.MetadataEntry
+	10, // 5: client.ResponseGeneralLog.logs:type_name -> client.GeneralLogs
+	27, // 6: client.ResponseClientStats.cpu:type_name -> client.CPUStats
+	28, // 7: client.ResponseClientStats.memory:type_name -> client.MemoryStats
+	29, // 8: client.ResponseClientStats.disk:type_name -> client.DiskStats
+	30, // 9: client.ResponseClientStats.network:type_name -> client.NetworkStats
+	31, // 10: client.ResponseClientStats.system:type_name -> client.SystemInfo
+	32, // 11: client.ResponseNetwork.network_state:type_name -> client.NetworkState
+	33, // 12: client.ResponseFrr.protocol:type_name -> client.FrrProtocolType
+	34, // 13: client.ResponseFrr.bgp:type_name -> client.ResponseBgp
+	0,  // 14: client.ResponseEnvoyVersion.status:type_name -> client.VersionStatus
+	0,  // 15: client.ResponseWafVersion.status:type_name -> client.VersionStatus
+	35, // 16: client.ResponseFilebeat.current_config:type_name -> client.RequestFilebeat
+	8,  // 17: client.ResponseFilebeat.logs:type_name -> client.Logs
+	36, // 18: client.ResponseRsyslog.current_config:type_name -> client.RsyslogConfig
+	8,  // 19: client.ResponseRsyslog.logs:type_name -> client.Logs
+	37, // 20: client.ResponseShield.current_files:type_name -> client.ShieldFile
+	8,  // 21: client.ResponseShield.logs:type_name -> client.Logs
+	24, // 22: client.ResponseShield.info:type_name -> client.ResponseShield.InfoEntry
+	38, // 23: client.ResponseAIGateway.current_files:type_name -> client.AIGatewayFile
+	8,  // 24: client.ResponseAIGateway.logs:type_name -> client.Logs
+	25, // 25: client.ResponseAIGateway.info:type_name -> client.ResponseAIGateway.InfoEntry
+	39, // 26: client.ResponseAppliance.status:type_name -> client.ApplianceStatus
+	40, // 27: client.ResponseAppliance.artifact:type_name -> client.ApplianceArtifact
+	26, // 28: client.ResponseAppliance.info:type_name -> client.ResponseAppliance.InfoEntry
+	29, // [29:29] is the sub-list for method output_type
+	29, // [29:29] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_client_response_proto_init() }
@@ -1976,7 +2138,7 @@ func file_client_response_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_client_response_proto_rawDesc), len(file_client_response_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   25,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

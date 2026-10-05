@@ -69,6 +69,7 @@ const (
 	SubCommandType_FETCH_APPLIANCE_ARTIFACT  SubCommandType = 45
 	SubCommandType_DELETE_APPLIANCE_ARTIFACT SubCommandType = 46
 	SubCommandType_RUN_APPLIANCE_COMPLIANCE  SubCommandType = 47
+	SubCommandType_SUB_VIP_RESUME            SubCommandType = 48 // release a listener's held VIP announcement
 )
 
 // Enum value maps for SubCommandType.
@@ -109,6 +110,7 @@ var (
 		45: "FETCH_APPLIANCE_ARTIFACT",
 		46: "DELETE_APPLIANCE_ARTIFACT",
 		47: "RUN_APPLIANCE_COMPLIANCE",
+		48: "SUB_VIP_RESUME",
 	}
 	SubCommandType_value = map[string]int32{
 		"SUB_UNKNOWN":               0,
@@ -146,6 +148,7 @@ var (
 		"FETCH_APPLIANCE_ARTIFACT":  45,
 		"DELETE_APPLIANCE_ARTIFACT": 46,
 		"RUN_APPLIANCE_COMPLIANCE":  47,
+		"SUB_VIP_RESUME":            48,
 	}
 )
 
@@ -180,7 +183,7 @@ var File_client_subcommands_proto protoreflect.FileDescriptor
 
 const file_client_subcommands_proto_rawDesc = "" +
 	"\n" +
-	"\x18client/subcommands.proto\x12\x06client*\xc3\x06\n" +
+	"\x18client/subcommands.proto\x12\x06client*\xd7\x06\n" +
 	"\x0eSubCommandType\x12\x0f\n" +
 	"\vSUB_UNKNOWN\x10\x00\x12\r\n" +
 	"\tSUB_START\x10\x01\x12\f\n" +
@@ -218,7 +221,8 @@ const file_client_subcommands_proto_rawDesc = "" +
 	"\x16GET_APPLIANCE_ARTIFACT\x10,\x12\x1c\n" +
 	"\x18FETCH_APPLIANCE_ARTIFACT\x10-\x12\x1d\n" +
 	"\x19DELETE_APPLIANCE_ARTIFACT\x10.\x12\x1c\n" +
-	"\x18RUN_APPLIANCE_COMPLIANCE\x10/B0Z.github.com/CloudNativeWorks/elchi-proto/clientb\x06proto3"
+	"\x18RUN_APPLIANCE_COMPLIANCE\x10/\x12\x12\n" +
+	"\x0eSUB_VIP_RESUME\x100B0Z.github.com/CloudNativeWorks/elchi-proto/clientb\x06proto3"
 
 var (
 	file_client_subcommands_proto_rawDescOnce sync.Once

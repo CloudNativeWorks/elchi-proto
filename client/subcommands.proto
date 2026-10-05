@@ -60,4 +60,5 @@ enum SubCommandType {
   FETCH_APPLIANCE_ARTIFACT = 45;
   DELETE_APPLIANCE_ARTIFACT = 46;
   RUN_APPLIANCE_COMPLIANCE = 47;
+  SUB_VIP_RESUME = 48;                  // release a listener's held VIP announcement
 }

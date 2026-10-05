@@ -61,6 +61,25 @@ message ServiceStatus {
   string memory = 5;
   string cpu = 6;
   repeated string cgroup = 7;
+  VipState vip_state = 8;
+}
+
+// VipState is a listener's VIP announcement as the agent's health loop sees
+// it: whether the /32 is on the dummy interface (and so, with BGP, advertised),
+// why, and the probe counters behind the decision.
+message VipState {
+  string state = 1;                    // announced | withdrawn | held | n/a
+  string reason = 2;                   // what put it in this state
+  string since = 3;                    // RFC3339
+  string vip = 4;
+  string iface = 5;
+  uint32 consecutive_failures = 6;
+  uint32 consecutive_successes = 7;
+  uint32 restarts_in_window = 8;
+  string last_probe = 9;               // ok | fail | unit-down | unknown
+  string last_probe_detail = 10;
+  bool bgp = 11;                       // false: the box only reports, the address is never touched
+  string hold_until = 12;              // RFC3339, when held
 }
 
 message Logs {
