@@ -51,6 +51,18 @@ message ResponseService {
   string name = 1;
   ServiceStatus status = 2;
   repeated Logs logs = 3;
+  // Set by agents that honour RequestService time range + pagination (v1.0.3).
+  uint32 total = 4;                // matching entries in the range (all pages)
+  bool range_supported = 5;
+  bool truncated = 6;              // a scan budget stopped the scan before `since`
+  int64 scanned_from_unix_ms = 7;  // oldest entry time the scan reached
+  repeated LogBucket buckets = 8;  // newest first; only when histogram_interval_ms > 0
+}
+
+message LogBucket {
+  int64 start_unix_ms = 1;
+  uint32 count = 2;
+  map<string, uint32> by_class = 3; // level (error, warn, info, debug) or status class (2xx ... 5xx)
 }
 
 message ServiceStatus {
@@ -87,6 +99,8 @@ message Logs {
   string level = 2;
   string component = 3;
   string timestamp = 4;
+  int64 unix_ms = 5;  // entry time (service logs, v1.0.3)
+  string source = 6;  // "access" | "system" (service logs, v1.0.3)
 }
 
 message ResponseEnvoyAdmin {

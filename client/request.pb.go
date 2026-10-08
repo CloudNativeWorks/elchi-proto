@@ -343,16 +343,25 @@ func (x *RequestUnDeploy) GetVersion() string {
 }
 
 type RequestService struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Port          uint32                 `protobuf:"varint,2,opt,name=port,proto3" json:"port,omitempty"`
-	Count         uint32                 `protobuf:"varint,3,opt,name=count,proto3" json:"count,omitempty"`
-	Search        string                 `protobuf:"bytes,4,opt,name=search,proto3" json:"search,omitempty"`
-	Levels        []string               `protobuf:"bytes,5,rep,name=levels,proto3" json:"levels,omitempty"`
-	Components    []string               `protobuf:"bytes,6,rep,name=components,proto3" json:"components,omitempty"`
-	LogType       LogType                `protobuf:"varint,7,opt,name=log_type,json=logType,proto3,enum=client.LogType" json:"log_type,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Name       string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Port       uint32                 `protobuf:"varint,2,opt,name=port,proto3" json:"port,omitempty"`
+	Count      uint32                 `protobuf:"varint,3,opt,name=count,proto3" json:"count,omitempty"`
+	Search     string                 `protobuf:"bytes,4,opt,name=search,proto3" json:"search,omitempty"`
+	Levels     []string               `protobuf:"bytes,5,rep,name=levels,proto3" json:"levels,omitempty"`
+	Components []string               `protobuf:"bytes,6,rep,name=components,proto3" json:"components,omitempty"`
+	LogType    LogType                `protobuf:"varint,7,opt,name=log_type,json=logType,proto3,enum=client.LogType" json:"log_type,omitempty"`
+	// Time range + pagination (v1.0.3). An agent that predates them answers with
+	// the newest `count` lines and leaves ResponseService.range_supported unset.
+	SinceUnixMs         int64        `protobuf:"varint,8,opt,name=since_unix_ms,json=sinceUnixMs,proto3" json:"since_unix_ms,omitempty"`                          // inclusive; 0 = unbounded
+	UntilUnixMs         int64        `protobuf:"varint,9,opt,name=until_unix_ms,json=untilUnixMs,proto3" json:"until_unix_ms,omitempty"`                          // inclusive; 0 = now
+	Offset              uint32       `protobuf:"varint,10,opt,name=offset,proto3" json:"offset,omitempty"`                                                        // newest-first offset into the matching entries
+	Limit               uint32       `protobuf:"varint,11,opt,name=limit,proto3" json:"limit,omitempty"`                                                          // page size (the agent clamps it to 1000)
+	HistogramIntervalMs int64        `protobuf:"varint,12,opt,name=histogram_interval_ms,json=histogramIntervalMs,proto3" json:"histogram_interval_ms,omitempty"` // bucket width of ResponseService.buckets; 0 = none
+	Filters             []*LogFilter `protobuf:"bytes,13,rep,name=filters,proto3" json:"filters,omitempty"`                                                       // all must match
+	SearchTerms         []string     `protobuf:"bytes,14,rep,name=search_terms,json=searchTerms,proto3" json:"search_terms,omitempty"`                            // all must occur (case-insensitive) in the raw entry
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *RequestService) Reset() {
@@ -434,6 +443,121 @@ func (x *RequestService) GetLogType() LogType {
 	return LogType_LOG_TYPE_ALL
 }
 
+func (x *RequestService) GetSinceUnixMs() int64 {
+	if x != nil {
+		return x.SinceUnixMs
+	}
+	return 0
+}
+
+func (x *RequestService) GetUntilUnixMs() int64 {
+	if x != nil {
+		return x.UntilUnixMs
+	}
+	return 0
+}
+
+func (x *RequestService) GetOffset() uint32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *RequestService) GetLimit() uint32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *RequestService) GetHistogramIntervalMs() int64 {
+	if x != nil {
+		return x.HistogramIntervalMs
+	}
+	return 0
+}
+
+func (x *RequestService) GetFilters() []*LogFilter {
+	if x != nil {
+		return x.Filters
+	}
+	return nil
+}
+
+func (x *RequestService) GetSearchTerms() []string {
+	if x != nil {
+		return x.SearchTerms
+	}
+	return nil
+}
+
+// LogFilter matches one normalised field of a service log entry.
+// field: level, component, source, message, status, method, path, protocol,
+// authority, upstream_cluster, upstream_host, response_flags, route_name,
+// user_agent, request_id, duration, bytes_sent.
+// op: eq, neq, contains, not_contains, gte, lte (gte/lte numeric). For status,
+// eq/neq also accept a class ("5xx").
+type LogFilter struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Field         string                 `protobuf:"bytes,1,opt,name=field,proto3" json:"field,omitempty"`
+	Op            string                 `protobuf:"bytes,2,opt,name=op,proto3" json:"op,omitempty"`
+	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogFilter) Reset() {
+	*x = LogFilter{}
+	mi := &file_client_request_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogFilter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogFilter) ProtoMessage() {}
+
+func (x *LogFilter) ProtoReflect() protoreflect.Message {
+	mi := &file_client_request_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogFilter.ProtoReflect.Descriptor instead.
+func (*LogFilter) Descriptor() ([]byte, []int) {
+	return file_client_request_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *LogFilter) GetField() string {
+	if x != nil {
+		return x.Field
+	}
+	return ""
+}
+
+func (x *LogFilter) GetOp() string {
+	if x != nil {
+		return x.Op
+	}
+	return ""
+}
+
+func (x *LogFilter) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
 type RequestUpdateBootstrap struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -446,7 +570,7 @@ type RequestUpdateBootstrap struct {
 
 func (x *RequestUpdateBootstrap) Reset() {
 	*x = RequestUpdateBootstrap{}
-	mi := &file_client_request_proto_msgTypes[3]
+	mi := &file_client_request_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -458,7 +582,7 @@ func (x *RequestUpdateBootstrap) String() string {
 func (*RequestUpdateBootstrap) ProtoMessage() {}
 
 func (x *RequestUpdateBootstrap) ProtoReflect() protoreflect.Message {
-	mi := &file_client_request_proto_msgTypes[3]
+	mi := &file_client_request_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -471,7 +595,7 @@ func (x *RequestUpdateBootstrap) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestUpdateBootstrap.ProtoReflect.Descriptor instead.
 func (*RequestUpdateBootstrap) Descriptor() ([]byte, []int) {
-	return file_client_request_proto_rawDescGZIP(), []int{3}
+	return file_client_request_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *RequestUpdateBootstrap) GetName() string {
@@ -516,7 +640,7 @@ type RequestUpgradeListener struct {
 
 func (x *RequestUpgradeListener) Reset() {
 	*x = RequestUpgradeListener{}
-	mi := &file_client_request_proto_msgTypes[4]
+	mi := &file_client_request_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -528,7 +652,7 @@ func (x *RequestUpgradeListener) String() string {
 func (*RequestUpgradeListener) ProtoMessage() {}
 
 func (x *RequestUpgradeListener) ProtoReflect() protoreflect.Message {
-	mi := &file_client_request_proto_msgTypes[4]
+	mi := &file_client_request_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -541,7 +665,7 @@ func (x *RequestUpgradeListener) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestUpgradeListener.ProtoReflect.Descriptor instead.
 func (*RequestUpgradeListener) Descriptor() ([]byte, []int) {
-	return file_client_request_proto_rawDescGZIP(), []int{4}
+	return file_client_request_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *RequestUpgradeListener) GetName() string {
@@ -600,7 +724,7 @@ type RequestEnvoyAdmin struct {
 
 func (x *RequestEnvoyAdmin) Reset() {
 	*x = RequestEnvoyAdmin{}
-	mi := &file_client_request_proto_msgTypes[5]
+	mi := &file_client_request_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -612,7 +736,7 @@ func (x *RequestEnvoyAdmin) String() string {
 func (*RequestEnvoyAdmin) ProtoMessage() {}
 
 func (x *RequestEnvoyAdmin) ProtoReflect() protoreflect.Message {
-	mi := &file_client_request_proto_msgTypes[5]
+	mi := &file_client_request_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -625,7 +749,7 @@ func (x *RequestEnvoyAdmin) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestEnvoyAdmin.ProtoReflect.Descriptor instead.
 func (*RequestEnvoyAdmin) Descriptor() ([]byte, []int) {
-	return file_client_request_proto_rawDescGZIP(), []int{5}
+	return file_client_request_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *RequestEnvoyAdmin) GetName() string {
@@ -679,7 +803,7 @@ type RequestGeneralLog struct {
 
 func (x *RequestGeneralLog) Reset() {
 	*x = RequestGeneralLog{}
-	mi := &file_client_request_proto_msgTypes[6]
+	mi := &file_client_request_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -691,7 +815,7 @@ func (x *RequestGeneralLog) String() string {
 func (*RequestGeneralLog) ProtoMessage() {}
 
 func (x *RequestGeneralLog) ProtoReflect() protoreflect.Message {
-	mi := &file_client_request_proto_msgTypes[6]
+	mi := &file_client_request_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -704,7 +828,7 @@ func (x *RequestGeneralLog) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestGeneralLog.ProtoReflect.Descriptor instead.
 func (*RequestGeneralLog) Descriptor() ([]byte, []int) {
-	return file_client_request_proto_rawDescGZIP(), []int{6}
+	return file_client_request_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RequestGeneralLog) GetCount() uint32 {
@@ -722,7 +846,7 @@ type RequestClientStats struct {
 
 func (x *RequestClientStats) Reset() {
 	*x = RequestClientStats{}
-	mi := &file_client_request_proto_msgTypes[7]
+	mi := &file_client_request_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -734,7 +858,7 @@ func (x *RequestClientStats) String() string {
 func (*RequestClientStats) ProtoMessage() {}
 
 func (x *RequestClientStats) ProtoReflect() protoreflect.Message {
-	mi := &file_client_request_proto_msgTypes[7]
+	mi := &file_client_request_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -747,7 +871,7 @@ func (x *RequestClientStats) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestClientStats.ProtoReflect.Descriptor instead.
 func (*RequestClientStats) Descriptor() ([]byte, []int) {
-	return file_client_request_proto_rawDescGZIP(), []int{7}
+	return file_client_request_proto_rawDescGZIP(), []int{8}
 }
 
 // Network management requests
@@ -769,7 +893,7 @@ type RequestNetwork struct {
 
 func (x *RequestNetwork) Reset() {
 	*x = RequestNetwork{}
-	mi := &file_client_request_proto_msgTypes[8]
+	mi := &file_client_request_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -781,7 +905,7 @@ func (x *RequestNetwork) String() string {
 func (*RequestNetwork) ProtoMessage() {}
 
 func (x *RequestNetwork) ProtoReflect() protoreflect.Message {
-	mi := &file_client_request_proto_msgTypes[8]
+	mi := &file_client_request_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -794,7 +918,7 @@ func (x *RequestNetwork) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestNetwork.ProtoReflect.Descriptor instead.
 func (*RequestNetwork) Descriptor() ([]byte, []int) {
-	return file_client_request_proto_rawDescGZIP(), []int{8}
+	return file_client_request_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *RequestNetwork) GetNetplanConfig() *NetplanConfig {
@@ -842,7 +966,7 @@ type RequestFrr struct {
 
 func (x *RequestFrr) Reset() {
 	*x = RequestFrr{}
-	mi := &file_client_request_proto_msgTypes[9]
+	mi := &file_client_request_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -854,7 +978,7 @@ func (x *RequestFrr) String() string {
 func (*RequestFrr) ProtoMessage() {}
 
 func (x *RequestFrr) ProtoReflect() protoreflect.Message {
-	mi := &file_client_request_proto_msgTypes[9]
+	mi := &file_client_request_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -867,7 +991,7 @@ func (x *RequestFrr) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestFrr.ProtoReflect.Descriptor instead.
 func (*RequestFrr) Descriptor() ([]byte, []int) {
-	return file_client_request_proto_rawDescGZIP(), []int{9}
+	return file_client_request_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *RequestFrr) GetProtocol() FrrProtocolType {
@@ -895,7 +1019,7 @@ type RequestEnvoyVersion struct {
 
 func (x *RequestEnvoyVersion) Reset() {
 	*x = RequestEnvoyVersion{}
-	mi := &file_client_request_proto_msgTypes[10]
+	mi := &file_client_request_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -907,7 +1031,7 @@ func (x *RequestEnvoyVersion) String() string {
 func (*RequestEnvoyVersion) ProtoMessage() {}
 
 func (x *RequestEnvoyVersion) ProtoReflect() protoreflect.Message {
-	mi := &file_client_request_proto_msgTypes[10]
+	mi := &file_client_request_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -920,7 +1044,7 @@ func (x *RequestEnvoyVersion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestEnvoyVersion.ProtoReflect.Descriptor instead.
 func (*RequestEnvoyVersion) Descriptor() ([]byte, []int) {
-	return file_client_request_proto_rawDescGZIP(), []int{10}
+	return file_client_request_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *RequestEnvoyVersion) GetOperation() VersionOperation {
@@ -955,7 +1079,7 @@ type RequestWafVersion struct {
 
 func (x *RequestWafVersion) Reset() {
 	*x = RequestWafVersion{}
-	mi := &file_client_request_proto_msgTypes[11]
+	mi := &file_client_request_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -967,7 +1091,7 @@ func (x *RequestWafVersion) String() string {
 func (*RequestWafVersion) ProtoMessage() {}
 
 func (x *RequestWafVersion) ProtoReflect() protoreflect.Message {
-	mi := &file_client_request_proto_msgTypes[11]
+	mi := &file_client_request_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -980,7 +1104,7 @@ func (x *RequestWafVersion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestWafVersion.ProtoReflect.Descriptor instead.
 func (*RequestWafVersion) Descriptor() ([]byte, []int) {
-	return file_client_request_proto_rawDescGZIP(), []int{11}
+	return file_client_request_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *RequestWafVersion) GetOperation() VersionOperation {
@@ -1016,7 +1140,7 @@ type RequestFilebeat struct {
 
 func (x *RequestFilebeat) Reset() {
 	*x = RequestFilebeat{}
-	mi := &file_client_request_proto_msgTypes[12]
+	mi := &file_client_request_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1028,7 +1152,7 @@ func (x *RequestFilebeat) String() string {
 func (*RequestFilebeat) ProtoMessage() {}
 
 func (x *RequestFilebeat) ProtoReflect() protoreflect.Message {
-	mi := &file_client_request_proto_msgTypes[12]
+	mi := &file_client_request_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1041,7 +1165,7 @@ func (x *RequestFilebeat) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestFilebeat.ProtoReflect.Descriptor instead.
 func (*RequestFilebeat) Descriptor() ([]byte, []int) {
-	return file_client_request_proto_rawDescGZIP(), []int{12}
+	return file_client_request_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *RequestFilebeat) GetInputs() []*FilebeatInput {
@@ -1081,7 +1205,7 @@ type RequestRsyslog struct {
 
 func (x *RequestRsyslog) Reset() {
 	*x = RequestRsyslog{}
-	mi := &file_client_request_proto_msgTypes[13]
+	mi := &file_client_request_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1093,7 +1217,7 @@ func (x *RequestRsyslog) String() string {
 func (*RequestRsyslog) ProtoMessage() {}
 
 func (x *RequestRsyslog) ProtoReflect() protoreflect.Message {
-	mi := &file_client_request_proto_msgTypes[13]
+	mi := &file_client_request_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1106,7 +1230,7 @@ func (x *RequestRsyslog) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestRsyslog.ProtoReflect.Descriptor instead.
 func (*RequestRsyslog) Descriptor() ([]byte, []int) {
-	return file_client_request_proto_rawDescGZIP(), []int{13}
+	return file_client_request_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *RequestRsyslog) GetRsyslogConfig() *RsyslogConfig {
@@ -1128,7 +1252,7 @@ type RequestShield struct {
 
 func (x *RequestShield) Reset() {
 	*x = RequestShield{}
-	mi := &file_client_request_proto_msgTypes[14]
+	mi := &file_client_request_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1140,7 +1264,7 @@ func (x *RequestShield) String() string {
 func (*RequestShield) ProtoMessage() {}
 
 func (x *RequestShield) ProtoReflect() protoreflect.Message {
-	mi := &file_client_request_proto_msgTypes[14]
+	mi := &file_client_request_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1153,7 +1277,7 @@ func (x *RequestShield) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestShield.ProtoReflect.Descriptor instead.
 func (*RequestShield) Descriptor() ([]byte, []int) {
-	return file_client_request_proto_rawDescGZIP(), []int{14}
+	return file_client_request_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *RequestShield) GetConfig() *ShieldConfig {
@@ -1175,7 +1299,7 @@ type RequestAIGateway struct {
 
 func (x *RequestAIGateway) Reset() {
 	*x = RequestAIGateway{}
-	mi := &file_client_request_proto_msgTypes[15]
+	mi := &file_client_request_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1187,7 +1311,7 @@ func (x *RequestAIGateway) String() string {
 func (*RequestAIGateway) ProtoMessage() {}
 
 func (x *RequestAIGateway) ProtoReflect() protoreflect.Message {
-	mi := &file_client_request_proto_msgTypes[15]
+	mi := &file_client_request_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1200,7 +1324,7 @@ func (x *RequestAIGateway) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestAIGateway.ProtoReflect.Descriptor instead.
 func (*RequestAIGateway) Descriptor() ([]byte, []int) {
-	return file_client_request_proto_rawDescGZIP(), []int{15}
+	return file_client_request_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *RequestAIGateway) GetConfig() *AIGatewayConfig {
@@ -1225,7 +1349,7 @@ type RequestAppliance struct {
 
 func (x *RequestAppliance) Reset() {
 	*x = RequestAppliance{}
-	mi := &file_client_request_proto_msgTypes[16]
+	mi := &file_client_request_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1237,7 +1361,7 @@ func (x *RequestAppliance) String() string {
 func (*RequestAppliance) ProtoMessage() {}
 
 func (x *RequestAppliance) ProtoReflect() protoreflect.Message {
-	mi := &file_client_request_proto_msgTypes[16]
+	mi := &file_client_request_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1250,7 +1374,7 @@ func (x *RequestAppliance) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestAppliance.ProtoReflect.Descriptor instead.
 func (*RequestAppliance) Descriptor() ([]byte, []int) {
-	return file_client_request_proto_rawDescGZIP(), []int{16}
+	return file_client_request_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *RequestAppliance) GetKind() ApplianceArtifactKind {
@@ -1307,7 +1431,7 @@ const file_client_request_proto_rawDesc = "" +
 	"\x12downstream_address\x18\x03 \x01(\tR\x11downstreamAddress\x12!\n" +
 	"\finterface_id\x18\x04 \x01(\tR\vinterfaceId\x12\x17\n" +
 	"\aip_mode\x18\x05 \x01(\tR\x06ipMode\x12\x18\n" +
-	"\aversion\x18\x06 \x01(\tR\aversion\"\xca\x01\n" +
+	"\aversion\x18\x06 \x01(\tR\aversion\"\xc4\x03\n" +
 	"\x0eRequestService\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04port\x18\x02 \x01(\rR\x04port\x12\x14\n" +
@@ -1317,7 +1441,19 @@ const file_client_request_proto_rawDesc = "" +
 	"\n" +
 	"components\x18\x06 \x03(\tR\n" +
 	"components\x12*\n" +
-	"\blog_type\x18\a \x01(\x0e2\x0f.client.LogTypeR\alogType\"x\n" +
+	"\blog_type\x18\a \x01(\x0e2\x0f.client.LogTypeR\alogType\x12\"\n" +
+	"\rsince_unix_ms\x18\b \x01(\x03R\vsinceUnixMs\x12\"\n" +
+	"\runtil_unix_ms\x18\t \x01(\x03R\vuntilUnixMs\x12\x16\n" +
+	"\x06offset\x18\n" +
+	" \x01(\rR\x06offset\x12\x14\n" +
+	"\x05limit\x18\v \x01(\rR\x05limit\x122\n" +
+	"\x15histogram_interval_ms\x18\f \x01(\x03R\x13histogramIntervalMs\x12+\n" +
+	"\afilters\x18\r \x03(\v2\x11.client.LogFilterR\afilters\x12!\n" +
+	"\fsearch_terms\x18\x0e \x03(\tR\vsearchTerms\"G\n" +
+	"\tLogFilter\x12\x14\n" +
+	"\x05field\x18\x01 \x01(\tR\x05field\x12\x0e\n" +
+	"\x02op\x18\x02 \x01(\tR\x02op\x12\x14\n" +
+	"\x05value\x18\x03 \x01(\tR\x05value\"x\n" +
 	"\x16RequestUpdateBootstrap\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04port\x18\x02 \x01(\rR\x04port\x12\x1c\n" +
@@ -1406,7 +1542,7 @@ func file_client_request_proto_rawDescGZIP() []byte {
 }
 
 var file_client_request_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_client_request_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_client_request_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_client_request_proto_goTypes = []any{
 	(LogType)(0),                   // 0: client.LogType
 	(HttpMethod)(0),                // 1: client.HttpMethod
@@ -1414,63 +1550,65 @@ var file_client_request_proto_goTypes = []any{
 	(*RequestDeploy)(nil),          // 3: client.RequestDeploy
 	(*RequestUnDeploy)(nil),        // 4: client.RequestUnDeploy
 	(*RequestService)(nil),         // 5: client.RequestService
-	(*RequestUpdateBootstrap)(nil), // 6: client.RequestUpdateBootstrap
-	(*RequestUpgradeListener)(nil), // 7: client.RequestUpgradeListener
-	(*RequestEnvoyAdmin)(nil),      // 8: client.RequestEnvoyAdmin
-	(*RequestGeneralLog)(nil),      // 9: client.RequestGeneralLog
-	(*RequestClientStats)(nil),     // 10: client.RequestClientStats
-	(*RequestNetwork)(nil),         // 11: client.RequestNetwork
-	(*RequestFrr)(nil),             // 12: client.RequestFrr
-	(*RequestEnvoyVersion)(nil),    // 13: client.RequestEnvoyVersion
-	(*RequestWafVersion)(nil),      // 14: client.RequestWafVersion
-	(*RequestFilebeat)(nil),        // 15: client.RequestFilebeat
-	(*RequestRsyslog)(nil),         // 16: client.RequestRsyslog
-	(*RequestShield)(nil),          // 17: client.RequestShield
-	(*RequestAIGateway)(nil),       // 18: client.RequestAIGateway
-	(*RequestAppliance)(nil),       // 19: client.RequestAppliance
-	nil,                            // 20: client.RequestEnvoyAdmin.QueriesEntry
-	(*NetplanConfig)(nil),          // 21: client.NetplanConfig
-	(*RouteOperation)(nil),         // 22: client.RouteOperation
-	(*RoutingPolicyOperation)(nil), // 23: client.RoutingPolicyOperation
-	(*RoutingTableDefinition)(nil), // 24: client.RoutingTableDefinition
-	(*TableOperation)(nil),         // 25: client.TableOperation
-	(FrrProtocolType)(0),           // 26: client.FrrProtocolType
-	(*RequestBgp)(nil),             // 27: client.RequestBgp
-	(*FilebeatInput)(nil),          // 28: client.FilebeatInput
-	(*TimestampProcessor)(nil),     // 29: client.TimestampProcessor
-	(*DropFieldsProcessor)(nil),    // 30: client.DropFieldsProcessor
-	(*FilebeatOutput)(nil),         // 31: client.FilebeatOutput
-	(*RsyslogConfig)(nil),          // 32: client.RsyslogConfig
-	(*ShieldConfig)(nil),           // 33: client.ShieldConfig
-	(*AIGatewayConfig)(nil),        // 34: client.AIGatewayConfig
-	(ApplianceArtifactKind)(0),     // 35: client.ApplianceArtifactKind
+	(*LogFilter)(nil),              // 6: client.LogFilter
+	(*RequestUpdateBootstrap)(nil), // 7: client.RequestUpdateBootstrap
+	(*RequestUpgradeListener)(nil), // 8: client.RequestUpgradeListener
+	(*RequestEnvoyAdmin)(nil),      // 9: client.RequestEnvoyAdmin
+	(*RequestGeneralLog)(nil),      // 10: client.RequestGeneralLog
+	(*RequestClientStats)(nil),     // 11: client.RequestClientStats
+	(*RequestNetwork)(nil),         // 12: client.RequestNetwork
+	(*RequestFrr)(nil),             // 13: client.RequestFrr
+	(*RequestEnvoyVersion)(nil),    // 14: client.RequestEnvoyVersion
+	(*RequestWafVersion)(nil),      // 15: client.RequestWafVersion
+	(*RequestFilebeat)(nil),        // 16: client.RequestFilebeat
+	(*RequestRsyslog)(nil),         // 17: client.RequestRsyslog
+	(*RequestShield)(nil),          // 18: client.RequestShield
+	(*RequestAIGateway)(nil),       // 19: client.RequestAIGateway
+	(*RequestAppliance)(nil),       // 20: client.RequestAppliance
+	nil,                            // 21: client.RequestEnvoyAdmin.QueriesEntry
+	(*NetplanConfig)(nil),          // 22: client.NetplanConfig
+	(*RouteOperation)(nil),         // 23: client.RouteOperation
+	(*RoutingPolicyOperation)(nil), // 24: client.RoutingPolicyOperation
+	(*RoutingTableDefinition)(nil), // 25: client.RoutingTableDefinition
+	(*TableOperation)(nil),         // 26: client.TableOperation
+	(FrrProtocolType)(0),           // 27: client.FrrProtocolType
+	(*RequestBgp)(nil),             // 28: client.RequestBgp
+	(*FilebeatInput)(nil),          // 29: client.FilebeatInput
+	(*TimestampProcessor)(nil),     // 30: client.TimestampProcessor
+	(*DropFieldsProcessor)(nil),    // 31: client.DropFieldsProcessor
+	(*FilebeatOutput)(nil),         // 32: client.FilebeatOutput
+	(*RsyslogConfig)(nil),          // 33: client.RsyslogConfig
+	(*ShieldConfig)(nil),           // 34: client.ShieldConfig
+	(*AIGatewayConfig)(nil),        // 35: client.AIGatewayConfig
+	(ApplianceArtifactKind)(0),     // 36: client.ApplianceArtifactKind
 }
 var file_client_request_proto_depIdxs = []int32{
 	0,  // 0: client.RequestService.log_type:type_name -> client.LogType
-	1,  // 1: client.RequestEnvoyAdmin.method:type_name -> client.HttpMethod
-	20, // 2: client.RequestEnvoyAdmin.queries:type_name -> client.RequestEnvoyAdmin.QueriesEntry
-	21, // 3: client.RequestNetwork.netplan_config:type_name -> client.NetplanConfig
-	22, // 4: client.RequestNetwork.route_operations:type_name -> client.RouteOperation
-	23, // 5: client.RequestNetwork.policy_operations:type_name -> client.RoutingPolicyOperation
-	24, // 6: client.RequestNetwork.routing_tables:type_name -> client.RoutingTableDefinition
-	25, // 7: client.RequestNetwork.table_operations:type_name -> client.TableOperation
-	26, // 8: client.RequestFrr.protocol:type_name -> client.FrrProtocolType
-	27, // 9: client.RequestFrr.bgp:type_name -> client.RequestBgp
-	2,  // 10: client.RequestEnvoyVersion.operation:type_name -> client.VersionOperation
-	2,  // 11: client.RequestWafVersion.operation:type_name -> client.VersionOperation
-	28, // 12: client.RequestFilebeat.inputs:type_name -> client.FilebeatInput
-	29, // 13: client.RequestFilebeat.timestamp_processor:type_name -> client.TimestampProcessor
-	30, // 14: client.RequestFilebeat.drop_fields_processor:type_name -> client.DropFieldsProcessor
-	31, // 15: client.RequestFilebeat.filebeat_output:type_name -> client.FilebeatOutput
-	32, // 16: client.RequestRsyslog.rsyslog_config:type_name -> client.RsyslogConfig
-	33, // 17: client.RequestShield.config:type_name -> client.ShieldConfig
-	34, // 18: client.RequestAIGateway.config:type_name -> client.AIGatewayConfig
-	35, // 19: client.RequestAppliance.kind:type_name -> client.ApplianceArtifactKind
-	20, // [20:20] is the sub-list for method output_type
-	20, // [20:20] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	6,  // 1: client.RequestService.filters:type_name -> client.LogFilter
+	1,  // 2: client.RequestEnvoyAdmin.method:type_name -> client.HttpMethod
+	21, // 3: client.RequestEnvoyAdmin.queries:type_name -> client.RequestEnvoyAdmin.QueriesEntry
+	22, // 4: client.RequestNetwork.netplan_config:type_name -> client.NetplanConfig
+	23, // 5: client.RequestNetwork.route_operations:type_name -> client.RouteOperation
+	24, // 6: client.RequestNetwork.policy_operations:type_name -> client.RoutingPolicyOperation
+	25, // 7: client.RequestNetwork.routing_tables:type_name -> client.RoutingTableDefinition
+	26, // 8: client.RequestNetwork.table_operations:type_name -> client.TableOperation
+	27, // 9: client.RequestFrr.protocol:type_name -> client.FrrProtocolType
+	28, // 10: client.RequestFrr.bgp:type_name -> client.RequestBgp
+	2,  // 11: client.RequestEnvoyVersion.operation:type_name -> client.VersionOperation
+	2,  // 12: client.RequestWafVersion.operation:type_name -> client.VersionOperation
+	29, // 13: client.RequestFilebeat.inputs:type_name -> client.FilebeatInput
+	30, // 14: client.RequestFilebeat.timestamp_processor:type_name -> client.TimestampProcessor
+	31, // 15: client.RequestFilebeat.drop_fields_processor:type_name -> client.DropFieldsProcessor
+	32, // 16: client.RequestFilebeat.filebeat_output:type_name -> client.FilebeatOutput
+	33, // 17: client.RequestRsyslog.rsyslog_config:type_name -> client.RsyslogConfig
+	34, // 18: client.RequestShield.config:type_name -> client.ShieldConfig
+	35, // 19: client.RequestAIGateway.config:type_name -> client.AIGatewayConfig
+	36, // 20: client.RequestAppliance.kind:type_name -> client.ApplianceArtifactKind
+	21, // [21:21] is the sub-list for method output_type
+	21, // [21:21] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_client_request_proto_init() }
@@ -1491,7 +1629,7 @@ func file_client_request_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_client_request_proto_rawDesc), len(file_client_request_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   18,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

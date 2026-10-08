@@ -46,6 +46,27 @@ message RequestService {
   repeated string levels = 5;
   repeated string components = 6;
   LogType log_type = 7;
+  // Time range + pagination (v1.0.3). An agent that predates them answers with
+  // the newest `count` lines and leaves ResponseService.range_supported unset.
+  int64 since_unix_ms = 8;          // inclusive; 0 = unbounded
+  int64 until_unix_ms = 9;          // inclusive; 0 = now
+  uint32 offset = 10;               // newest-first offset into the matching entries
+  uint32 limit = 11;                // page size (the agent clamps it to 1000)
+  int64 histogram_interval_ms = 12; // bucket width of ResponseService.buckets; 0 = none
+  repeated LogFilter filters = 13;  // all must match
+  repeated string search_terms = 14; // all must occur (case-insensitive) in the raw entry
+}
+
+// LogFilter matches one normalised field of a service log entry.
+// field: level, component, source, message, status, method, path, protocol,
+// authority, upstream_cluster, upstream_host, response_flags, route_name,
+// user_agent, request_id, duration, bytes_sent.
+// op: eq, neq, contains, not_contains, gte, lte (gte/lte numeric). For status,
+// eq/neq also accept a class ("5xx").
+message LogFilter {
+  string field = 1;
+  string op = 2;
+  string value = 3;
 }
 
 message RequestUpdateBootstrap {
