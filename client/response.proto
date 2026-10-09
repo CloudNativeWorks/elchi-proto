@@ -57,6 +57,15 @@ message ResponseService {
   bool truncated = 6;              // a scan budget stopped the scan before `since`
   int64 scanned_from_unix_ms = 7;  // oldest entry time the scan reached
   repeated LogBucket buckets = 8;  // newest first; only when histogram_interval_ms > 0
+  // The listener's live File Access Log formats for its _access.log (v1.0.4),
+  // read from the proxy's config. Empty when the agent could not read them.
+  repeated AccessLogFormat access_formats = 9;
+}
+
+message AccessLogFormat {
+  string kind = 1;            // "text" | "json" | "default" (no log_format: Envoy's default)
+  string format = 2;          // the text format, or json_format as JSON
+  repeated string fields = 3; // normalised fields it logs: status, method, path, duration, request_id, ...
 }
 
 message LogBucket {
@@ -107,6 +116,8 @@ message ResponseEnvoyAdmin {
   int32 status_code = 1;
   string body = 2;
   map<string, string> headers = 3;
+  // /logging (v1.0.4): when a pending revert restores the previous levels; 0 = none.
+  int64 logging_revert_at_unix_ms = 4;
 }
 
 message GeneralLogs {

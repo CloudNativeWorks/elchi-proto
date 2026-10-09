@@ -55,6 +55,7 @@ message RequestService {
   int64 histogram_interval_ms = 12; // bucket width of ResponseService.buckets; 0 = none
   repeated LogFilter filters = 13;  // all must match
   repeated string search_terms = 14; // all must occur (case-insensitive) in the raw entry
+  bool oldest_first = 15;           // page from the oldest match instead of the newest (v1.0.4)
 }
 
 // LogFilter matches one normalised field of a service log entry.
@@ -98,6 +99,10 @@ message RequestEnvoyAdmin {
   string path = 4;
   map<string, string> queries = 5;
   string body = 6;
+  // POST /logging only (v1.0.4): restore the levels the proxy had before this
+  // change after this many seconds; 0 keeps the change (and cancels a pending
+  // revert of this listener).
+  uint32 revert_after_seconds = 7;
 }
 
 message RequestGeneralLog { uint32 count = 1; }

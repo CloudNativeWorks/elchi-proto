@@ -360,6 +360,7 @@ type RequestService struct {
 	HistogramIntervalMs int64        `protobuf:"varint,12,opt,name=histogram_interval_ms,json=histogramIntervalMs,proto3" json:"histogram_interval_ms,omitempty"` // bucket width of ResponseService.buckets; 0 = none
 	Filters             []*LogFilter `protobuf:"bytes,13,rep,name=filters,proto3" json:"filters,omitempty"`                                                       // all must match
 	SearchTerms         []string     `protobuf:"bytes,14,rep,name=search_terms,json=searchTerms,proto3" json:"search_terms,omitempty"`                            // all must occur (case-insensitive) in the raw entry
+	OldestFirst         bool         `protobuf:"varint,15,opt,name=oldest_first,json=oldestFirst,proto3" json:"oldest_first,omitempty"`                           // page from the oldest match instead of the newest (v1.0.4)
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -490,6 +491,13 @@ func (x *RequestService) GetSearchTerms() []string {
 		return x.SearchTerms
 	}
 	return nil
+}
+
+func (x *RequestService) GetOldestFirst() bool {
+	if x != nil {
+		return x.OldestFirst
+	}
+	return false
 }
 
 // LogFilter matches one normalised field of a service log entry.
@@ -711,15 +719,19 @@ func (x *RequestUpgradeListener) GetDrainTimeSeconds() uint32 {
 }
 
 type RequestEnvoyAdmin struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Port          uint32                 `protobuf:"varint,2,opt,name=port,proto3" json:"port,omitempty"`
-	Method        HttpMethod             `protobuf:"varint,3,opt,name=method,proto3,enum=client.HttpMethod" json:"method,omitempty"`
-	Path          string                 `protobuf:"bytes,4,opt,name=path,proto3" json:"path,omitempty"`
-	Queries       map[string]string      `protobuf:"bytes,5,rep,name=queries,proto3" json:"queries,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Body          string                 `protobuf:"bytes,6,opt,name=body,proto3" json:"body,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Name    string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Port    uint32                 `protobuf:"varint,2,opt,name=port,proto3" json:"port,omitempty"`
+	Method  HttpMethod             `protobuf:"varint,3,opt,name=method,proto3,enum=client.HttpMethod" json:"method,omitempty"`
+	Path    string                 `protobuf:"bytes,4,opt,name=path,proto3" json:"path,omitempty"`
+	Queries map[string]string      `protobuf:"bytes,5,rep,name=queries,proto3" json:"queries,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Body    string                 `protobuf:"bytes,6,opt,name=body,proto3" json:"body,omitempty"`
+	// POST /logging only (v1.0.4): restore the levels the proxy had before this
+	// change after this many seconds; 0 keeps the change (and cancels a pending
+	// revert of this listener).
+	RevertAfterSeconds uint32 `protobuf:"varint,7,opt,name=revert_after_seconds,json=revertAfterSeconds,proto3" json:"revert_after_seconds,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *RequestEnvoyAdmin) Reset() {
@@ -792,6 +804,13 @@ func (x *RequestEnvoyAdmin) GetBody() string {
 		return x.Body
 	}
 	return ""
+}
+
+func (x *RequestEnvoyAdmin) GetRevertAfterSeconds() uint32 {
+	if x != nil {
+		return x.RevertAfterSeconds
+	}
+	return 0
 }
 
 type RequestGeneralLog struct {
@@ -1431,7 +1450,7 @@ const file_client_request_proto_rawDesc = "" +
 	"\x12downstream_address\x18\x03 \x01(\tR\x11downstreamAddress\x12!\n" +
 	"\finterface_id\x18\x04 \x01(\tR\vinterfaceId\x12\x17\n" +
 	"\aip_mode\x18\x05 \x01(\tR\x06ipMode\x12\x18\n" +
-	"\aversion\x18\x06 \x01(\tR\aversion\"\xc4\x03\n" +
+	"\aversion\x18\x06 \x01(\tR\aversion\"\xe7\x03\n" +
 	"\x0eRequestService\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04port\x18\x02 \x01(\rR\x04port\x12\x14\n" +
@@ -1449,7 +1468,8 @@ const file_client_request_proto_rawDesc = "" +
 	"\x05limit\x18\v \x01(\rR\x05limit\x122\n" +
 	"\x15histogram_interval_ms\x18\f \x01(\x03R\x13histogramIntervalMs\x12+\n" +
 	"\afilters\x18\r \x03(\v2\x11.client.LogFilterR\afilters\x12!\n" +
-	"\fsearch_terms\x18\x0e \x03(\tR\vsearchTerms\"G\n" +
+	"\fsearch_terms\x18\x0e \x03(\tR\vsearchTerms\x12!\n" +
+	"\foldest_first\x18\x0f \x01(\bR\voldestFirst\"G\n" +
 	"\tLogFilter\x12\x14\n" +
 	"\x05field\x18\x01 \x01(\tR\x05field\x12\x0e\n" +
 	"\x02op\x18\x02 \x01(\tR\x02op\x12\x14\n" +
@@ -1466,14 +1486,15 @@ const file_client_request_proto_rawDesc = "" +
 	"to_version\x18\x03 \x01(\tR\ttoVersion\x12\x12\n" +
 	"\x04port\x18\x04 \x01(\rR\x04port\x12\x1a\n" +
 	"\bgraceful\x18\x05 \x01(\bR\bgraceful\x12,\n" +
-	"\x12drain_time_seconds\x18\x06 \x01(\rR\x10drainTimeSeconds\"\x8d\x02\n" +
+	"\x12drain_time_seconds\x18\x06 \x01(\rR\x10drainTimeSeconds\"\xbf\x02\n" +
 	"\x11RequestEnvoyAdmin\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04port\x18\x02 \x01(\rR\x04port\x12*\n" +
 	"\x06method\x18\x03 \x01(\x0e2\x12.client.HttpMethodR\x06method\x12\x12\n" +
 	"\x04path\x18\x04 \x01(\tR\x04path\x12@\n" +
 	"\aqueries\x18\x05 \x03(\v2&.client.RequestEnvoyAdmin.QueriesEntryR\aqueries\x12\x12\n" +
-	"\x04body\x18\x06 \x01(\tR\x04body\x1a:\n" +
+	"\x04body\x18\x06 \x01(\tR\x04body\x120\n" +
+	"\x14revert_after_seconds\x18\a \x01(\rR\x12revertAfterSeconds\x1a:\n" +
 	"\fQueriesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\")\n" +
