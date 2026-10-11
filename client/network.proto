@@ -39,6 +39,35 @@ message RoutingPolicy {
   uint32 table = 3;                 // Routing table ID
   uint32 priority = 4;              // Rule priority (lower = higher priority)
   string interface = 5;             // Interface name for netplan (optional)
+  // "ipv4" | "ipv6". On add/delete/replace it decides a rule with neither
+  // from nor to ("from all"); "" is ipv4, as before. With an address the
+  // address decides, and a family that contradicts it is refused.
+  string family = 6;
+
+  // The rest is what the agent reports about a rule it lists
+  // (NetworkState.policies) and is ignored on add/delete/replace: selectors
+  // the agent never sets, so a rule carrying any of them is another
+  // program's (owner "external").
+  uint32 fwmark = 7;                // `fwmark` selector, 0 = none
+  uint32 fwmask = 8;                // its mask; 0xffffffff (or 0 with no fwmark) = whole mark
+  bool invert = 9;                  // `not`: the rule matches what its selectors do NOT
+  optional int32 suppress_prefixlength = 10; // set: routes this long or shorter are ignored in the table
+  string iif = 11;                  // `iif` selector (input interface)
+  string oif = 12;                  // `oif` selector (output interface)
+  // The rule as iproute2 prints it (`ip rule`), every selector included,
+  // e.g. "not from all fwmark 0x1bd00 lookup 7120".
+  string text = 13;
+  // Who put the rule there, as the agent sees it (NetworkState.policies only):
+  //   "ui"          — one of this agent's 99-elchi-policy-*.yaml files
+  //   "os"          — another netplan file (the OS, cloud-init, the
+  //                   operator): it comes back at every boot from there
+  //   "unpersisted" — only from/to/table/priority, but in no netplan file
+  //                   (a persist that failed, or `ip rule add` by hand)
+  //   "external"    — selectors the agent never sets (fwmark, not, iif, …), or
+  //                   no table lookup: another program's (a VPN, a CNI). The
+  //                   agent refuses to delete or replace it.
+  // "" from agents before 1.7.7.
+  string owner = 14;
 }
 
 // Routing table definition for system routing tables
