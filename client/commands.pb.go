@@ -56,30 +56,33 @@ const (
 	// APPLIANCE — the appliance OS itself (Elchi OS 0.5.0+): status, exports,
 	// compliance. The 90s are the appliance-OS group.
 	CommandType_APPLIANCE CommandType = 91
+	// 100s: HA group
+	CommandType_HA CommandType = 101
 )
 
 // Enum value maps for CommandType.
 var (
 	CommandType_name = map[int32]string{
-		0:  "UNKNOWN",
-		1:  "DEPLOY",
-		2:  "UNDEPLOY",
-		11: "UPDATE_BOOTSTRAP",
-		12: "UPGRADE_LISTENER",
-		21: "SERVICE",
-		31: "CLIENT_LOGS",
-		32: "CLIENT_STATS",
-		41: "PROXY",
-		51: "NETWORK",
-		61: "FRR",
-		62: "FRR_LOGS",
-		71: "ENVOY_VERSION",
-		81: "WAF_VERSION",
-		82: "FILEBEAT",
-		83: "RSYSLOG",
-		84: "SHIELD",
-		85: "AI_GATEWAY",
-		91: "APPLIANCE",
+		0:   "UNKNOWN",
+		1:   "DEPLOY",
+		2:   "UNDEPLOY",
+		11:  "UPDATE_BOOTSTRAP",
+		12:  "UPGRADE_LISTENER",
+		21:  "SERVICE",
+		31:  "CLIENT_LOGS",
+		32:  "CLIENT_STATS",
+		41:  "PROXY",
+		51:  "NETWORK",
+		61:  "FRR",
+		62:  "FRR_LOGS",
+		71:  "ENVOY_VERSION",
+		81:  "WAF_VERSION",
+		82:  "FILEBEAT",
+		83:  "RSYSLOG",
+		84:  "SHIELD",
+		85:  "AI_GATEWAY",
+		91:  "APPLIANCE",
+		101: "HA",
 	}
 	CommandType_value = map[string]int32{
 		"UNKNOWN":          0,
@@ -101,6 +104,7 @@ var (
 		"SHIELD":           84,
 		"AI_GATEWAY":       85,
 		"APPLIANCE":        91,
+		"HA":               101,
 	}
 )
 
@@ -135,7 +139,7 @@ var File_client_commands_proto protoreflect.FileDescriptor
 
 const file_client_commands_proto_rawDesc = "" +
 	"\n" +
-	"\x15client/commands.proto\x12\x06client*\xa9\x02\n" +
+	"\x15client/commands.proto\x12\x06client*\xb1\x02\n" +
 	"\vCommandType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\n" +
 	"\n" +
@@ -158,7 +162,8 @@ const file_client_commands_proto_rawDesc = "" +
 	"\x06SHIELD\x10T\x12\x0e\n" +
 	"\n" +
 	"AI_GATEWAY\x10U\x12\r\n" +
-	"\tAPPLIANCE\x10[B0Z.github.com/CloudNativeWorks/elchi-proto/clientb\x06proto3"
+	"\tAPPLIANCE\x10[\x12\x06\n" +
+	"\x02HA\x10eB0Z.github.com/CloudNativeWorks/elchi-proto/clientb\x06proto3"
 
 var (
 	file_client_commands_proto_rawDescOnce sync.Once

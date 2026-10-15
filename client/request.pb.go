@@ -175,6 +175,9 @@ type RequestDeploy struct {
 	Bootstrap         []byte                 `protobuf:"bytes,5,opt,name=bootstrap,proto3" json:"bootstrap,omitempty"`
 	InterfaceId       string                 `protobuf:"bytes,6,opt,name=interface_id,json=interfaceId,proto3" json:"interface_id,omitempty"`
 	IpMode            string                 `protobuf:"bytes,7,opt,name=ip_mode,json=ipMode,proto3" json:"ip_mode,omitempty"`
+	HaPair            bool                   `protobuf:"varint,8,opt,name=ha_pair,json=haPair,proto3" json:"ha_pair,omitempty"` // the client is an HA pair member: the VIP is elchi-ha's
+	HaPairId          string                 `protobuf:"bytes,9,opt,name=ha_pair_id,json=haPairId,proto3" json:"ha_pair_id,omitempty"`
+	HaPriority        uint32                 `protobuf:"varint,10,opt,name=ha_priority,json=haPriority,proto3" json:"ha_priority,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -258,6 +261,27 @@ func (x *RequestDeploy) GetIpMode() string {
 	return ""
 }
 
+func (x *RequestDeploy) GetHaPair() bool {
+	if x != nil {
+		return x.HaPair
+	}
+	return false
+}
+
+func (x *RequestDeploy) GetHaPairId() string {
+	if x != nil {
+		return x.HaPairId
+	}
+	return ""
+}
+
+func (x *RequestDeploy) GetHaPriority() uint32 {
+	if x != nil {
+		return x.HaPriority
+	}
+	return 0
+}
+
 type RequestUnDeploy struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	Name              string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -266,6 +290,7 @@ type RequestUnDeploy struct {
 	InterfaceId       string                 `protobuf:"bytes,4,opt,name=interface_id,json=interfaceId,proto3" json:"interface_id,omitempty"`
 	IpMode            string                 `protobuf:"bytes,5,opt,name=ip_mode,json=ipMode,proto3" json:"ip_mode,omitempty"`
 	Version           string                 `protobuf:"bytes,6,opt,name=version,proto3" json:"version,omitempty"`
+	HaPair            bool                   `protobuf:"varint,7,opt,name=ha_pair,json=haPair,proto3" json:"ha_pair,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -340,6 +365,13 @@ func (x *RequestUnDeploy) GetVersion() string {
 		return x.Version
 	}
 	return ""
+}
+
+func (x *RequestUnDeploy) GetHaPair() bool {
+	if x != nil {
+		return x.HaPair
+	}
+	return false
 }
 
 type RequestService struct {
@@ -1435,7 +1467,7 @@ var File_client_request_proto protoreflect.FileDescriptor
 
 const file_client_request_proto_rawDesc = "" +
 	"\n" +
-	"\x14client/request.proto\x12\x06client\x1a\x14client/network.proto\x1a\x10client/frr.proto\x1a\x15client/filebeat.proto\x1a\x14client/rsyslog.proto\x1a\x13client/shield.proto\x1a\x17client/ai_gateway.proto\x1a\x16client/appliance.proto\"\xda\x01\n" +
+	"\x14client/request.proto\x12\x06client\x1a\x14client/network.proto\x1a\x10client/frr.proto\x1a\x15client/filebeat.proto\x1a\x14client/rsyslog.proto\x1a\x13client/shield.proto\x1a\x17client/ai_gateway.proto\x1a\x16client/appliance.proto\"\xb2\x02\n" +
 	"\rRequestDeploy\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12-\n" +
 	"\x12downstream_address\x18\x02 \x01(\tR\x11downstreamAddress\x12\x12\n" +
@@ -1443,14 +1475,21 @@ const file_client_request_proto_rawDesc = "" +
 	"\aversion\x18\x04 \x01(\tR\aversion\x12\x1c\n" +
 	"\tbootstrap\x18\x05 \x01(\fR\tbootstrap\x12!\n" +
 	"\finterface_id\x18\x06 \x01(\tR\vinterfaceId\x12\x17\n" +
-	"\aip_mode\x18\a \x01(\tR\x06ipMode\"\xbe\x01\n" +
+	"\aip_mode\x18\a \x01(\tR\x06ipMode\x12\x17\n" +
+	"\aha_pair\x18\b \x01(\bR\x06haPair\x12\x1c\n" +
+	"\n" +
+	"ha_pair_id\x18\t \x01(\tR\bhaPairId\x12\x1f\n" +
+	"\vha_priority\x18\n" +
+	" \x01(\rR\n" +
+	"haPriority\"\xd7\x01\n" +
 	"\x0fRequestUnDeploy\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04port\x18\x02 \x01(\rR\x04port\x12-\n" +
 	"\x12downstream_address\x18\x03 \x01(\tR\x11downstreamAddress\x12!\n" +
 	"\finterface_id\x18\x04 \x01(\tR\vinterfaceId\x12\x17\n" +
 	"\aip_mode\x18\x05 \x01(\tR\x06ipMode\x12\x18\n" +
-	"\aversion\x18\x06 \x01(\tR\aversion\"\xe7\x03\n" +
+	"\aversion\x18\x06 \x01(\tR\aversion\x12\x17\n" +
+	"\aha_pair\x18\a \x01(\bR\x06haPair\"\xe7\x03\n" +
 	"\x0eRequestService\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04port\x18\x02 \x01(\rR\x04port\x12\x14\n" +

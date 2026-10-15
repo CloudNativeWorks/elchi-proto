@@ -70,6 +70,14 @@ const (
 	SubCommandType_DELETE_APPLIANCE_ARTIFACT SubCommandType = 46
 	SubCommandType_RUN_APPLIANCE_COMPLIANCE  SubCommandType = 47
 	SubCommandType_SUB_VIP_RESUME            SubCommandType = 48 // release a listener's held VIP announcement
+	// HA (CommandType HA; status is SUB_STATUS)
+	SubCommandType_HA_CONFIGURE       SubCommandType = 49
+	SubCommandType_HA_UNCONFIGURE     SubCommandType = 50
+	SubCommandType_SUB_HA_FAILOVER    SubCommandType = 51
+	SubCommandType_SUB_HA_MAINTENANCE SubCommandType = 52 // RequestHA.maintenance carries on/off
+	SubCommandType_SUB_HA_RESEND_GARP SubCommandType = 53
+	SubCommandType_SUB_HA_CLEAR       SubCommandType = 54 // clear flap suspension / ineligible
+	SubCommandType_SUB_HA_START_ALONE SubCommandType = 55 // skip the boot wait-for-peer
 )
 
 // Enum value maps for SubCommandType.
@@ -111,6 +119,13 @@ var (
 		46: "DELETE_APPLIANCE_ARTIFACT",
 		47: "RUN_APPLIANCE_COMPLIANCE",
 		48: "SUB_VIP_RESUME",
+		49: "HA_CONFIGURE",
+		50: "HA_UNCONFIGURE",
+		51: "SUB_HA_FAILOVER",
+		52: "SUB_HA_MAINTENANCE",
+		53: "SUB_HA_RESEND_GARP",
+		54: "SUB_HA_CLEAR",
+		55: "SUB_HA_START_ALONE",
 	}
 	SubCommandType_value = map[string]int32{
 		"SUB_UNKNOWN":               0,
@@ -149,6 +164,13 @@ var (
 		"DELETE_APPLIANCE_ARTIFACT": 46,
 		"RUN_APPLIANCE_COMPLIANCE":  47,
 		"SUB_VIP_RESUME":            48,
+		"HA_CONFIGURE":              49,
+		"HA_UNCONFIGURE":            50,
+		"SUB_HA_FAILOVER":           51,
+		"SUB_HA_MAINTENANCE":        52,
+		"SUB_HA_RESEND_GARP":        53,
+		"SUB_HA_CLEAR":              54,
+		"SUB_HA_START_ALONE":        55,
 	}
 )
 
@@ -183,7 +205,7 @@ var File_client_subcommands_proto protoreflect.FileDescriptor
 
 const file_client_subcommands_proto_rawDesc = "" +
 	"\n" +
-	"\x18client/subcommands.proto\x12\x06client*\xd7\x06\n" +
+	"\x18client/subcommands.proto\x12\x06client*\xec\a\n" +
 	"\x0eSubCommandType\x12\x0f\n" +
 	"\vSUB_UNKNOWN\x10\x00\x12\r\n" +
 	"\tSUB_START\x10\x01\x12\f\n" +
@@ -222,7 +244,14 @@ const file_client_subcommands_proto_rawDesc = "" +
 	"\x18FETCH_APPLIANCE_ARTIFACT\x10-\x12\x1d\n" +
 	"\x19DELETE_APPLIANCE_ARTIFACT\x10.\x12\x1c\n" +
 	"\x18RUN_APPLIANCE_COMPLIANCE\x10/\x12\x12\n" +
-	"\x0eSUB_VIP_RESUME\x100B0Z.github.com/CloudNativeWorks/elchi-proto/clientb\x06proto3"
+	"\x0eSUB_VIP_RESUME\x100\x12\x10\n" +
+	"\fHA_CONFIGURE\x101\x12\x12\n" +
+	"\x0eHA_UNCONFIGURE\x102\x12\x13\n" +
+	"\x0fSUB_HA_FAILOVER\x103\x12\x16\n" +
+	"\x12SUB_HA_MAINTENANCE\x104\x12\x16\n" +
+	"\x12SUB_HA_RESEND_GARP\x105\x12\x10\n" +
+	"\fSUB_HA_CLEAR\x106\x12\x16\n" +
+	"\x12SUB_HA_START_ALONE\x107B0Z.github.com/CloudNativeWorks/elchi-proto/clientb\x06proto3"
 
 var (
 	file_client_subcommands_proto_rawDescOnce sync.Once

@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package client;
+
+option go_package = "github.com/CloudNativeWorks/elchi-proto/client";
+
+// HA pair: two clients of one project (one while it waits for its peer, or
+// after a member was lost) that carry the same services on the same VIP.
+// Only the ACTIVE member holds the VIP's /32; the STANDBY runs the same
+// Envoys warm (bound with ip_nonlocal_bind) without the address. The choice
+// is made on the boxes by the elchi-ha daemon (`elchi-client ha`), not by
+// the control plane: the control plane only configures the pair (HA command
+// family, written by the agent to /var/lib/elchi/ha/pair.json) and reads the
+// daemon's state back (PingRequest.ha_state, HA SUB_STATUS).
+//
+// Commands (CommandType HA):
+//   HA_CONFIGURE       — RequestHA.configure: write pair.json, start/reload elchi-ha
+//   HA_UNCONFIGURE     — leave the pair (hand over first when ACTIVE and the peer is ready)
+//   SUB_HA_FAILOVER    — planned handover from the ACTIVE member (force skips the pre-checks)
+//   SUB_HA_MAINTENANCE — RequestHA.maintenance on/off
+//   SUB_HA_RESEND_GARP — announce the held VIPs again
+//   SUB_HA_CLEAR       — clear a flap suspension / ineligible mark
+//   SUB_HA_START_ALONE — skip the boot wait-for-peer
+//   SUB_STATUS         — ResponseHA.state only
+// An agent without HA support answers "unsupported command type".
+
+message HaMember {
+  string client_id = 1;
+  string name = 2;
+  uint32 priority = 3;        // higher wins the start-up election (200 / 100)
+  string data_addr = 4;       // IPv4 the heartbeat and the data-plane probe use
+  string mgmt_addr = 5;       // IPv4 of the second heartbeat path ("" = data only)
+  string data_prefix = 6;     // CIDR of data_addr (L2 subnet the VIPs must be on)
+}
+
+message HaConfigure {
+  string pair_id = 1;
+  string pair_name = 2;
+  int64 config_rev = 3;
+  string my_id = 4;                       // the receiving member's client_id
+  repeated HaMember members = 5;          // 2; 1 for a pair without its peer
+  string secret = 6;                      // base64, 32 bytes, HMAC key of the heartbeat
+  uint32 hb_port = 7;                     // 8650
+  uint32 hb_interval_ms = 8;              // 250
+  uint32 hb_misses = 9;                   // 3
+  bool preempt = 10;                      // false (v1)
+  bool delegate = 11;                     // false (v1)
+  string secret_prev = 12;                // previous key while a rotation is in progress
+  repeated string fence_targets = 13;     // empty: fencing off
+  string fence_mode = 14;                 // "" (carrier-loss only) | "strict"
+}
+
+message RequestHA {
+  HaConfigure configure = 1;   // HA_CONFIGURE
+  bool maintenance = 2;        // SUB_HA_MAINTENANCE: on/off
+  bool force = 3;              // skip planned-handover pre-checks
+}
+
+// One heartbeat path (data, mgmt) as the member sees it.
+message HaPath {
+  string name = 1;
+  bool ok = 2;
+  string last_ok = 3;          // RFC 3339
+}
+
+// A managed VIP (one deployed listener) on the member.
+message HaVip {
+  string vip = 1;
+  uint32 admin_port = 2;
+  string unit = 3;
+  bool present = 4;            // the /32 is on the interface
+  bool healthy = 5;            // unit active, Envoy LIVE/ready, listeners bound
+  bool held = 6;               // viphold: announcement held after crashes
+  string holder = 7;           // self | peer | none | conflict
+  string snapshot_version = 8; // the listener's config version this Envoy runs
+  bool ready = 9;              // could take the VIP now (standby: warm and bound)
+}
+
+message HaState {
+  string pair_id = 1;
+  string role = 2;              // init | active | standby | maintenance | fenced | unpaired
+  uint64 epoch = 3;
+  int64 config_rev = 4;         // config_rev of the pair.json in force
+  string since = 5;             // RFC 3339
+  string reason = 6;
+  string daemon = 7;            // running | absent | stale | misconfigured
+  string peer_role = 8;
+  bool peer_ok = 9;
+  repeated HaPath paths = 10;
+  string peer_dataplane = 11;   // up | down | unknown
+  bool gateway_reachable = 12;
+  bool maintenance = 13;
+  repeated HaVip vips = 14;
+  string daemon_version = 15;
+  int64 clock_skew_ms = 16;
+  bool fencing_enabled = 17;
+  uint32 invalid_hb_count = 18;
+  string last_transition_reason = 19;
+  bool garp_verified = 20;      // the gateway answered our VIP-sourced ARP with our MAC
+  repeated string alarms = 21;  // key_mismatch, version_mismatch, isolated, suspended, vip_conflict, ...
+  map<string, string> info = 22; // further facts without a proto change
+}
+
+message ResponseHA {
+  bool supported = 1;          // false: no elchi-ha on this box
+  string message = 2;
+  HaState state = 3;
+}

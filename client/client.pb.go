@@ -26,6 +26,7 @@ type PingRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Timestamp     int64                  `protobuf:"varint,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`              // Unix timestamp when ping was sent
 	ClientId      string                 `protobuf:"bytes,2,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"` // Client identifier for tracking
+	HaState       *HaState               `protobuf:"bytes,3,opt,name=ha_state,json=haState,proto3" json:"ha_state,omitempty"`    // the elchi-ha daemon's state; unset off a pair
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -72,6 +73,13 @@ func (x *PingRequest) GetClientId() string {
 		return x.ClientId
 	}
 	return ""
+}
+
+func (x *PingRequest) GetHaState() *HaState {
+	if x != nil {
+		return x.HaState
+	}
+	return nil
 }
 
 // PingResponse is returned by server to confirm connectivity
@@ -169,6 +177,7 @@ type Command struct {
 	//	*Command_Shield
 	//	*Command_AiGateway
 	//	*Command_Appliance
+	//	*Command_Ha
 	Payload       isCommand_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -392,6 +401,15 @@ func (x *Command) GetAppliance() *RequestAppliance {
 	return nil
 }
 
+func (x *Command) GetHa() *RequestHA {
+	if x != nil {
+		if x, ok := x.Payload.(*Command_Ha); ok {
+			return x.Ha
+		}
+	}
+	return nil
+}
+
 type isCommand_Payload interface {
 	isCommand_Payload()
 }
@@ -464,6 +482,10 @@ type Command_Appliance struct {
 	Appliance *RequestAppliance `protobuf:"bytes,26,opt,name=appliance,proto3,oneof"`
 }
 
+type Command_Ha struct {
+	Ha *RequestHA `protobuf:"bytes,27,opt,name=ha,proto3,oneof"`
+}
+
 func (*Command_Deploy) isCommand_Payload() {}
 
 func (*Command_Service) isCommand_Payload() {}
@@ -498,6 +520,8 @@ func (*Command_AiGateway) isCommand_Payload() {}
 
 func (*Command_Appliance) isCommand_Payload() {}
 
+func (*Command_Ha) isCommand_Payload() {}
+
 // CommandResponse represents the response to a command
 type CommandResponse struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
@@ -524,6 +548,7 @@ type CommandResponse struct {
 	//	*CommandResponse_Shield
 	//	*CommandResponse_AiGateway
 	//	*CommandResponse_Appliance
+	//	*CommandResponse_Ha
 	Result        isCommandResponse_Result `protobuf_oneof:"result"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -747,6 +772,15 @@ func (x *CommandResponse) GetAppliance() *ResponseAppliance {
 	return nil
 }
 
+func (x *CommandResponse) GetHa() *ResponseHA {
+	if x != nil {
+		if x, ok := x.Result.(*CommandResponse_Ha); ok {
+			return x.Ha
+		}
+	}
+	return nil
+}
+
 type isCommandResponse_Result interface {
 	isCommandResponse_Result()
 }
@@ -819,6 +853,10 @@ type CommandResponse_Appliance struct {
 	Appliance *ResponseAppliance `protobuf:"bytes,26,opt,name=appliance,proto3,oneof"`
 }
 
+type CommandResponse_Ha struct {
+	Ha *ResponseHA `protobuf:"bytes,27,opt,name=ha,proto3,oneof"`
+}
+
 func (*CommandResponse_Deploy) isCommandResponse_Result() {}
 
 func (*CommandResponse_Service) isCommandResponse_Result() {}
@@ -853,19 +891,22 @@ func (*CommandResponse_AiGateway) isCommandResponse_Result() {}
 
 func (*CommandResponse_Appliance) isCommandResponse_Result() {}
 
+func (*CommandResponse_Ha) isCommandResponse_Result() {}
+
 var File_client_client_proto protoreflect.FileDescriptor
 
 const file_client_client_proto_rawDesc = "" +
 	"\n" +
-	"\x13client/client.proto\x12\x06client\x1a\x14client/request.proto\x1a\x15client/response.proto\x1a\x15client/identity.proto\x1a\x15client/register.proto\x1a\x15client/commands.proto\x1a\x18client/subcommands.proto\"H\n" +
+	"\x13client/client.proto\x12\x06client\x1a\x14client/request.proto\x1a\x15client/response.proto\x1a\x15client/identity.proto\x1a\x15client/register.proto\x1a\x15client/commands.proto\x1a\x18client/subcommands.proto\x1a\x0fclient/ha.proto\"t\n" +
 	"\vPingRequest\x12\x1c\n" +
 	"\ttimestamp\x18\x01 \x01(\x03R\ttimestamp\x12\x1b\n" +
-	"\tclient_id\x18\x02 \x01(\tR\bclientId\"\x98\x01\n" +
+	"\tclient_id\x18\x02 \x01(\tR\bclientId\x12*\n" +
+	"\bha_state\x18\x03 \x01(\v2\x0f.client.HaStateR\ahaState\"\x98\x01\n" +
 	"\fPingResponse\x12)\n" +
 	"\x10client_timestamp\x18\x01 \x01(\x03R\x0fclientTimestamp\x12)\n" +
 	"\x10server_timestamp\x18\x02 \x01(\x03R\x0fserverTimestamp\x12\x18\n" +
 	"\amessage\x18\x03 \x01(\tR\amessage\x12\x18\n" +
-	"\asuccess\x18\x04 \x01(\bR\asuccess\"\x9f\t\n" +
+	"\asuccess\x18\x04 \x01(\bR\asuccess\"\xc4\t\n" +
 	"\aCommand\x12,\n" +
 	"\bidentity\x18\x01 \x01(\v2\x10.client.IdentityR\bidentity\x12\x1d\n" +
 	"\n" +
@@ -893,8 +934,9 @@ const file_client_client_proto_rawDesc = "" +
 	"\x06shield\x18\x18 \x01(\v2\x15.client.RequestShieldH\x00R\x06shield\x129\n" +
 	"\n" +
 	"ai_gateway\x18\x19 \x01(\v2\x18.client.RequestAIGatewayH\x00R\taiGateway\x128\n" +
-	"\tappliance\x18\x1a \x01(\v2\x18.client.RequestApplianceH\x00R\tapplianceB\t\n" +
-	"\apayload\"\x8b\t\n" +
+	"\tappliance\x18\x1a \x01(\v2\x18.client.RequestApplianceH\x00R\tappliance\x12#\n" +
+	"\x02ha\x18\x1b \x01(\v2\x11.client.RequestHAH\x00R\x02haB\t\n" +
+	"\apayload\"\xb1\t\n" +
 	"\x0fCommandResponse\x12,\n" +
 	"\bidentity\x18\x01 \x01(\v2\x10.client.IdentityR\bidentity\x12\x1d\n" +
 	"\n" +
@@ -922,7 +964,8 @@ const file_client_client_proto_rawDesc = "" +
 	"\x06shield\x18\x18 \x01(\v2\x16.client.ResponseShieldH\x00R\x06shield\x12:\n" +
 	"\n" +
 	"ai_gateway\x18\x19 \x01(\v2\x19.client.ResponseAIGatewayH\x00R\taiGateway\x129\n" +
-	"\tappliance\x18\x1a \x01(\v2\x19.client.ResponseApplianceH\x00R\tapplianceB\b\n" +
+	"\tappliance\x18\x1a \x01(\v2\x19.client.ResponseApplianceH\x00R\tappliance\x12$\n" +
+	"\x02ha\x18\x1b \x01(\v2\x12.client.ResponseHAH\x00R\x02haB\b\n" +
 	"\x06result2\x8e\x02\n" +
 	"\x0eCommandService\x12?\n" +
 	"\bRegister\x12\x17.client.RegisterRequest\x1a\x18.client.RegisterResponse\"\x00\x12E\n" +
@@ -949,100 +992,106 @@ var file_client_client_proto_goTypes = []any{
 	(*PingResponse)(nil),            // 1: client.PingResponse
 	(*Command)(nil),                 // 2: client.Command
 	(*CommandResponse)(nil),         // 3: client.CommandResponse
-	(*Identity)(nil),                // 4: client.Identity
-	(CommandType)(0),                // 5: client.CommandType
-	(SubCommandType)(0),             // 6: client.SubCommandType
-	(*RequestDeploy)(nil),           // 7: client.RequestDeploy
-	(*RequestService)(nil),          // 8: client.RequestService
-	(*RequestUpdateBootstrap)(nil),  // 9: client.RequestUpdateBootstrap
-	(*RequestEnvoyAdmin)(nil),       // 10: client.RequestEnvoyAdmin
-	(*RequestUnDeploy)(nil),         // 11: client.RequestUnDeploy
-	(*RequestGeneralLog)(nil),       // 12: client.RequestGeneralLog
-	(*RequestClientStats)(nil),      // 13: client.RequestClientStats
-	(*RequestNetwork)(nil),          // 14: client.RequestNetwork
-	(*RequestFrr)(nil),              // 15: client.RequestFrr
-	(*RequestEnvoyVersion)(nil),     // 16: client.RequestEnvoyVersion
-	(*RequestWafVersion)(nil),       // 17: client.RequestWafVersion
-	(*RequestFilebeat)(nil),         // 18: client.RequestFilebeat
-	(*RequestRsyslog)(nil),          // 19: client.RequestRsyslog
-	(*RequestUpgradeListener)(nil),  // 20: client.RequestUpgradeListener
-	(*RequestShield)(nil),           // 21: client.RequestShield
-	(*RequestAIGateway)(nil),        // 22: client.RequestAIGateway
-	(*RequestAppliance)(nil),        // 23: client.RequestAppliance
-	(*ResponseDeploy)(nil),          // 24: client.ResponseDeploy
-	(*ResponseService)(nil),         // 25: client.ResponseService
-	(*ResponseUpdateBootstrap)(nil), // 26: client.ResponseUpdateBootstrap
-	(*ResponseEnvoyAdmin)(nil),      // 27: client.ResponseEnvoyAdmin
-	(*ResponseUnDeploy)(nil),        // 28: client.ResponseUnDeploy
-	(*ResponseGeneralLog)(nil),      // 29: client.ResponseGeneralLog
-	(*ResponseClientStats)(nil),     // 30: client.ResponseClientStats
-	(*ResponseNetwork)(nil),         // 31: client.ResponseNetwork
-	(*ResponseFrr)(nil),             // 32: client.ResponseFrr
-	(*ResponseEnvoyVersion)(nil),    // 33: client.ResponseEnvoyVersion
-	(*ResponseWafVersion)(nil),      // 34: client.ResponseWafVersion
-	(*ResponseFilebeat)(nil),        // 35: client.ResponseFilebeat
-	(*ResponseRsyslog)(nil),         // 36: client.ResponseRsyslog
-	(*ResponseUpgradeListener)(nil), // 37: client.ResponseUpgradeListener
-	(*ResponseShield)(nil),          // 38: client.ResponseShield
-	(*ResponseAIGateway)(nil),       // 39: client.ResponseAIGateway
-	(*ResponseAppliance)(nil),       // 40: client.ResponseAppliance
-	(*RegisterRequest)(nil),         // 41: client.RegisterRequest
-	(*UnregisterRequest)(nil),       // 42: client.UnregisterRequest
-	(*RegisterResponse)(nil),        // 43: client.RegisterResponse
-	(*UnregisterResponse)(nil),      // 44: client.UnregisterResponse
+	(*HaState)(nil),                 // 4: client.HaState
+	(*Identity)(nil),                // 5: client.Identity
+	(CommandType)(0),                // 6: client.CommandType
+	(SubCommandType)(0),             // 7: client.SubCommandType
+	(*RequestDeploy)(nil),           // 8: client.RequestDeploy
+	(*RequestService)(nil),          // 9: client.RequestService
+	(*RequestUpdateBootstrap)(nil),  // 10: client.RequestUpdateBootstrap
+	(*RequestEnvoyAdmin)(nil),       // 11: client.RequestEnvoyAdmin
+	(*RequestUnDeploy)(nil),         // 12: client.RequestUnDeploy
+	(*RequestGeneralLog)(nil),       // 13: client.RequestGeneralLog
+	(*RequestClientStats)(nil),      // 14: client.RequestClientStats
+	(*RequestNetwork)(nil),          // 15: client.RequestNetwork
+	(*RequestFrr)(nil),              // 16: client.RequestFrr
+	(*RequestEnvoyVersion)(nil),     // 17: client.RequestEnvoyVersion
+	(*RequestWafVersion)(nil),       // 18: client.RequestWafVersion
+	(*RequestFilebeat)(nil),         // 19: client.RequestFilebeat
+	(*RequestRsyslog)(nil),          // 20: client.RequestRsyslog
+	(*RequestUpgradeListener)(nil),  // 21: client.RequestUpgradeListener
+	(*RequestShield)(nil),           // 22: client.RequestShield
+	(*RequestAIGateway)(nil),        // 23: client.RequestAIGateway
+	(*RequestAppliance)(nil),        // 24: client.RequestAppliance
+	(*RequestHA)(nil),               // 25: client.RequestHA
+	(*ResponseDeploy)(nil),          // 26: client.ResponseDeploy
+	(*ResponseService)(nil),         // 27: client.ResponseService
+	(*ResponseUpdateBootstrap)(nil), // 28: client.ResponseUpdateBootstrap
+	(*ResponseEnvoyAdmin)(nil),      // 29: client.ResponseEnvoyAdmin
+	(*ResponseUnDeploy)(nil),        // 30: client.ResponseUnDeploy
+	(*ResponseGeneralLog)(nil),      // 31: client.ResponseGeneralLog
+	(*ResponseClientStats)(nil),     // 32: client.ResponseClientStats
+	(*ResponseNetwork)(nil),         // 33: client.ResponseNetwork
+	(*ResponseFrr)(nil),             // 34: client.ResponseFrr
+	(*ResponseEnvoyVersion)(nil),    // 35: client.ResponseEnvoyVersion
+	(*ResponseWafVersion)(nil),      // 36: client.ResponseWafVersion
+	(*ResponseFilebeat)(nil),        // 37: client.ResponseFilebeat
+	(*ResponseRsyslog)(nil),         // 38: client.ResponseRsyslog
+	(*ResponseUpgradeListener)(nil), // 39: client.ResponseUpgradeListener
+	(*ResponseShield)(nil),          // 40: client.ResponseShield
+	(*ResponseAIGateway)(nil),       // 41: client.ResponseAIGateway
+	(*ResponseAppliance)(nil),       // 42: client.ResponseAppliance
+	(*ResponseHA)(nil),              // 43: client.ResponseHA
+	(*RegisterRequest)(nil),         // 44: client.RegisterRequest
+	(*UnregisterRequest)(nil),       // 45: client.UnregisterRequest
+	(*RegisterResponse)(nil),        // 46: client.RegisterResponse
+	(*UnregisterResponse)(nil),      // 47: client.UnregisterResponse
 }
 var file_client_client_proto_depIdxs = []int32{
-	4,  // 0: client.Command.identity:type_name -> client.Identity
-	5,  // 1: client.Command.type:type_name -> client.CommandType
-	6,  // 2: client.Command.sub_type:type_name -> client.SubCommandType
-	7,  // 3: client.Command.deploy:type_name -> client.RequestDeploy
-	8,  // 4: client.Command.service:type_name -> client.RequestService
-	9,  // 5: client.Command.update_bootstrap:type_name -> client.RequestUpdateBootstrap
-	10, // 6: client.Command.envoy_admin:type_name -> client.RequestEnvoyAdmin
-	11, // 7: client.Command.undeploy:type_name -> client.RequestUnDeploy
-	12, // 8: client.Command.general_log:type_name -> client.RequestGeneralLog
-	13, // 9: client.Command.client_stats:type_name -> client.RequestClientStats
-	14, // 10: client.Command.network:type_name -> client.RequestNetwork
-	15, // 11: client.Command.frr:type_name -> client.RequestFrr
-	16, // 12: client.Command.envoy_version:type_name -> client.RequestEnvoyVersion
-	17, // 13: client.Command.waf_version:type_name -> client.RequestWafVersion
-	18, // 14: client.Command.filebeat:type_name -> client.RequestFilebeat
-	19, // 15: client.Command.rsyslog:type_name -> client.RequestRsyslog
-	20, // 16: client.Command.upgrade_listener:type_name -> client.RequestUpgradeListener
-	21, // 17: client.Command.shield:type_name -> client.RequestShield
-	22, // 18: client.Command.ai_gateway:type_name -> client.RequestAIGateway
-	23, // 19: client.Command.appliance:type_name -> client.RequestAppliance
-	4,  // 20: client.CommandResponse.identity:type_name -> client.Identity
-	24, // 21: client.CommandResponse.deploy:type_name -> client.ResponseDeploy
-	25, // 22: client.CommandResponse.service:type_name -> client.ResponseService
-	26, // 23: client.CommandResponse.update_bootstrap:type_name -> client.ResponseUpdateBootstrap
-	27, // 24: client.CommandResponse.envoy_admin:type_name -> client.ResponseEnvoyAdmin
-	28, // 25: client.CommandResponse.undeploy:type_name -> client.ResponseUnDeploy
-	29, // 26: client.CommandResponse.general_log:type_name -> client.ResponseGeneralLog
-	30, // 27: client.CommandResponse.client_stats:type_name -> client.ResponseClientStats
-	31, // 28: client.CommandResponse.network:type_name -> client.ResponseNetwork
-	32, // 29: client.CommandResponse.frr:type_name -> client.ResponseFrr
-	33, // 30: client.CommandResponse.envoy_version:type_name -> client.ResponseEnvoyVersion
-	34, // 31: client.CommandResponse.waf_version:type_name -> client.ResponseWafVersion
-	35, // 32: client.CommandResponse.filebeat:type_name -> client.ResponseFilebeat
-	36, // 33: client.CommandResponse.rsyslog:type_name -> client.ResponseRsyslog
-	37, // 34: client.CommandResponse.upgrade_listener:type_name -> client.ResponseUpgradeListener
-	38, // 35: client.CommandResponse.shield:type_name -> client.ResponseShield
-	39, // 36: client.CommandResponse.ai_gateway:type_name -> client.ResponseAIGateway
-	40, // 37: client.CommandResponse.appliance:type_name -> client.ResponseAppliance
-	41, // 38: client.CommandService.Register:input_type -> client.RegisterRequest
-	42, // 39: client.CommandService.Unregister:input_type -> client.UnregisterRequest
-	3,  // 40: client.CommandService.CommandStream:input_type -> client.CommandResponse
-	0,  // 41: client.CommandService.Ping:input_type -> client.PingRequest
-	43, // 42: client.CommandService.Register:output_type -> client.RegisterResponse
-	44, // 43: client.CommandService.Unregister:output_type -> client.UnregisterResponse
-	2,  // 44: client.CommandService.CommandStream:output_type -> client.Command
-	1,  // 45: client.CommandService.Ping:output_type -> client.PingResponse
-	42, // [42:46] is the sub-list for method output_type
-	38, // [38:42] is the sub-list for method input_type
-	38, // [38:38] is the sub-list for extension type_name
-	38, // [38:38] is the sub-list for extension extendee
-	0,  // [0:38] is the sub-list for field type_name
+	4,  // 0: client.PingRequest.ha_state:type_name -> client.HaState
+	5,  // 1: client.Command.identity:type_name -> client.Identity
+	6,  // 2: client.Command.type:type_name -> client.CommandType
+	7,  // 3: client.Command.sub_type:type_name -> client.SubCommandType
+	8,  // 4: client.Command.deploy:type_name -> client.RequestDeploy
+	9,  // 5: client.Command.service:type_name -> client.RequestService
+	10, // 6: client.Command.update_bootstrap:type_name -> client.RequestUpdateBootstrap
+	11, // 7: client.Command.envoy_admin:type_name -> client.RequestEnvoyAdmin
+	12, // 8: client.Command.undeploy:type_name -> client.RequestUnDeploy
+	13, // 9: client.Command.general_log:type_name -> client.RequestGeneralLog
+	14, // 10: client.Command.client_stats:type_name -> client.RequestClientStats
+	15, // 11: client.Command.network:type_name -> client.RequestNetwork
+	16, // 12: client.Command.frr:type_name -> client.RequestFrr
+	17, // 13: client.Command.envoy_version:type_name -> client.RequestEnvoyVersion
+	18, // 14: client.Command.waf_version:type_name -> client.RequestWafVersion
+	19, // 15: client.Command.filebeat:type_name -> client.RequestFilebeat
+	20, // 16: client.Command.rsyslog:type_name -> client.RequestRsyslog
+	21, // 17: client.Command.upgrade_listener:type_name -> client.RequestUpgradeListener
+	22, // 18: client.Command.shield:type_name -> client.RequestShield
+	23, // 19: client.Command.ai_gateway:type_name -> client.RequestAIGateway
+	24, // 20: client.Command.appliance:type_name -> client.RequestAppliance
+	25, // 21: client.Command.ha:type_name -> client.RequestHA
+	5,  // 22: client.CommandResponse.identity:type_name -> client.Identity
+	26, // 23: client.CommandResponse.deploy:type_name -> client.ResponseDeploy
+	27, // 24: client.CommandResponse.service:type_name -> client.ResponseService
+	28, // 25: client.CommandResponse.update_bootstrap:type_name -> client.ResponseUpdateBootstrap
+	29, // 26: client.CommandResponse.envoy_admin:type_name -> client.ResponseEnvoyAdmin
+	30, // 27: client.CommandResponse.undeploy:type_name -> client.ResponseUnDeploy
+	31, // 28: client.CommandResponse.general_log:type_name -> client.ResponseGeneralLog
+	32, // 29: client.CommandResponse.client_stats:type_name -> client.ResponseClientStats
+	33, // 30: client.CommandResponse.network:type_name -> client.ResponseNetwork
+	34, // 31: client.CommandResponse.frr:type_name -> client.ResponseFrr
+	35, // 32: client.CommandResponse.envoy_version:type_name -> client.ResponseEnvoyVersion
+	36, // 33: client.CommandResponse.waf_version:type_name -> client.ResponseWafVersion
+	37, // 34: client.CommandResponse.filebeat:type_name -> client.ResponseFilebeat
+	38, // 35: client.CommandResponse.rsyslog:type_name -> client.ResponseRsyslog
+	39, // 36: client.CommandResponse.upgrade_listener:type_name -> client.ResponseUpgradeListener
+	40, // 37: client.CommandResponse.shield:type_name -> client.ResponseShield
+	41, // 38: client.CommandResponse.ai_gateway:type_name -> client.ResponseAIGateway
+	42, // 39: client.CommandResponse.appliance:type_name -> client.ResponseAppliance
+	43, // 40: client.CommandResponse.ha:type_name -> client.ResponseHA
+	44, // 41: client.CommandService.Register:input_type -> client.RegisterRequest
+	45, // 42: client.CommandService.Unregister:input_type -> client.UnregisterRequest
+	3,  // 43: client.CommandService.CommandStream:input_type -> client.CommandResponse
+	0,  // 44: client.CommandService.Ping:input_type -> client.PingRequest
+	46, // 45: client.CommandService.Register:output_type -> client.RegisterResponse
+	47, // 46: client.CommandService.Unregister:output_type -> client.UnregisterResponse
+	2,  // 47: client.CommandService.CommandStream:output_type -> client.Command
+	1,  // 48: client.CommandService.Ping:output_type -> client.PingResponse
+	45, // [45:49] is the sub-list for method output_type
+	41, // [41:45] is the sub-list for method input_type
+	41, // [41:41] is the sub-list for extension type_name
+	41, // [41:41] is the sub-list for extension extendee
+	0,  // [0:41] is the sub-list for field type_name
 }
 
 func init() { file_client_client_proto_init() }
@@ -1056,6 +1105,7 @@ func file_client_client_proto_init() {
 	file_client_register_proto_init()
 	file_client_commands_proto_init()
 	file_client_subcommands_proto_init()
+	file_client_ha_proto_init()
 	file_client_client_proto_msgTypes[2].OneofWrappers = []any{
 		(*Command_Deploy)(nil),
 		(*Command_Service)(nil),
@@ -1074,6 +1124,7 @@ func file_client_client_proto_init() {
 		(*Command_Shield)(nil),
 		(*Command_AiGateway)(nil),
 		(*Command_Appliance)(nil),
+		(*Command_Ha)(nil),
 	}
 	file_client_client_proto_msgTypes[3].OneofWrappers = []any{
 		(*CommandResponse_Deploy)(nil),
@@ -1093,6 +1144,7 @@ func file_client_client_proto_init() {
 		(*CommandResponse_Shield)(nil),
 		(*CommandResponse_AiGateway)(nil),
 		(*CommandResponse_Appliance)(nil),
+		(*CommandResponse_Ha)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
