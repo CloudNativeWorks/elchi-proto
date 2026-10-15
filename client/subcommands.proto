@@ -61,4 +61,13 @@ enum SubCommandType {
   DELETE_APPLIANCE_ARTIFACT = 46;
   RUN_APPLIANCE_COMPLIANCE = 47;
   SUB_VIP_RESUME = 48;                  // release a listener's held VIP announcement
+
+  // HA (CommandType HA; status is SUB_STATUS)
+  HA_CONFIGURE = 49;
+  HA_UNCONFIGURE = 50;
+  SUB_HA_FAILOVER = 51;
+  SUB_HA_MAINTENANCE = 52;              // RequestHA.maintenance carries on/off
+  SUB_HA_RESEND_GARP = 53;
+  SUB_HA_CLEAR = 54;                    // clear flap suspension / ineligible
+  SUB_HA_START_ALONE = 55;              // skip the boot wait-for-peer
 }

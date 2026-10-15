@@ -10,6 +10,7 @@ import "client/identity.proto";
 import "client/register.proto";
 import "client/commands.proto";
 import "client/subcommands.proto";
+import "client/ha.proto";
 
 // CommandService handles all client-server communication
 service CommandService {
@@ -33,6 +34,7 @@ service CommandService {
 message PingRequest {
   int64 timestamp = 1;        // Unix timestamp when ping was sent
   string client_id = 2;        // Client identifier for tracking
+  HaState ha_state = 3;        // the elchi-ha daemon's state; unset off a pair
 }
 
 // PingResponse is returned by server to confirm connectivity
@@ -67,6 +69,7 @@ message Command {
     RequestShield shield = 24;
     RequestAIGateway ai_gateway = 25;
     RequestAppliance appliance = 26;
+    RequestHA ha = 27;
   }
 }
 
@@ -94,5 +97,6 @@ message CommandResponse {
     ResponseShield shield = 24;
     ResponseAIGateway ai_gateway = 25;
     ResponseAppliance appliance = 26;
+    ResponseHA ha = 27;
   }
 }

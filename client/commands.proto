@@ -51,4 +51,7 @@ enum CommandType {
   // APPLIANCE — the appliance OS itself (Elchi OS 0.5.0+): status, exports,
   // compliance. The 90s are the appliance-OS group.
   APPLIANCE = 91;
+
+  // 100s: HA group
+  HA = 101;
 }

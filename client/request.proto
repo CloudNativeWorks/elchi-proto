@@ -21,6 +21,9 @@ message RequestDeploy {
   bytes bootstrap = 5;
   string interface_id = 6;
   string ip_mode = 7;
+  bool ha_pair = 8;          // the client is an HA pair member: the VIP is elchi-ha's
+  string ha_pair_id = 9;
+  uint32 ha_priority = 10;
 }
 
 message RequestUnDeploy {
@@ -30,6 +33,7 @@ message RequestUnDeploy {
   string interface_id = 4;
   string ip_mode = 5;
   string version = 6;
+  bool ha_pair = 7;
 }
 
 enum LogType {

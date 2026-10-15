@@ -37,6 +37,11 @@ type RegisterRequest struct {
 	//	network_managed_by — "os" (the appliance console owns interfaces;
 	//	                     Elchi OS 0.5.0+) or "agent" (this agent edits netplan)
 	//	os_id              — os-release ID ("elchi", "ubuntu", …)
+	//	ha_addrs           — JSON {"data":[{iface,addr,prefix,mac}],"mgmt":[…]}:
+	//	                     IPv4 addresses an HA pair's heartbeat can use
+	//	ha_daemon_version  — the elchi-ha daemon's version ("" = none)
+	//	ha_mode            — "true": installed as an HA appliance; the control
+	//	                     plane makes it a one-member pair on first registration
 	Metadata      map[string]string `protobuf:"bytes,9,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	ProjectId     string            `protobuf:"bytes,10,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"` // Optional: Project ID for the client. If empty, default project will be used
 	Bgp           bool              `protobuf:"varint,11,opt,name=bgp,proto3" json:"bgp,omitempty"`                             // BGP routing capability
