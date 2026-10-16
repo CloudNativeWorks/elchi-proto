@@ -48,6 +48,11 @@ message HaConfigure {
   string secret_prev = 12;                // previous key while a rotation is in progress
   repeated string fence_targets = 13;     // empty: fencing off
   string fence_mode = 14;                 // "" (carrier-loss only) | "strict"
+  // Floating next-hop addresses (IPv4, on a data subnet of both members) the
+  // ACTIVE member holds besides the VIPs: the upstream router routes
+  // off-link ("routed") VIPs via one of them, so they follow the active
+  // member like a VRRP address.
+  repeated string next_hops = 15;
 }
 
 message RequestHA {
