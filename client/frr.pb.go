@@ -1188,6 +1188,11 @@ type BgpNeighbor struct {
 	// the one configured, and clear_password removes it.
 	PasswordSet   bool `protobuf:"varint,22,opt,name=password_set,json=passwordSet,proto3" json:"password_set,omitempty"`
 	ClearPassword bool `protobuf:"varint,23,opt,name=clear_password,json=clearPassword,proto3" json:"clear_password,omitempty"`
+	// BFD (bfdd, single hop, FRR default 300 ms x3): the session follows the
+	// peer's BFD state, so a dead peer is withdrawn in about a second instead
+	// of after the hold time. The router must run BFD towards this address too;
+	// without it the BGP session is unaffected.
+	Bfd           bool `protobuf:"varint,24,opt,name=bfd,proto3" json:"bfd,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1379,6 +1384,13 @@ func (x *BgpNeighbor) GetPasswordSet() bool {
 func (x *BgpNeighbor) GetClearPassword() bool {
 	if x != nil {
 		return x.ClearPassword
+	}
+	return false
+}
+
+func (x *BgpNeighbor) GetBfd() bool {
+	if x != nil {
+		return x.Bfd
 	}
 	return false
 }
@@ -3919,7 +3931,7 @@ const file_client_frr_proto_rawDesc = "" +
 	"\x04desc\x18\x13 \x01(\tR\x04desc\x12\x16\n" +
 	"\x06idType\x18\x14 \x01(\tR\x06idType\"9\n" +
 	"\x0fBestPathOptions\x12&\n" +
-	"\x0emultiPathRelax\x18\x01 \x01(\bR\x0emultiPathRelax\"\xc8\a\n" +
+	"\x0emultiPathRelax\x18\x01 \x01(\bR\x0emultiPathRelax\"\xda\a\n" +
 	"\vBgpNeighbor\x12\x17\n" +
 	"\apeer_ip\x18\x01 \x01(\tR\x06peerIp\x12\x1b\n" +
 	"\tremote_as\x18\x02 \x01(\rR\bremoteAs\x12 \n" +
@@ -3946,7 +3958,8 @@ const file_client_frr_proto_rawDesc = "" +
 	"\x17graceful_restart_helper\x18\x14 \x01(\bR\x15gracefulRestartHelper\x128\n" +
 	"\x18graceful_restart_disable\x18\x15 \x01(\bR\x16gracefulRestartDisable\x12!\n" +
 	"\fpassword_set\x18\x16 \x01(\bR\vpasswordSet\x12%\n" +
-	"\x0eclear_password\x18\x17 \x01(\bR\rclearPassword\"r\n" +
+	"\x0eclear_password\x18\x17 \x01(\bR\rclearPassword\x12\x10\n" +
+	"\x03bfd\x18\x18 \x01(\bR\x03bfd\"r\n" +
 	"\x11BgpNeighborTimers\x12\x1c\n" +
 	"\tkeepalive\x18\x01 \x01(\rR\tkeepalive\x12\x1a\n" +
 	"\bholdtime\x18\x02 \x01(\rR\bholdtime\x12#\n" +
