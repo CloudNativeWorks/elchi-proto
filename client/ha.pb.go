@@ -106,21 +106,26 @@ func (x *HaMember) GetDataPrefix() string {
 }
 
 type HaConfigure struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PairId        string                 `protobuf:"bytes,1,opt,name=pair_id,json=pairId,proto3" json:"pair_id,omitempty"`
-	PairName      string                 `protobuf:"bytes,2,opt,name=pair_name,json=pairName,proto3" json:"pair_name,omitempty"`
-	ConfigRev     int64                  `protobuf:"varint,3,opt,name=config_rev,json=configRev,proto3" json:"config_rev,omitempty"`
-	MyId          string                 `protobuf:"bytes,4,opt,name=my_id,json=myId,proto3" json:"my_id,omitempty"`                            // the receiving member's client_id
-	Members       []*HaMember            `protobuf:"bytes,5,rep,name=members,proto3" json:"members,omitempty"`                                  // 2; 1 for a pair without its peer
-	Secret        string                 `protobuf:"bytes,6,opt,name=secret,proto3" json:"secret,omitempty"`                                    // base64, 32 bytes, HMAC key of the heartbeat
-	HbPort        uint32                 `protobuf:"varint,7,opt,name=hb_port,json=hbPort,proto3" json:"hb_port,omitempty"`                     // 8650
-	HbIntervalMs  uint32                 `protobuf:"varint,8,opt,name=hb_interval_ms,json=hbIntervalMs,proto3" json:"hb_interval_ms,omitempty"` // 250
-	HbMisses      uint32                 `protobuf:"varint,9,opt,name=hb_misses,json=hbMisses,proto3" json:"hb_misses,omitempty"`               // 3
-	Preempt       bool                   `protobuf:"varint,10,opt,name=preempt,proto3" json:"preempt,omitempty"`                                // false (v1)
-	Delegate      bool                   `protobuf:"varint,11,opt,name=delegate,proto3" json:"delegate,omitempty"`                              // false (v1)
-	SecretPrev    string                 `protobuf:"bytes,12,opt,name=secret_prev,json=secretPrev,proto3" json:"secret_prev,omitempty"`         // previous key while a rotation is in progress
-	FenceTargets  []string               `protobuf:"bytes,13,rep,name=fence_targets,json=fenceTargets,proto3" json:"fence_targets,omitempty"`   // empty: fencing off
-	FenceMode     string                 `protobuf:"bytes,14,opt,name=fence_mode,json=fenceMode,proto3" json:"fence_mode,omitempty"`            // "" (carrier-loss only) | "strict"
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	PairId       string                 `protobuf:"bytes,1,opt,name=pair_id,json=pairId,proto3" json:"pair_id,omitempty"`
+	PairName     string                 `protobuf:"bytes,2,opt,name=pair_name,json=pairName,proto3" json:"pair_name,omitempty"`
+	ConfigRev    int64                  `protobuf:"varint,3,opt,name=config_rev,json=configRev,proto3" json:"config_rev,omitempty"`
+	MyId         string                 `protobuf:"bytes,4,opt,name=my_id,json=myId,proto3" json:"my_id,omitempty"`                            // the receiving member's client_id
+	Members      []*HaMember            `protobuf:"bytes,5,rep,name=members,proto3" json:"members,omitempty"`                                  // 2; 1 for a pair without its peer
+	Secret       string                 `protobuf:"bytes,6,opt,name=secret,proto3" json:"secret,omitempty"`                                    // base64, 32 bytes, HMAC key of the heartbeat
+	HbPort       uint32                 `protobuf:"varint,7,opt,name=hb_port,json=hbPort,proto3" json:"hb_port,omitempty"`                     // 8650
+	HbIntervalMs uint32                 `protobuf:"varint,8,opt,name=hb_interval_ms,json=hbIntervalMs,proto3" json:"hb_interval_ms,omitempty"` // 250
+	HbMisses     uint32                 `protobuf:"varint,9,opt,name=hb_misses,json=hbMisses,proto3" json:"hb_misses,omitempty"`               // 3
+	Preempt      bool                   `protobuf:"varint,10,opt,name=preempt,proto3" json:"preempt,omitempty"`                                // false (v1)
+	Delegate     bool                   `protobuf:"varint,11,opt,name=delegate,proto3" json:"delegate,omitempty"`                              // false (v1)
+	SecretPrev   string                 `protobuf:"bytes,12,opt,name=secret_prev,json=secretPrev,proto3" json:"secret_prev,omitempty"`         // previous key while a rotation is in progress
+	FenceTargets []string               `protobuf:"bytes,13,rep,name=fence_targets,json=fenceTargets,proto3" json:"fence_targets,omitempty"`   // empty: fencing off
+	FenceMode    string                 `protobuf:"bytes,14,opt,name=fence_mode,json=fenceMode,proto3" json:"fence_mode,omitempty"`            // "" (carrier-loss only) | "strict"
+	// Floating next-hop addresses (IPv4, on a data subnet of both members) the
+	// ACTIVE member holds besides the VIPs: the upstream router routes
+	// off-link ("routed") VIPs via one of them, so they follow the active
+	// member like a VRRP address (NetScaler SNIP / F5 floating self-IP).
+	NextHops      []string `protobuf:"bytes,15,rep,name=next_hops,json=nextHops,proto3" json:"next_hops,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -251,6 +256,13 @@ func (x *HaConfigure) GetFenceMode() string {
 		return x.FenceMode
 	}
 	return ""
+}
+
+func (x *HaConfigure) GetNextHops() []string {
+	if x != nil {
+		return x.NextHops
+	}
+	return nil
 }
 
 type RequestHA struct {
@@ -767,7 +779,7 @@ const file_client_ha_proto_rawDesc = "" +
 	"\tdata_addr\x18\x04 \x01(\tR\bdataAddr\x12\x1b\n" +
 	"\tmgmt_addr\x18\x05 \x01(\tR\bmgmtAddr\x12\x1f\n" +
 	"\vdata_prefix\x18\x06 \x01(\tR\n" +
-	"dataPrefix\"\xb2\x03\n" +
+	"dataPrefix\"\xcf\x03\n" +
 	"\vHaConfigure\x12\x17\n" +
 	"\apair_id\x18\x01 \x01(\tR\x06pairId\x12\x1b\n" +
 	"\tpair_name\x18\x02 \x01(\tR\bpairName\x12\x1d\n" +
@@ -786,7 +798,8 @@ const file_client_ha_proto_rawDesc = "" +
 	"secretPrev\x12#\n" +
 	"\rfence_targets\x18\r \x03(\tR\ffenceTargets\x12\x1d\n" +
 	"\n" +
-	"fence_mode\x18\x0e \x01(\tR\tfenceMode\"v\n" +
+	"fence_mode\x18\x0e \x01(\tR\tfenceMode\x12\x1b\n" +
+	"\tnext_hops\x18\x0f \x03(\tR\bnextHops\"v\n" +
 	"\tRequestHA\x121\n" +
 	"\tconfigure\x18\x01 \x01(\v2\x13.client.HaConfigureR\tconfigure\x12 \n" +
 	"\vmaintenance\x18\x02 \x01(\bR\vmaintenance\x12\x14\n" +
