@@ -169,6 +169,12 @@ message BgpNeighbor {
   // the one configured, and clear_password removes it.
   bool password_set = 22;
   bool clear_password = 23;
+
+  // BFD (bfdd, single hop, FRR default 300 ms x3): the session follows the
+  // peer's BFD state, so a dead peer is withdrawn in about a second instead
+  // of after the hold time. The router must run BFD towards this address too;
+  // without it the BGP session is unaffected.
+  bool bfd = 24;
 }
 
 // BGP Neighbor Timers

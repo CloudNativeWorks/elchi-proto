@@ -124,7 +124,7 @@ type HaConfigure struct {
 	// Floating next-hop addresses (IPv4, on a data subnet of both members) the
 	// ACTIVE member holds besides the VIPs: the upstream router routes
 	// off-link ("routed") VIPs via one of them, so they follow the active
-	// member like a VRRP address (NetScaler SNIP / F5 floating self-IP).
+	// member like a VRRP address.
 	NextHops      []string `protobuf:"bytes,15,rep,name=next_hops,json=nextHops,proto3" json:"next_hops,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
