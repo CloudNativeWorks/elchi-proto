@@ -162,6 +162,9 @@ enum VersionStatus {
   VERSION_NOT_FOUND = 4;
   NETWORK_ERROR = 5;
   DIRECTORY_ERROR = 6;
+  // VERIFY_FAILED: the artifact was downloaded but refused by its verification
+  // (manifest/sha256 or the local shield's compile check) — not a network error.
+  VERIFY_FAILED = 7;
 }
 
 message ResponseEnvoyVersion {
@@ -178,6 +181,21 @@ message ResponseWafVersion {
   string download_path = 3;
   VersionStatus status = 4;
   string error_message = 5;
+}
+
+message ResponseShieldCrs {
+  repeated string downloaded_versions = 1;  // bundles on disk that pass the shield's check
+  string installed_version = 2;             // the version SET_VERSION installed
+  string download_path = 3;                 // /var/lib/elchi/crs/<version>
+  VersionStatus status = 4;
+  string error_message = 5;
+  // What the local shield enforces right now (its /configz): the active CRS
+  // version, its source ("embedded" | "bundle"), the embedded version and the
+  // shield build. Lets the control plane keep the fleet view truthful.
+  string active_version = 6;
+  string active_source = 7;
+  string embedded_version = 8;
+  string shield_version = 9;
 }
 
 message ResponseFilebeat {
@@ -222,7 +240,9 @@ message ResponseShield {
   repeated Logs logs = 8;
 
   // Further facts about the edge's shield for the status panel, as key/value
-  // pairs (e.g. "shield_version", "crs_version", "engines"): new facts need no
+  // pairs: new facts need no proto change. Keys the agent fills today:
+  // shield_version, crs_version (active), crs_source (embedded|bundle),
+  // crs_embedded_version. Other keys (e.g. "engines") may follow; new facts need no
   // proto change. The keys are the reporter's; the control plane shows what it
   // does not recognise.
   map<string, string> info = 9;

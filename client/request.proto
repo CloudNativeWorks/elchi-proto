@@ -153,6 +153,17 @@ message RequestWafVersion {
   bool force_download = 3;
 }
 
+// RequestShieldCrs lists or installs an OWASP CRS bundle for elchi-shield on the
+// edge (archive index key crs_releases). SET_VERSION downloads the bundle,
+// verifies it with the local shield binary (`elchi-shield crs check --compile`)
+// and keeps it under /var/lib/elchi/crs/<version>; the bundle is used only once
+// a shield config references it (spec.crs.version).
+message RequestShieldCrs {
+  VersionOperation operation = 1;
+  string version = 2;        // e.g. "v4.26.0"
+  bool force_download = 3;
+}
+
 message RequestFilebeat {
   repeated FilebeatInput inputs = 1;
   TimestampProcessor timestamp_processor = 2;
