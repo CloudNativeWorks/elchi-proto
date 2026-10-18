@@ -47,6 +47,9 @@ enum CommandType {
 
   // AI_GATEWAY — elchi-ai-gateway (LLM gateway ext_proc supervisor) config delivery
   AI_GATEWAY = 85;
+  // SHIELD_CRS — elchi-shield OWASP CRS bundle download/listing on the edge
+  // (versioned like ENVOY_VERSION: GET_VERSIONS / SET_VERSION)
+  SHIELD_CRS = 86;
 
   // APPLIANCE — the appliance OS itself (Elchi OS 0.5.0+): status, exports,
   // compliance. The 90s are the appliance-OS group.

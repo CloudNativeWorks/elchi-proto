@@ -70,6 +70,7 @@ message Command {
     RequestAIGateway ai_gateway = 25;
     RequestAppliance appliance = 26;
     RequestHA ha = 27;
+    RequestShieldCrs shield_crs = 28;
   }
 }
 
@@ -98,5 +99,6 @@ message CommandResponse {
     ResponseAIGateway ai_gateway = 25;
     ResponseAppliance appliance = 26;
     ResponseHA ha = 27;
+    ResponseShieldCrs shield_crs = 28;
   }
 }
