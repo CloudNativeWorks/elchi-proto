@@ -110,6 +110,10 @@ message Logs {
   string timestamp = 4;
   int64 unix_ms = 5;  // entry time (service logs, v1.0.3)
   string source = 6;  // "access" | "system" (service logs, v1.0.3)
+  // unix_ms is not the line's own time: the line carried none (a dns_filter
+  // access log has no time operator in Envoy), so it is the next newer line's
+  // time or the file's last write (v1.3.1)
+  bool time_inferred = 7;
 }
 
 message ResponseEnvoyAdmin {
