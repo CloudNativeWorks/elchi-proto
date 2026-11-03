@@ -890,13 +890,17 @@ func (x *VipState) GetHoldUntil() string {
 }
 
 type Logs struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
-	Level         string                 `protobuf:"bytes,2,opt,name=level,proto3" json:"level,omitempty"`
-	Component     string                 `protobuf:"bytes,3,opt,name=component,proto3" json:"component,omitempty"`
-	Timestamp     string                 `protobuf:"bytes,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	UnixMs        int64                  `protobuf:"varint,5,opt,name=unix_ms,json=unixMs,proto3" json:"unix_ms,omitempty"` // entry time (service logs, v1.0.3)
-	Source        string                 `protobuf:"bytes,6,opt,name=source,proto3" json:"source,omitempty"`                // "access" | "system" (service logs, v1.0.3)
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Message   string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Level     string                 `protobuf:"bytes,2,opt,name=level,proto3" json:"level,omitempty"`
+	Component string                 `protobuf:"bytes,3,opt,name=component,proto3" json:"component,omitempty"`
+	Timestamp string                 `protobuf:"bytes,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	UnixMs    int64                  `protobuf:"varint,5,opt,name=unix_ms,json=unixMs,proto3" json:"unix_ms,omitempty"` // entry time (service logs, v1.0.3)
+	Source    string                 `protobuf:"bytes,6,opt,name=source,proto3" json:"source,omitempty"`                // "access" | "system" (service logs, v1.0.3)
+	// unix_ms is not the line's own time: the line carried none (a dns_filter
+	// access log has no time operator in Envoy), so it is the next newer line's
+	// time or the file's last write (v1.3.1)
+	TimeInferred  bool `protobuf:"varint,7,opt,name=time_inferred,json=timeInferred,proto3" json:"time_inferred,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -971,6 +975,13 @@ func (x *Logs) GetSource() string {
 		return x.Source
 	}
 	return ""
+}
+
+func (x *Logs) GetTimeInferred() bool {
+	if x != nil {
+		return x.TimeInferred
+	}
+	return false
 }
 
 type ResponseEnvoyAdmin struct {
@@ -2240,14 +2251,15 @@ const file_client_response_proto_rawDesc = "" +
 	" \x01(\tR\x0flastProbeDetail\x12\x10\n" +
 	"\x03bgp\x18\v \x01(\bR\x03bgp\x12\x1d\n" +
 	"\n" +
-	"hold_until\x18\f \x01(\tR\tholdUntil\"\xa3\x01\n" +
+	"hold_until\x18\f \x01(\tR\tholdUntil\"\xc8\x01\n" +
 	"\x04Logs\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\x12\x14\n" +
 	"\x05level\x18\x02 \x01(\tR\x05level\x12\x1c\n" +
 	"\tcomponent\x18\x03 \x01(\tR\tcomponent\x12\x1c\n" +
 	"\ttimestamp\x18\x04 \x01(\tR\ttimestamp\x12\x17\n" +
 	"\aunix_ms\x18\x05 \x01(\x03R\x06unixMs\x12\x16\n" +
-	"\x06source\x18\x06 \x01(\tR\x06source\"\x82\x02\n" +
+	"\x06source\x18\x06 \x01(\tR\x06source\x12#\n" +
+	"\rtime_inferred\x18\a \x01(\bR\ftimeInferred\"\x82\x02\n" +
 	"\x12ResponseEnvoyAdmin\x12\x1f\n" +
 	"\vstatus_code\x18\x01 \x01(\x05R\n" +
 	"statusCode\x12\x12\n" +
